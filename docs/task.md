@@ -1,0 +1,24 @@
+# Task List
+
+- [ ] Project Initialization & Core Dependencies Setup
+    - [ ] Install remaining libraries: Zustand, React Query, Firebase, Zod, Reanimated.
+    - [ ] Set up Firebase Config Plugins in [app.json](file:///Users/subhendu/Projects/Fitzo/fitzoclint/app.json).
+    - [ ] Configure [tailwind.config.js](file:///Users/subhendu/Projects/Fitzo/fitzoclint/tailwind.config.js) with new Neon/Dark color palette.
+- [ ] State Management & Providers Setup
+    - [ ] Create `useAuthStore` with Zustand.
+    - [ ] Set up TanStack Query Client Provider in Root Layout.
+- [ ] Implement File-Based Routing (Expo Router)
+    - [ ] Create `app/_layout.tsx` for Auth boundaries.
+    - [ ] Create `app/(auth)` screens.
+    - [ ] Create `app/(tabs)` layout and screens.
+- [ ] UI Redesign (Home / Dashboard)
+    - [ ] Build reusable dark/neon components (Buttons, Cards).
+    - [ ] Rebuild Dashboard with Health Metrics, Progress Rings, and Featured Workouts.
+- [ ] UI Redesign (Workout Detail)
+    - [ ] Rebuild Workout detailed interface.
+    - [ ] Implement list views for Dynamic Warmup with NativeWind.
+- [ ] Migration of Backend Services
+    - [ ] Wrap existing Firebase logic into custom TanStack Query Hooks.
+- [ ] Verification and Polish
+    - [ ] Verify animations using Reanimated.
+    - [ ] Fix any outstanding TS errors and formatting issues.

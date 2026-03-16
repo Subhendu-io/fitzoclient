@@ -1,0 +1,15 @@
+export const COLLECTIONS = {
+  APPUSERS: "appusers",
+  ATTENDANCE: "attendance",
+  BRANCHES: "branches",
+  CROWD_FORECASTS: "crowdForecasts",
+  MEMBERS: "members",
+  MEMBER_SESSIONS: "memberSessions",
+  MEMBER_SESSION_REDEMPTIONS: "memberSessionRedemptions",
+  TENANTS: "tenants",
+  NOTIFICATIONS: "notifications",
+  PAYMENTS: "payments",
+  SUBSCRIPTIONS: "subscriptions",
+  USERS: "users",
+  WORKOUT_ASSIGNMENTS: "workoutAssignments",
+} as const;
