@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -8,21 +8,26 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
-} from 'react-native';
-import { ScreenWrapper } from '@/components/layout/ScreenWrapper';
-import { Header } from '@/components/layout/Header';
-import { Send, Users, Info, Bell } from 'lucide-react-native';
-import { useAuthStore } from '@/store/useAuthStore';
-import { useMemberStore } from '@/store/useMemberStore';
-import { subscribeToCommunityMessages, sendCommunityMessage } from '../services/communityChatService';
-import type { CommunityMessage } from '@/interfaces/member';
-import Animated, { FadeIn, SlideInRight } from 'react-native-reanimated';
+} from "react-native";
+import { ScreenWrapper } from "@/components/layout/ScreenWrapper";
+import { Header } from "@/components/layout/Header";
+import { Send, Users, Info, Bell } from "lucide-react-native";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useMemberStore } from "@/store/useMemberStore";
+import {
+  subscribeToCommunityMessages,
+  sendCommunityMessage,
+} from "../services/communityChatService";
+import type { CommunityMessage } from "@/interfaces/member";
+import Animated, { FadeIn, SlideInRight } from "react-native-reanimated";
+import { useThemeColors } from "@/hooks/useThemeColors";
 
 export function CommunityChatScreen() {
+  const colors = useThemeColors();
   const { user, profile } = useAuthStore();
   const { tenantInfo } = useMemberStore();
   const [messages, setMessages] = useState<CommunityMessage[]>([]);
-  const [inputText, setInputText] = useState('');
+  const [inputText, setInputText] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const flatListRef = useRef<FlatList>(null);
@@ -30,8 +35,8 @@ export function CommunityChatScreen() {
   const activeGym = profile?.activeGym;
   const activeBranchId = profile?.activeBranchId;
   const communityChatEnabled = tenantInfo?.communityChatEnabled !== false;
-  const communityChatMode = tenantInfo?.communityChatMode ?? 'open';
-  const canSend = communityChatEnabled && (communityChatMode === 'open');
+  const communityChatMode = tenantInfo?.communityChatMode ?? "open";
+  const canSend = communityChatEnabled && communityChatMode === "open";
 
   useEffect(() => {
     if (!activeGym) {
@@ -48,7 +53,7 @@ export function CommunityChatScreen() {
         setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
       },
       () => setLoading(false),
-      activeBranchId
+      activeBranchId,
     );
 
     return () => unsubscribe();
@@ -59,12 +64,13 @@ export function CommunityChatScreen() {
     if (!trimmed || !user || !activeGym || !canSend || sending) return;
 
     setSending(true);
-    setInputText('');
+    setInputText("");
     try {
-      const senderName = user.displayName || `${profile?.firstName} ${profile?.lastName}` || 'Member';
+      const senderName =
+        user.displayName || `${profile?.firstName} ${profile?.lastName}` || "Member";
       await sendCommunityMessage(activeGym, user.uid, senderName, trimmed, activeBranchId);
     } catch (e) {
-      console.error('Send failed:', e);
+      console.error("Send failed:", e);
       setInputText(trimmed);
     } finally {
       setSending(false);
@@ -76,23 +82,28 @@ export function CommunityChatScreen() {
     const showName = !isOwn && (index === 0 || messages[index - 1].senderId !== item.senderId);
 
     return (
-      <Animated.View 
+      <Animated.View
         entering={isOwn ? SlideInRight : FadeIn}
-        className={`mb-4 flex-row ${isOwn ? 'justify-end' : 'justify-start'}`}
+        className={`mb-4 flex-row ${isOwn ? "justify-end" : "justify-start"}`}
       >
-        <View className={`max-w-[80%] px-4 py-3 rounded-2xl ${
-          isOwn ? 'bg-primary rounded-tr-none' : 'bg-card border border-white/5 rounded-tl-none'
-        }`}>
+        <View
+          className={`max-w-[80%] px-4 py-3 rounded-2xl ${
+            isOwn
+              ? "bg-primary rounded-tr-none"
+              : "bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-tl-none"
+          }`}
+        >
           {showName && (
-            <Text className={`text-xs font-bold mb-1 ${isOwn ? 'text-black/60' : 'text-primary'}`}>
-              {item.senderType === 'gym' ? '🏆 Gym' : item.senderName}
+            <Text className={`text-xs font-bold mb-1 ${isOwn ? "text-black/60" : "text-primary"}`}>
+              {item.senderType === "gym" ? "🏆 Gym" : item.senderName}
             </Text>
           )}
-          <Text className={isOwn ? 'text-black font-medium' : 'text-white'}>
-            {item.text}
-          </Text>
-          <Text className={`text-[10px] mt-1 ${isOwn ? 'text-black/40' : 'text-white/40'}`}>
-            {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          <Text className={isOwn ? "text-black font-medium" : "text-text"}>{item.text}</Text>
+          <Text className={`text-[10px] mt-1 ${isOwn ? "text-black/40" : "text-text/40"}`}>
+            {new Date(item.createdAt).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
           </Text>
         </View>
       </Animated.View>
@@ -101,24 +112,24 @@ export function CommunityChatScreen() {
 
   return (
     <ScreenWrapper className="bg-background">
-      <Header 
-        title="Community Chat" 
-        showBackButton 
+      <Header
+        title="Community Chat"
+        showBackButton
         rightElement={
           <TouchableOpacity className="p-2">
-            <Bell {...({ size: 20, color: '#C8FF32' } as any)} />
+            <Bell {...({ size: 20, color: colors.primary } as any)} />
           </TouchableOpacity>
         }
       />
 
       {loading ? (
         <View className="flex-1 items-center justify-center">
-          <ActivityIndicator color="#C8FF32" size="large" />
+          <ActivityIndicator color={colors.primary} size="large" />
         </View>
       ) : (
-        <KeyboardAvoidingView 
-          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
           className="flex-1"
         >
           <FlatList
@@ -129,8 +140,8 @@ export function CommunityChatScreen() {
             contentContainerStyle={{ padding: 20, paddingBottom: 40 }}
             ListEmptyComponent={
               <View className="items-center py-20">
-                <Users {...({ size: 48, color: '#C8FF32', opacity: 0.3 } as any)} />
-                <Text className="text-white/40 font-kanit mt-4 text-center px-10">
+                <Users {...({ size: 48, color: colors.primary } as any)} />
+                <Text className="text-text font-kanit mt-4 text-center px-10">
                   No messages yet. Be the first to start the conversation!
                 </Text>
               </View>
@@ -138,41 +149,46 @@ export function CommunityChatScreen() {
           />
 
           {/* Composer */}
-          <View className="p-4 border-t border-white/5 bg-background">
-            {(!communityChatEnabled || communityChatMode === 'broadcast') && (
+          <View className="p-4 border-t border-stone-200/5 dark:border-stone-900/5 bg-background">
+            {(!communityChatEnabled || communityChatMode === "broadcast") && (
               <View className="mb-3 flex-row items-center bg-white/5 p-3 rounded-xl">
-                <Info {...({ size: 16, color: '#C8FF32' } as any)} />
-                <Text className="text-white/60 text-xs font-kanit ml-2 flex-1">
-                  {communityChatMode === 'broadcast' 
-                    ? 'Only the gym can send messages here.' 
-                    : 'Chat is currently disabled by the gym.'}
+                <Info {...({ size: 16, color: colors.primary } as any)} />
+                <Text className="text-text/60 text-xs font-kanit ml-2 flex-1">
+                  {communityChatMode === "broadcast"
+                    ? "Only the gym can send messages here."
+                    : "Chat is currently disabled by the gym."}
                 </Text>
               </View>
             )}
-            
-            <View className="flex-row items-end space-x-3">
-              <View className="flex-1 bg-card rounded-2xl px-4 py-3 border border-white/10">
+
+            <View className="flex-row items-center space-x-3">
+              <View className="flex-1 bg-card rounded-2xl mr-2 px-4 py-3 border border-stone-200/10 dark:border-stone-900/10">
                 <TextInput
-                  className="text-white text-base max-h-32"
+                  className="text-text text-base max-h-32"
                   placeholder="Type a message..."
-                  placeholderTextColor="#666"
+                  placeholderTextColor={colors.muted}
                   value={inputText}
                   onChangeText={setInputText}
                   multiline
                   editable={canSend}
                 />
               </View>
-              <TouchableOpacity 
+              <TouchableOpacity
                 className={`w-12 h-12 rounded-2xl items-center justify-center ${
-                  !canSend || !inputText.trim() || sending ? 'bg-white/5' : 'bg-primary'
+                  !canSend || !inputText.trim() || sending ? "bg-white/5" : "bg-primary"
                 }`}
                 onPress={handleSend}
                 disabled={!canSend || !inputText.trim() || sending}
               >
                 {sending ? (
-                  <ActivityIndicator color="black" size="small" />
+                  <ActivityIndicator color={colors.onPrimary} size="small" />
                 ) : (
-                  <Send {...({ size: 20, color: !canSend || !inputText.trim() ? '#666' : 'black' } as any)} />
+                  <Send
+                    {...({
+                      size: 20,
+                      color: !canSend || !inputText.trim() ? colors.muted : colors.onPrimary,
+                    } as any)}
+                  />
                 )}
               </TouchableOpacity>
             </View>

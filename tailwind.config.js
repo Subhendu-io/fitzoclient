@@ -8,14 +8,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#C8FF32', // Neon Green
-        background: '#0D0D0D', // Deep Black/Grey
-        card: '#1A1A1A', // Surface Grey
+        primary: 'var(--color-primary)',
+        background: 'var(--color-background)',
+        card: 'var(--color-card)',
         text: {
-          DEFAULT: '#FFFFFF',
-          secondary: '#9E9E9E',
+          DEFAULT: 'var(--color-text)',
+          secondary: 'var(--color-text-secondary)',
         },
-        success: '#C8FF32',
+        border: 'var(--color-border)',
+        success: 'var(--color-primary)',
         error: '#EF4444',
       },
       fontFamily: {

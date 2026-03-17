@@ -67,6 +67,9 @@ export const getTenantInfo = async (tenantId: string): Promise<Tenant | null> =>
     }
     return null;
   } catch (error) {
+    if (isPermissionDeniedError(error)) {
+      return null;
+    }
     console.error("Error fetching tenant info:", error);
     throw error;
   }
@@ -96,6 +99,9 @@ export const getMemberByUid = async (
     }
     return null;
   } catch (error) {
+    if (isPermissionDeniedError(error)) {
+      return null;
+    }
     console.error("Error fetching member by uid:", error);
     throw error;
   }
@@ -359,27 +365,162 @@ export const getMemberRedemptionHistory = async (
   }
 };
 
+const getCrowdBand = (capacityPercent: number): any => {
+  if (capacityPercent < 25) return 'quiet';
+  if (capacityPercent < 50) return 'moderate';
+  if (capacityPercent < 75) return 'busy';
+  return 'peak';
+};
+
+const getCrowdTrendDirection = (deltaPercent: number): any => {
+  if (deltaPercent >= 10) return 'up';
+  if (deltaPercent <= -10) return 'down';
+  return 'flat';
+};
+
+const formatHourLabel = (hour24: number): string => {
+  const suffix = hour24 >= 12 ? 'PM' : 'AM';
+  const hour12 = hour24 % 12 || 12;
+  return `${hour12}:00 ${suffix}`;
+};
+
 /**
- * Get crowd forecast for a branch
+ * Get crowd forecast for a branch (Calculated client-side from attendance history)
  */
 export const getCrowdForecast = async (
   tenantId: string,
   branchId?: string,
+  lookbackDays: number = 30,
 ): Promise<CrowdForecast | null> => {
   try {
     const resolvedBranchId = resolveBranchId(branchId);
-    const forecastDocRef = doc(db, COLLECTIONS.TENANTS, tenantId, COLLECTIONS.BRANCHES, resolvedBranchId, COLLECTIONS.CROWD_FORECASTS, "current");
-    const forecastDoc = await getDoc(forecastDocRef);
+    const colRef = getBranchedCollectionRef(tenantId, resolvedBranchId, COLLECTIONS.ATTENDANCE);
 
-    if (forecastDoc.exists()) {
-      return forecastDoc.data() as CrowdForecast;
+    const now = new Date();
+    const since = new Date(now);
+    since.setDate(since.getDate() - lookbackDays);
+
+    // Fetch records (limit to avoid excessive usage, though old app used 2000+2000)
+    const qLegacy = query(colRef, orderBy("timestamp", "desc"), limit(1000));
+    const qNew = query(colRef, orderBy("punchedAt", "desc"), limit(1000));
+
+    const [legacySnapshot, newSnapshot] = await Promise.all([
+      getDocs(qLegacy),
+      getDocs(qNew),
+    ]);
+
+    const { parseAttendanceTimestamp } = require("@/utils/attendanceUtils");
+    const allDocs = new Map<string, Attendance>();
+    
+    legacySnapshot.docs.forEach((doc: any) => allDocs.set(doc.id, { id: doc.id, ...doc.data() } as Attendance));
+    newSnapshot.docs.forEach((doc: any) => allDocs.set(doc.id, { id: doc.id, ...doc.data() } as Attendance));
+
+    const records = Array.from(allDocs.values()).filter(record => {
+      const parsed = parseAttendanceTimestamp(record.punchedAt || record.timestamp);
+      return parsed >= since;
+    });
+
+    if (records.length === 0) return null;
+
+    const nowDay = now.getDay();
+    const nowHour = now.getHours();
+    const todayKey = now.toDateString();
+
+    const hourlyByDay = new Map<string, Map<number, number>>();
+    const dayOfWeekByKey = new Map<string, number>();
+
+    records.forEach(record => {
+      const parsed = parseAttendanceTimestamp(record.punchedAt || record.timestamp);
+      const dayKey = parsed.toDateString();
+      const hour = parsed.getHours();
+
+      if (!hourlyByDay.has(dayKey)) {
+        hourlyByDay.set(dayKey, new Map<number, number>());
+      }
+      const dayMap = hourlyByDay.get(dayKey)!;
+      dayMap.set(hour, (dayMap.get(hour) || 0) + 1);
+      dayOfWeekByKey.set(dayKey, parsed.getDay());
+    });
+
+    const todayHourMap = hourlyByDay.get(todayKey) || new Map<number, number>();
+    const currentHourCount = todayHourMap.get(nowHour) || 0;
+
+    const historicalTotalByHour = new Map<number, number>();
+    const historicalDaysByHour = new Map<number, Set<string>>();
+    hourlyByDay.forEach((dayMap, dayKey) => {
+      if (dayKey === todayKey || dayOfWeekByKey.get(dayKey) !== nowDay) return;
+      dayMap.forEach((count, hour) => {
+        historicalTotalByHour.set(hour, (historicalTotalByHour.get(hour) || 0) + count);
+        const daySet = historicalDaysByHour.get(hour) || new Set<string>();
+        daySet.add(dayKey);
+        historicalDaysByHour.set(hour, daySet);
+      });
+    });
+
+    const typicalByHour = new Map<number, number>();
+    for (let hour = 0; hour <= 23; hour++) {
+      const total = historicalTotalByHour.get(hour) || 0;
+      const days = historicalDaysByHour.get(hour)?.size || 0;
+      typicalByHour.set(hour, days > 0 ? Math.max(0, Math.round(total / days)) : 0);
     }
-    return null;
+
+    const dailyPeaks: number[] = [];
+    hourlyByDay.forEach(dayMap => {
+      let peak = 0;
+      dayMap.forEach(count => { if (count > peak) peak = count; });
+      if (peak > 0) dailyPeaks.push(peak);
+    });
+
+    const baselinePeakHourCount = dailyPeaks.length > 0
+      ? Math.max(1, Math.round(dailyPeaks.reduce((sum, n) => sum + n, 0) / dailyPeaks.length))
+      : 1;
+
+    const currentCapacityPercent = Math.min(100, Math.max(0, Math.round((currentHourCount / baselinePeakHourCount) * 100)));
+    const currentBand = getCrowdBand(currentCapacityPercent);
+    const typicalCheckInsThisHour = typicalByHour.get(nowHour) || 0;
+
+    const trendDeltaPercent = typicalCheckInsThisHour > 0
+      ? Math.round(((currentHourCount - typicalCheckInsThisHour) / typicalCheckInsThisHour) * 100)
+      : 0;
+    const trendDirection = getCrowdTrendDirection(trendDeltaPercent);
+
+    const rankedSlots: Array<{ hour: number; score: number }> = [];
+    for (let offset = 1; offset <= 12; offset++) {
+      const hour = (nowHour + offset) % 24;
+      rankedSlots.push({ hour, score: typicalByHour.get(hour) || 0 });
+    }
+    rankedSlots.sort((a, b) => a.score - b.score);
+
+    const trendSeries: any[] = [];
+    const trendStartHour = Math.max(0, nowHour - 4);
+    const trendEndHour = Math.min(23, nowHour + 4);
+    for (let hour = trendStartHour; hour <= trendEndHour; hour++) {
+      trendSeries.push({
+        hour24: hour,
+        hourLabel: formatHourLabel(hour),
+        todayCount: todayHourMap.get(hour) || 0,
+        typicalCount: typicalByHour.get(hour) || 0,
+      });
+    }
+
+    return {
+      branchId: resolvedBranchId,
+      currentCapacityPercent,
+      currentBand,
+      currentCheckInsThisHour: currentHourCount,
+      typicalCheckInsThisHour,
+      trendDirection,
+      trendDeltaPercent,
+      baselinePeakHourCount,
+      nextBestWindows: rankedSlots.slice(0, 3).map(slot => formatHourLabel(slot.hour)),
+      trendSeries,
+      confidenceScore: Math.min(100, Math.max(0, Math.round((records.length / 300) * 100))),
+      confidence: records.length >= 300 ? 'high' : records.length >= 100 ? 'medium' : 'low',
+      lastUpdatedAt: now.toISOString(),
+    } as CrowdForecast;
   } catch (error) {
-    if (isPermissionDeniedError(error)) {
-      return null;
-    }
-    console.error("Error fetching crowd forecast:", error);
+    if (isPermissionDeniedError(error)) return null;
+    console.error("Error calculating crowd forecast:", error);
     return null;
   }
 };

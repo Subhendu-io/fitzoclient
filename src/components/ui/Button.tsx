@@ -6,6 +6,7 @@ import Animated, {
   withSpring,
   withTiming,
 } from "react-native-reanimated";
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -30,6 +31,7 @@ export function Button({
   className = "",
   textClassName = "",
 }: ButtonProps) {
+  const colors = useThemeColors();
   const isDisabled = disabled || loading;
   const scale = useSharedValue(1);
 
@@ -65,7 +67,7 @@ export function Button({
       case "primary":
         return "text-black font-bold";
       case "secondary":
-        return "text-white font-semibold";
+        return "text-text font-semibold";
       case "outline":
       case "ghost":
         return "text-primary font-semibold";
@@ -97,7 +99,7 @@ export function Button({
       style={animatedStyle}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "primary" ? "#000" : "#C8FF32"} size="small" />
+        <ActivityIndicator color={variant === "primary" ? "#000" : colors.primary} size="small" />
       ) : (
         <Text className={`text-center font-kanit ${getTextClass()} ${textClassName}`}>{title}</Text>
       )}

@@ -6,8 +6,10 @@ import { CalendarView } from '../components/CalendarView';
 import { getMemberAttendance } from '@/services/memberService';
 import { useAuthStore } from '@/store/useAuthStore';
 import { Attendance } from '@/interfaces/member';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 export function AttendanceCalendarScreen() {
+  const colors = useThemeColors();
   const { user } = useAuthStore();
   const [records, setRecords] = useState<Attendance[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,7 +46,7 @@ export function AttendanceCalendarScreen() {
       <Header title="Attendance Calendar" showBackButton />
       <ScrollView className="flex-1 px-6 py-4">
         <View className="mb-6">
-          <Text className="text-2xl font-extrabold text-white font-kanit mb-1">
+          <Text className="text-2xl font-extrabold text-text font-kanit mb-1">
             Activity <Text className="text-primary">Tracking</Text>
           </Text>
           <Text className="text-text-secondary text-sm font-kanit">
@@ -60,7 +62,7 @@ export function AttendanceCalendarScreen() {
         
         {isLoading && (
           <View className="mt-8">
-            <ActivityIndicator color="#C8FF32" />
+            <ActivityIndicator color={colors.primary} />
           </View>
         )}
       </ScrollView>

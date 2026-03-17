@@ -19,8 +19,10 @@ import { getMemberSubscriptions, getMemberPayments } from '../services/walletSer
 import { Subscription, Payment } from '@/interfaces/member';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 export function WalletScreen() {
+  const colors = useThemeColors();
   const { profile } = useAuthStore();
   const { data: memberLink } = useMemberLink();
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -103,42 +105,42 @@ export function WalletScreen() {
         {activeSubscription ? (
           <Animated.View 
             entering={FadeInDown.delay(200)}
-            className="bg-card p-6 rounded-[32px] border border-white/5 mb-8 overflow-hidden"
+            className="bg-card p-6 rounded-[32px] border border-stone-200/5 dark:border-stone-900/5 mb-8 overflow-hidden"
           >
             <View className="flex-row justify-between items-start mb-6">
               <View className="bg-primary/10 p-4 rounded-2xl">
-                <Award {...({ size: 24, stroke: "#C8FF32" } as any)} />
+                <Award {...({ size: 24, stroke: colors.primary } as any)} />
               </View>
               <View className="bg-primary px-3 py-1 rounded-full">
                 <Text className="text-black text-[10px] font-bold font-kanit uppercase">Active</Text>
               </View>
             </View>
 
-            <Text className="text-white text-2xl font-bold font-kanit mb-1">
+            <Text className="text-text text-2xl font-bold font-kanit mb-1">
               {activeSubscription.plan?.name}
             </Text>
             <Text className="text-text-secondary text-sm font-kanit mb-6">
               Membership expires on {formatDate(activeSubscription.endDate)}
             </Text>
 
-            <View className="flex-row items-center justify-between pt-6 border-t border-white/5">
+            <View className="flex-row items-center justify-between pt-6 border-t border-stone-200/5 dark:border-stone-900/5">
               <View>
                 <Text className="text-text-secondary text-[10px] font-bold font-kanit uppercase mb-1">Price</Text>
-                <Text className="text-white text-lg font-bold font-kanit">₹{activeSubscription.plan?.price?.toLocaleString()}</Text>
+                <Text className="text-text text-lg font-bold font-kanit">₹{activeSubscription.plan?.price?.toLocaleString()}</Text>
               </View>
               <View className="items-end">
                 <Text className="text-text-secondary text-[10px] font-bold font-kanit uppercase mb-1">Started</Text>
-                <Text className="text-white text-lg font-bold font-kanit">{formatDate(activeSubscription.startDate)}</Text>
+                <Text className="text-text text-lg font-bold font-kanit">{formatDate(activeSubscription.startDate)}</Text>
               </View>
             </View>
           </Animated.View>
         ) : (
           <Animated.View 
             entering={FadeInDown.delay(200)}
-            className="bg-card p-8 rounded-[32px] border border-white/5 mb-8 items-center"
+            className="bg-card p-8 rounded-[32px] border border-stone-200/5 dark:border-stone-900/5 mb-8 items-center"
           >
-            <AlertCircle {...({ size: 48, stroke: "#616161" } as any)} />
-            <Text className="text-white text-lg font-bold font-kanit mt-4">No Active Plan</Text>
+            <AlertCircle {...({ size: 48, stroke: colors.muted } as any)} />
+            <Text className="text-text text-lg font-bold font-kanit mt-4">No Active Plan</Text>
             <Text className="text-text-secondary text-sm font-kanit text-center mt-1">
               Contact your gym manager to subscribe.
             </Text>
@@ -146,7 +148,7 @@ export function WalletScreen() {
         )}
 
         {/* Tab Switcher */}
-        <View className="flex-row bg-card p-1.5 rounded-2xl border border-white/5 mb-6">
+        <View className="flex-row bg-card p-1.5 rounded-2xl border border-stone-200/5 dark:border-stone-900/5 mb-6">
           <TouchableOpacity 
             onPress={() => setActiveTab('plans')}
             className={`flex-1 py-3 items-center rounded-xl ${activeTab === 'plans' ? 'bg-white/10' : ''}`}
@@ -173,14 +175,14 @@ export function WalletScreen() {
                 <Animated.View 
                   key={sub.id}
                   entering={FadeInUp.delay(300 + (i * 100))}
-                  className="bg-card p-5 rounded-3xl border border-white/5 flex-row items-center justify-between"
+                  className="bg-card p-5 rounded-3xl border border-stone-200/5 dark:border-stone-900/5 flex-row items-center justify-between"
                 >
                   <View className="flex-row items-center space-x-4">
                     <View className="bg-white/5 p-3 rounded-xl ml-2">
-                      <Clock {...({ size: 20, stroke: "#616161" } as any)} />
+                      <Clock {...({ size: 20, stroke: colors.muted } as any)} />
                     </View>
                     <View className="ml-2">
-                       <Text className="text-white font-bold font-kanit">{sub.plan?.name}</Text>
+                       <Text className="text-text font-bold font-kanit">{sub.plan?.name}</Text>
                        <Text className="text-text-secondary text-xs font-kanit">Ended {formatDate(sub.endDate)}</Text>
                     </View>
                   </View>
@@ -198,19 +200,19 @@ export function WalletScreen() {
                 <Animated.View 
                   key={pay.id}
                   entering={FadeInUp.delay(300 + (i * 100))}
-                  className="bg-card p-5 rounded-3xl border border-white/5 flex-row items-center justify-between"
+                  className="bg-card p-5 rounded-3xl border border-stone-200/5 dark:border-stone-900/5 flex-row items-center justify-between"
                 >
                   <View className="flex-row items-center space-x-4">
                     <View className="bg-white/5 p-3 rounded-xl ml-2">
-                      <Receipt {...({ size: 20, stroke: "#616161" } as any)} />
+                      <Receipt {...({ size: 20, stroke: colors.muted } as any)} />
                     </View>
                     <View className="ml-2">
-                       <Text className="text-white font-bold font-kanit uppercase">{pay.paymentMethod || 'Payment'}</Text>
+                       <Text className="text-text font-bold font-kanit uppercase">{pay.paymentMethod || 'Payment'}</Text>
                        <Text className="text-text-secondary text-xs font-kanit">{formatDate(pay.paymentDate)}</Text>
                     </View>
                   </View>
                   <View className="items-end">
-                    <Text className="text-white font-bold font-kanit">₹{pay.amount.toLocaleString()}</Text>
+                    <Text className="text-text font-bold font-kanit">₹{pay.amount.toLocaleString()}</Text>
                     <Text className={`font-bold font-kanit ${getStatusColor(pay.status || 'paid')} uppercase text-[10px]`}>
                       {pay.status || 'PAID'}
                     </Text>

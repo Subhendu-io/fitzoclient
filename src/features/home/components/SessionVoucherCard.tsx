@@ -2,18 +2,20 @@ import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Ticket, Calendar, User } from 'lucide-react-native';
 import { MemberSessionRedemption } from '@/interfaces/member';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface SessionVoucherCardProps {
   redemption: MemberSessionRedemption;
 }
 
 export function SessionVoucherCard({ redemption }: SessionVoucherCardProps) {
+  const colors = useThemeColors();
   const isExpired = redemption.validTill ? new Date(redemption.validTill) < new Date() : false;
 
   return (
     <TouchableOpacity 
       activeOpacity={0.9}
-      className={`rounded-[32px] overflow-hidden border border-white/5 mb-6 ${
+      className={`rounded-[32px] overflow-hidden border border-stone-200/5 dark:border-stone-900/5 mb-6 ${
         isExpired ? 'opacity-80' : ''
       }`}
     >
@@ -21,10 +23,10 @@ export function SessionVoucherCard({ redemption }: SessionVoucherCardProps) {
         <View className="flex-row justify-between items-start mb-6">
           <View className="flex-row items-center">
             <View className="w-12 h-12 rounded-2xl bg-primary items-center justify-center mr-4">
-              <Ticket {...({ size: 24, stroke: "black" } as any)} />
+              <Ticket {...({ size: 24, stroke: colors.onPrimary } as any)} />
             </View>
             <View>
-              <Text className="text-white text-lg font-bold font-kanit">Active Session</Text>
+              <Text className="text-text text-lg font-bold font-kanit">Active Session</Text>
               <View className="bg-primary/20 self-start px-2 py-0.5 rounded-md mt-1">
                 <Text className="text-primary text-[10px] font-bold font-kanit uppercase">
                   {redemption.status || 'Active'}
@@ -43,11 +45,11 @@ export function SessionVoucherCard({ redemption }: SessionVoucherCardProps) {
 
         <View className="flex-row space-x-6">
           <View className="flex-row items-center">
-            <User {...({ size: 14, stroke: "#C8FF32", opacity: 0.6 } as any)} />
+            <User {...({ size: 14, stroke: colors.primary, opacity: 0.6 } as any)} />
             <Text className="text-text-secondary text-xs font-kanit ml-2">{redemption.trainerName}</Text>
           </View>
           <View className="flex-row items-center">
-            <Calendar {...({ size: 14, stroke: "#C8FF32", opacity: 0.6 } as any)} />
+            <Calendar {...({ size: 14, stroke: colors.primary, opacity: 0.6 } as any)} />
             <Text className={`text-xs font-kanit ml-2 ${isExpired ? 'text-red-400' : 'text-text-secondary'}`}>
               Valid till: {redemption.validTill ? new Date(redemption.validTill).toLocaleDateString() : 'N/A'}
             </Text>

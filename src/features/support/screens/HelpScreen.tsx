@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useQuery } from '@tanstack/react-query';
 import { getTenantInfo } from '@/services/memberService';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -32,6 +33,7 @@ const faqs = [
 ];
 
 export function HelpScreen() {
+  const colors = useThemeColors();
   const { activeGym } = useAuthStore();
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
@@ -54,9 +56,9 @@ export function HelpScreen() {
         {/* Hero Section */}
         <Animated.View entering={FadeInUp} className="py-8 items-center">
             <View className="w-20 h-20 rounded-[32px] bg-primary/10 items-center justify-center mb-6">
-               <HelpCircle {...({ size: 32, stroke: "#C8FF32" } as any)} />
+               <HelpCircle {...({ size: 32, stroke: colors.primary } as any)} />
             </View>
-            <Text className="text-white text-2xl font-black font-kanit text-center">How can we help?</Text>
+            <Text className="text-text text-2xl font-black font-kanit text-center">How can we help?</Text>
             <Text className="text-text-secondary font-kanit text-center mt-2 px-8">
                Our support team and gym staff are here to assist you 24/7.
             </Text>
@@ -66,45 +68,45 @@ export function HelpScreen() {
         <View className="flex-row space-x-4 mb-10">
            <TouchableOpacity 
              onPress={() => tenant?.phone && Linking.openURL(`tel:${tenant.phone}`)}
-             className="flex-1 bg-card border border-white/5 rounded-[32px] p-6 items-center"
+             className="flex-1 bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[32px] p-6 items-center"
            >
               <View className="w-12 h-12 rounded-2xl bg-primary/10 items-center justify-center mb-4">
-                 <Phone {...({ size: 20, stroke: "#C8FF32" } as any)} />
+                 <Phone {...({ size: 20, stroke: colors.primary } as any)} />
               </View>
-              <Text className="text-white font-bold font-kanit">Call Us</Text>
+              <Text className="text-text font-bold font-kanit">Call Us</Text>
            </TouchableOpacity>
 
            <TouchableOpacity 
              onPress={() => tenant?.email && Linking.openURL(`mailto:${tenant.email}`)}
-             className="flex-1 bg-card border border-white/5 rounded-[32px] p-6 items-center"
+             className="flex-1 bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[32px] p-6 items-center"
            >
               <View className="w-12 h-12 rounded-2xl bg-primary/10 items-center justify-center mb-4">
-                 <Mail {...({ size: 20, stroke: "#C8FF32" } as any)} />
+                 <Mail {...({ size: 20, stroke: colors.primary } as any)} />
               </View>
-              <Text className="text-white font-bold font-kanit">Email</Text>
+              <Text className="text-text font-bold font-kanit">Email</Text>
            </TouchableOpacity>
         </View>
 
         {/* FAQ Section */}
-        <Text className="text-white text-lg font-black font-kanit mb-6 uppercase tracking-widest">General FAQ</Text>
+        <Text className="text-text text-lg font-black font-kanit mb-6 uppercase tracking-widest">General FAQ</Text>
         <View className="space-y-4 mb-12">
            {faqs.map((faq, i) => (
              <TouchableOpacity 
                key={i}
                onPress={() => toggleFaq(i)}
                activeOpacity={0.8}
-               className="bg-card border border-white/5 rounded-3xl p-6"
+               className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-6"
              >
                 <View className="flex-row justify-between items-center">
-                   <Text className="flex-1 text-white font-bold font-kanit mr-4">{faq.q}</Text>
+                   <Text className="flex-1 text-text font-bold font-kanit mr-4">{faq.q}</Text>
                    {expandedFaq === i ? (
-                     <ChevronUp {...({ size: 20, stroke: "#C8FF32" } as any)} />
+                     <ChevronUp {...({ size: 20, stroke: colors.primary } as any)} />
                    ) : (
-                     <ChevronDown {...({ size: 20, stroke: "#9CA3AF" } as any)} />
+                     <ChevronDown {...({ size: 20, stroke: colors.muted } as any)} />
                    )}
                 </View>
                 {expandedFaq === i && (
-                  <View className="mt-4 pt-4 border-t border-white/5">
+                  <View className="mt-4 pt-4 border-t border-stone-200/5 dark:border-stone-900/5">
                     <Text className="text-text-secondary font-kanit leading-5">{faq.a}</Text>
                   </View>
                 )}
@@ -114,16 +116,16 @@ export function HelpScreen() {
 
         {/* Gym Info */}
         {tenant && (
-          <View className="bg-primary/5 rounded-[40px] p-8 border border-white/5 mb-10">
+          <View className="bg-primary/5 rounded-[40px] p-8 border border-stone-200/5 dark:border-stone-900/5 mb-10">
              <View className="flex-row items-center mb-6">
-                <MapPin {...({ size: 18, stroke: "#C8FF32" } as any)} />
-                <Text className="text-white text-lg font-bold font-kanit ml-3">{tenant.name}</Text>
+                <MapPin {...({ size: 18, stroke: colors.primary } as any)} />
+                <Text className="text-text text-lg font-bold font-kanit ml-3">{tenant.name}</Text>
              </View>
              <Text className="text-text-secondary font-kanit leading-6 mb-6">
                 {tenant.address || 'Visit us at our main branch for personalized support.'}
              </Text>
              <TouchableOpacity className="flex-row items-center justify-center py-4 bg-primary rounded-2xl">
-                <MessageSquare {...({ size: 18, stroke: "black" } as any)} />
+                <MessageSquare {...({ size: 18, stroke: colors.onPrimary } as any)} />
                 <Text className="text-black font-black font-kanit ml-3">MESSAGE GYM</Text>
              </TouchableOpacity>
           </View>

@@ -1,3 +1,25 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: #60d05e;
+    --color-background: #f2f2f7;
+    --color-card: #ffffff;
+    --color-text: #1a1a1a;
+    --color-text-secondary: #6b7280;
+    --color-border: #e5e7eb;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-primary: #c8ff32;
+      --color-background: #0d0d0d;
+      --color-card: #1a1a1a;
+      --color-text: #ffffff;
+      --color-text-secondary: #9e9e9e;
+      --color-border: #262626;
+    }
+  }
+}

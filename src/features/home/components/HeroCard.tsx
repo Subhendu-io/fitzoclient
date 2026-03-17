@@ -4,6 +4,7 @@ import { QrCode, ChevronRight } from 'lucide-react-native';
 import { Attendance } from '@/interfaces/member';
 import { parseAttendanceTimestamp } from '@/utils/attendanceUtils';
 import { useRouter } from 'expo-router';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface HeroCardProps {
   weekAttendance: Attendance[];
@@ -12,6 +13,7 @@ interface HeroCardProps {
 }
 
 export function HeroCard({ weekAttendance, startOfWeek, isLoading }: HeroCardProps) {
+  const colors = useThemeColors();
   const router = useRouter();
 
   return (
@@ -24,14 +26,14 @@ export function HeroCard({ weekAttendance, startOfWeek, isLoading }: HeroCardPro
       >
         <View className="flex-row items-center">
           <View className="w-12 h-12 rounded-full bg-black/10 items-center justify-center mr-4">
-            <QrCode {...({ size: 24, stroke: "black" } as any)} />
+            <QrCode {...({ size: 24, stroke: colors.onPrimary } as any)} />
           </View>
           <View>
             <Text className="text-black text-xl font-bold font-kanit">Scan QR Code</Text>
             <Text className="text-black/60 text-xs font-kanit">Self check-in for your session</Text>
           </View>
         </View>
-        <ChevronRight {...({ size: 20, stroke: "black", opacity: 0.5 } as any)} />
+        <ChevronRight {...({ size: 20, stroke: colors.onPrimary, opacity: 0.5 } as any)} />
       </TouchableOpacity>
 
       {/* Divider */}

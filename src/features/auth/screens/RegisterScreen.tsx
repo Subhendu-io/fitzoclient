@@ -17,7 +17,7 @@ export function RegisterScreen() {
       <Header title="Create Account" showBackButton />
       <ScrollView className="flex-1 px-8 py-6">
         <View className="mb-10">
-          <Text className="text-3xl font-extrabold text-white font-kanit mb-2">Join Fitzo</Text>
+          <Text className="text-3xl font-extrabold text-text font-kanit mb-2">Join Fitzo</Text>
           <Text className="text-base text-text-secondary font-kanit">
             Start your transformation today
           </Text>

@@ -10,8 +10,11 @@ import { markAttendance, getTenantInfo } from '@/services/memberService';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useMemberStore } from '@/store/useMemberStore';
 import { useRouter } from 'expo-router';
+import { BlurView } from 'expo-blur';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 export function ScannerScreen() {
+  const colors = useThemeColors();
   const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
@@ -34,7 +37,7 @@ export function ScannerScreen() {
   if (!permission.granted) {
     return (
       <ScreenWrapper className="items-center justify-center px-8">
-        <Text className="text-white text-center mb-6 font-kanit">
+        <Text className="text-text text-center mb-6 font-kanit">
           We need your permission to show the camera
         </Text>
         <TouchableOpacity 
@@ -140,14 +143,14 @@ export function ScannerScreen() {
               className="bg-black/50 p-2 rounded-full"
               onPress={() => router.back()}
             >
-              <X {...({ color: 'white', size: 24 } as any)} />
+              <X {...({ color: colors.text, size: 24 } as any)} />
             </TouchableOpacity>
-            <Text className="text-white font-bold text-lg font-kanit">Scan QR Code</Text>
+            <Text className="text-text font-bold text-lg font-kanit">Scan QR Code</Text>
             <TouchableOpacity 
               className="bg-black/50 p-2 rounded-full"
               onPress={() => setFlash(!flash)}
             >
-              {flash ? <Zap {...({ color: '#C8FF32', size: 24 } as any)} /> : <ZapOff {...({ color: 'white', size: 24 } as any)} />}
+              {flash ? <Zap {...({ color: colors.primary, size: 24 } as any)} /> : <ZapOff {...({ color: colors.text, size: 24 } as any)} />}
             </TouchableOpacity>
           </View>
 
@@ -160,11 +163,11 @@ export function ScannerScreen() {
               <View className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-primary rounded-bl-2xl" />
               <View className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-primary rounded-br-2xl" />
               
-              <View className="w-64 h-64 border border-white/20 rounded-3xl" />
+              <View className="w-64 h-64 border border-stone-200/20 dark:border-stone-900/20 rounded-3xl" />
               
               {isProcessing && (
                 <View className="absolute inset-0 items-center justify-center bg-black/40 rounded-3xl">
-                  <ActivityIndicator color="#C8FF32" size="large" />
+                  <ActivityIndicator color={colors.primary} size="large" />
                 </View>
               )}
               
@@ -177,14 +180,14 @@ export function ScannerScreen() {
                 />
               )}
             </View>
-            <Text className="text-white/60 mt-12 font-kanit font-medium tracking-wide">
+            <Text className="text-text/60 mt-12 font-kanit font-medium tracking-wide">
               Align QR Code within the frame
             </Text>
           </View>
 
           {/* Footer Info */}
-          <View className="px-10 pb-20 items-center">
-             <Text className="text-white text-center font-kanit opacity-80">
+          <View className="px-10 pb-28 items-center">
+             <Text className="text-text-secondary text-center font-kanit opacity-80">
                Scan a gym QR code to mark attendance or join a new gym branch
              </Text>
           </View>
@@ -194,14 +197,14 @@ export function ScannerScreen() {
       {/* Confirmation Modal */}
       <Modal visible={showModal} transparent animationType="slide">
         <View className="flex-1 justify-end">
-          <BlurView intensity={100} tint="dark" className="bg-card h-[45%] rounded-t-[40px] px-8 py-10 border-t border-white/10">
+          <BlurView intensity={100} tint="dark" className="bg-card h-[45%] rounded-t-[40px] px-8 py-10 border-t border-stone-200/10 dark:border-stone-900/10">
             {scanResult && (
               <Animated.View entering={FadeIn} layout={Layout} className="flex-1">
                 <View className="items-center mb-6">
                   <View className="bg-primary/20 p-4 rounded-full mb-4">
-                    <CheckCircle2 {...({ color: '#C8FF32', size: 40 } as any)} />
+                    <CheckCircle2 {...({ color: colors.primary, size: 40 } as any)} />
                   </View>
-                  <Text className="text-white text-2xl font-bold font-kanit mb-1">
+                  <Text className="text-text text-2xl font-bold font-kanit mb-1">
                     {scanResult.gymName || 'New Gym Found'}
                   </Text>
                   <Text className="text-text-secondary font-kanit">
@@ -209,8 +212,8 @@ export function ScannerScreen() {
                   </Text>
                 </View>
 
-                <View className="bg-white/5 p-5 rounded-2xl mb-8 border border-white/5">
-                  <Text className="text-white/80 font-kanit leading-6 text-center">
+                <View className="bg-white/5 p-5 rounded-2xl mb-8 border border-stone-200/5 dark:border-stone-900/5">
+                  <Text className="text-text/80 font-kanit leading-6 text-center">
                     {scanResult.status === 'EXISTING_MEMBER' 
                       ? 'We found a membership linked to your phone number. Would you like to link it to your account?'
                       : scanResult.status === 'NO_MEMBER'
@@ -225,7 +228,7 @@ export function ScannerScreen() {
                     className="flex-1 bg-white/10 py-4 rounded-2xl items-center"
                     onPress={() => { setShowModal(false); setScanned(false); }}
                   >
-                    <Text className="text-white font-bold font-kanit">Cancel</Text>
+                    <Text className="text-text font-bold font-kanit">Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity 
                     className="flex-1 bg-primary py-4 rounded-2xl items-center"
@@ -233,7 +236,7 @@ export function ScannerScreen() {
                     disabled={isProcessing}
                   >
                     {isProcessing ? (
-                      <ActivityIndicator color="black" />
+                      <ActivityIndicator color={colors.onPrimary} />
                     ) : (
                       <Text className="text-black font-bold font-kanit">
                         {scanResult.status === 'EXISTING_MEMBER' ? 'Link Account' : scanResult.status === 'NO_MEMBER' ? 'Request to Join' : 'Check In'}
@@ -251,4 +254,3 @@ export function ScannerScreen() {
 }
 
 // Add simple BlurView polyfill for Android since intensity is used
-import { BlurView } from 'expo-blur';

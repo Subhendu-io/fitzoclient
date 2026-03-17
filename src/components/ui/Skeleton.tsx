@@ -7,6 +7,7 @@ import Animated, {
   withTiming, 
   interpolateColor 
 } from 'react-native-reanimated';
+import { useColorScheme } from 'react-native';
 
 interface SkeletonProps {
   width?: DimensionValue;
@@ -18,6 +19,8 @@ interface SkeletonProps {
 
 export const Skeleton = ({ width, height, borderRadius = 8, className, style }: SkeletonProps) => {
   const animatedValue = useSharedValue(0);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
 
   useEffect(() => {
     animatedValue.value = withRepeat(
@@ -31,7 +34,7 @@ export const Skeleton = ({ width, height, borderRadius = 8, className, style }: 
     const backgroundColor = interpolateColor(
       animatedValue.value,
       [0, 1],
-      ['#1A1A1A', '#2A2A2A']
+      isDark ? ['#1A1A1A', '#2A2A2A'] : ['#E5E7EB', '#F3F4F6']
     );
     return { backgroundColor };
   });

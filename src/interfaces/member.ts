@@ -10,13 +10,13 @@ export interface Member {
   email?: string;
   phone: string;
   dateOfBirth?: string;
-  gender?: 'Male' | 'Female' | 'Other';
+  gender?: "Male" | "Female" | "Other";
   address?: string;
   city?: string;
   state?: string;
   country?: string;
   joinDate: string;
-  status: 'active' | 'inactive' | 'suspended' | 'expired';
+  status: "active" | "inactive" | "suspended" | "expired";
   uid?: string; // Firebase Auth UID - links to app user
   subscriptionId?: string;
   createdAt?: string;
@@ -28,9 +28,9 @@ export interface Payment {
   id: string;
   memberId: string;
   amount: number;
-  paymentMethod: 'upi' | 'cash' | 'card' | 'bank_transfer' | 'cheque';
+  paymentMethod: "upi" | "cash" | "card" | "bank_transfer" | "cheque";
   paymentDate: string;
-  status: 'pending' | 'paid' | 'failed' | 'refunded';
+  status: "pending" | "paid" | "failed" | "refunded";
   transactionId?: string;
   notes?: string;
   createdBy?: string;
@@ -58,8 +58,8 @@ export interface Subscription {
   paymentId?: string;
   startDate: string;
   endDate: string;
-  status: 'upcoming' | 'active' | 'expired' | 'cancelled' | 'suspended';
-  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded';
+  status: "upcoming" | "active" | "expired" | "cancelled" | "suspended";
+  paymentStatus: "pending" | "paid" | "failed" | "refunded";
   cancelledAt?: string;
   cancelledBy?: string;
   cancellationReason?: string;
@@ -86,13 +86,13 @@ export interface Attendance {
   verifyMode?: string;
   deviceSn?: string;
   raw?: string;
-  actorType?: 'member' | 'staff';
+  actorType?: "member" | "staff";
   actorId?: string;
   actorName?: string;
   pin?: string;
   punchedAt?: any;
-  punchType?: 'CHECK_IN' | 'CHECK_OUT' | string;
-  source?: 'BIOMETRIC' | 'QR' | 'MANUAL' | string;
+  punchType?: "CHECK_IN" | "CHECK_OUT" | string;
+  source?: "BIOMETRIC" | "QR" | "MANUAL" | string;
   notes?: string;
   createdBy?: string;
 }
@@ -104,6 +104,7 @@ export interface AppUser {
   lastName: string;
   email?: string;
   phone?: string;
+  photoURL?: string;
   gyms: string[];
   activeGym?: string;
   branchIds?: string[];
@@ -114,7 +115,7 @@ export interface AppUser {
 }
 
 // Community chat mode: open = members + gym can send; broadcast = only gym can send
-export type CommunityChatMode = 'open' | 'broadcast';
+export type CommunityChatMode = "open" | "broadcast";
 
 // Tenant/Gym data from tenants collection
 export interface Tenant {
@@ -136,7 +137,7 @@ export interface Tenant {
   amenities?: string[];
   capacity?: number;
   establishedDate?: string;
-  status?: 'Active' | 'Inactive' | 'Suspended' | 'Pending';
+  status?: "Active" | "Inactive" | "Suspended" | "Pending";
   branches?: string[];
   defaultBranchId?: string;
   description?: any;
@@ -147,7 +148,7 @@ export interface Tenant {
 }
 
 // Community message in tenants/{tenantId}/branches/{branchId}/communityMessages
-export type CommunityMessageSenderType = 'member' | 'staff' | 'gym';
+export type CommunityMessageSenderType = "member" | "staff" | "gym";
 
 export interface CommunityMessage {
   id: string;
@@ -183,8 +184,8 @@ export interface AttendanceStreakBoardEntry {
   isCurrentUser: boolean;
 }
 
-export type CrowdBand = 'quiet' | 'moderate' | 'busy' | 'peak';
-export type CrowdTrendDirection = 'up' | 'down' | 'flat';
+export type CrowdBand = "quiet" | "moderate" | "busy" | "peak";
+export type CrowdTrendDirection = "up" | "down" | "flat";
 
 export interface CrowdTrendPoint {
   hour24: number;
@@ -205,7 +206,7 @@ export interface CrowdForecast {
   nextBestWindows: string[];
   trendSeries: CrowdTrendPoint[];
   confidenceScore: number;
-  confidence: 'low' | 'medium' | 'high';
+  confidence: "low" | "medium" | "high";
   lastUpdatedAt: string;
 }
 
@@ -236,7 +237,7 @@ export interface MemberSession {
   memberId: string;
   totalSessions: number;
   redeemedSessions: number;
-  status: 'active' | 'completed' | 'cancelled';
+  status: "active" | "completed" | "cancelled";
   sessionPlan?: {
     name?: string;
   };
@@ -265,7 +266,7 @@ export interface MemberSessionPlanItem {
   totalSessions: number;
   redeemedSessions: number;
   leftClasses: number;
-  status: 'active' | 'completed' | 'cancelled';
+  status: "active" | "completed" | "cancelled";
 }
 
 export interface MemberRedemptionHistoryItem {

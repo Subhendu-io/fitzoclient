@@ -4,6 +4,7 @@ import { CreditCard, ChevronRight, AlertCircle, CheckCircle2 } from 'lucide-reac
 import { Subscription } from '@/interfaces/member';
 import { format } from 'date-fns';
 import { useRouter } from 'expo-router';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface MembershipCardProps {
   subscription: Subscription | null;
@@ -12,11 +13,12 @@ interface MembershipCardProps {
 }
 
 export function MembershipCard({ subscription, daysRemaining, isLoading }: MembershipCardProps) {
+  const colors = useThemeColors();
   const router = useRouter();
 
   if (isLoading) {
     return (
-      <View className="bg-card border border-white/5 rounded-[40px] p-6 mb-6 h-40 items-center justify-center">
+      <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[40px] p-6 mb-6 h-40 items-center justify-center">
         <Text className="text-text-secondary font-kanit">Loading membership...</Text>
       </View>
     );
@@ -24,12 +26,12 @@ export function MembershipCard({ subscription, daysRemaining, isLoading }: Membe
 
   if (!subscription) {
     return (
-      <View className="bg-card border border-white/5 rounded-[40px] p-6 mb-6">
+      <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[40px] p-6 mb-6">
         <View className="flex-row items-center mb-4">
           <View className="w-10 h-10 rounded-full bg-white/5 items-center justify-center mr-3">
-            <CreditCard {...({ size: 20, stroke: "#C8FF32" } as any)} />
+            <CreditCard {...({ size: 20, stroke: colors.primary } as any)} />
           </View>
-          <Text className="text-white text-lg font-bold font-kanit">No Active Plan</Text>
+          <Text className="text-text text-lg font-bold font-kanit">No Active Plan</Text>
         </View>
         <Text className="text-text-secondary text-xs font-kanit mb-4 leading-tight">
           You don't have an active membership yet. Contact your gym to get started.
@@ -50,20 +52,20 @@ export function MembershipCard({ subscription, daysRemaining, isLoading }: Membe
   return (
     <TouchableOpacity 
       activeOpacity={0.9}
-      onPress={() => router.push('/subscription-details')}
-      className={`bg-card border ${isExpiringSoon ? 'border-orange-500/50' : 'border-white/5'} rounded-[40px] p-6 mb-6`}
+      onPress={() => router.push('/home/subscription-details')}
+      className={`bg-card border ${isExpiringSoon ? 'border-orange-500/50' : 'border-stone-200/5 dark:border-stone-900/5'} rounded-[40px] p-6 mb-6`}
     >
       <View className="flex-row justify-between items-start mb-6">
         <View className="flex-row items-center">
           <View className={`w-10 h-10 rounded-full ${isExpiringSoon ? 'bg-orange-500/10' : 'bg-primary/10'} items-center justify-center mr-3`}>
             {isExpired ? (
-              <AlertCircle {...({ size: 20, stroke: "#EF4444" } as any)} />
+              <AlertCircle {...({ size: 20, stroke: colors.error } as any)} />
             ) : (
-              <CreditCard {...({ size: 20, stroke: isExpiringSoon ? "#F97316" : "#C8FF32" } as any)} />
+              <CreditCard {...({ size: 20, stroke: isExpiringSoon ? colors.warning : colors.primary } as any)} />
             )}
           </View>
           <View>
-            <Text className="text-white text-lg font-bold font-kanit">
+            <Text className="text-text text-lg font-bold font-kanit">
               {subscription.plan?.name || 'Active Membership'}
             </Text>
             <Text className="text-text-secondary text-[10px] font-kanit uppercase tracking-wider">
@@ -82,7 +84,7 @@ export function MembershipCard({ subscription, daysRemaining, isLoading }: Membe
         <View>
           <Text className="text-text-secondary text-[10px] font-kanit uppercase mb-1">Days Remaining</Text>
           <View className="flex-row items-baseline">
-            <Text className={`text-4xl font-black font-kanit ${isExpiringSoon ? 'text-orange-400' : 'text-white'}`}>
+            <Text className={`text-4xl font-black font-kanit ${isExpiringSoon ? 'text-orange-400' : 'text-text'}`}>
               {daysRemaining !== null ? Math.max(0, daysRemaining) : '--'}
             </Text>
             <Text className="text-text-secondary text-sm font-kanit ml-2">days left</Text>
@@ -90,15 +92,15 @@ export function MembershipCard({ subscription, daysRemaining, isLoading }: Membe
         </View>
         <View className="items-end">
           <Text className="text-text-secondary text-[10px] font-kanit uppercase mb-1">Valid Till</Text>
-          <Text className="text-white font-bold font-kanit text-sm">
+          <Text className="text-text font-bold font-kanit text-sm">
             {subscription.endDate ? format(new Date(subscription.endDate), 'MMM dd, yyyy') : 'N/A'}
           </Text>
         </View>
       </View>
 
       {isExpiringSoon && !isExpired && (
-        <View className="mt-4 pt-4 border-t border-white/5 flex-row items-center">
-          <AlertCircle {...({ size: 14, stroke: "#F97316" } as any)} />
+        <View className="mt-4 pt-4 border-t border-stone-200/5 dark:border-stone-900/5 flex-row items-center">
+          <AlertCircle {...({ size: 14, stroke: colors.warning } as any)} />
           <Text className="text-orange-400 text-[11px] font-bold font-kanit ml-2">
             Renewal recommended soon to avoid interruption
           </Text>

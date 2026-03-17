@@ -2,12 +2,14 @@ import React from 'react';
 import { View, Text } from 'react-native';
 import { Users, Info, Sun, CloudSun, Cloud, CloudLightning, HelpCircle } from 'lucide-react-native';
 import { CrowdForecast, CrowdBand } from '@/interfaces/member';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface CrowdForecastCardProps {
-  forecast: CrowdForecast;
+  forecast: CrowdForecast | null;
 }
 
 export function CrowdForecastCard({ forecast }: CrowdForecastCardProps) {
+  const colors = useThemeColors();
   const getBandColor = (band: CrowdBand) => {
     switch (band) {
       case 'quiet': return 'text-green-400';
@@ -22,26 +24,40 @@ export function CrowdForecastCard({ forecast }: CrowdForecastCardProps) {
     switch (band) {
       case 'quiet': return <Sun {...({ size: 24, stroke: "#4ADE80" } as any)} />;
       case 'moderate': return <CloudSun {...({ size: 24, stroke: "#60A5FA" } as any)} />;
-      case 'busy': return <Cloud {...({ size: 24, stroke: "#F97316" } as any)} />;
+      case 'busy': return <Cloud {...({ size: 24, stroke: colors.warning } as any)} />;
       case 'peak': return <CloudLightning {...({ size: 24, stroke: "#F87171" } as any)} />;
-      default: return <HelpCircle {...({ size: 24, stroke: "#9CA3AF" } as any)} />;
+      default: return <HelpCircle {...({ size: 24, stroke: colors.muted } as any)} />;
     }
   };
 
+  if (!forecast) {
+    return (
+      <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[40px] p-8 mb-6 items-center justify-center">
+        <View className="w-12 h-12 rounded-full bg-white/5 items-center justify-center mb-4">
+          <Users {...({ size: 24, stroke: colors.primary, opacity: 0.5 } as any)} />
+        </View>
+        <Text className="text-text text-center font-bold font-kanit mb-1">Gym Traffic</Text>
+        <Text className="text-text-secondary text-center text-xs font-kanit px-4">
+          Not enough attendance data yet to forecast crowd levels. Check back soon!
+        </Text>
+      </View>
+    );
+  }
+
   return (
-    <View className="bg-card border border-white/5 rounded-[40px] p-6 mb-6">
+    <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[40px] p-6 mb-6">
       <View className="flex-row justify-between items-start mb-8">
         <View className="flex-row items-center">
           <View className="w-10 h-10 rounded-full bg-white/5 items-center justify-center mr-3">
-            <Users {...({ size: 20, stroke: "#C8FF32" } as any)} />
+            <Users {...({ size: 20, stroke: colors.primary } as any)} />
           </View>
           <View>
-            <Text className="text-white text-lg font-bold font-kanit">Gym Traffic</Text>
+            <Text className="text-text text-lg font-bold font-kanit">Gym Traffic</Text>
             <Text className="text-text-secondary text-[10px] font-kanit uppercase">Live Forecast</Text>
           </View>
         </View>
         <View className="bg-white/5 px-3 py-1.5 rounded-full flex-row items-center">
-          <Info {...({ size: 12, stroke: "#C8FF32", opacity: 0.6 } as any)} />
+          <Info {...({ size: 12, stroke: colors.primary, opacity: 0.6 } as any)} />
           <Text className="text-text-secondary text-[10px] font-bold font-kanit uppercase ml-1.5">
             {forecast.confidence} confidence
           </Text>
@@ -51,7 +67,7 @@ export function CrowdForecastCard({ forecast }: CrowdForecastCardProps) {
       <View className="flex-row items-center justify-between mb-8">
         <View>
           <View className="flex-row items-center">
-            <Text className="text-white text-5xl font-black font-kanit">
+            <Text className="text-text text-5xl font-black font-kanit">
               {forecast.currentCapacityPercent}%
             </Text>
             <View className="ml-4 items-center">
@@ -100,7 +116,7 @@ export function CrowdForecastCard({ forecast }: CrowdForecastCardProps) {
           <Text className="text-[14px]">💡</Text>
         </View>
         <View className="flex-1">
-          <Text className="text-white text-[10px] font-bold font-kanit uppercase">Best Next Window</Text>
+          <Text className="text-text text-[10px] font-bold font-kanit uppercase">Best Next Window</Text>
           <Text className="text-primary text-xs font-bold font-kanit">
             {forecast.nextBestWindows[0] || 'N/A'}
           </Text>

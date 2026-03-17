@@ -34,7 +34,7 @@ export function LoginScreen() {
   return (
     <ScreenWrapper className="flex px-8 py-16 justify-center">
       <View className="mb-12">
-        <Text className="text-4xl font-extrabold text-white font-kanit mb-2">
+        <Text className="text-4xl font-extrabold text-text font-kanit mb-2">
           Welcome <Text className="text-primary">Back</Text>
         </Text>
         <Text className="text-base text-text-secondary font-kanit">

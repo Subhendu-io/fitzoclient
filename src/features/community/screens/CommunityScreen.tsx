@@ -4,8 +4,10 @@ import { ScreenWrapper } from '@/components/layout/ScreenWrapper';
 import { MessageSquare, Plus } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { PostCard } from '../components/PostCard';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 export function CommunityScreen() {
+  const colors = useThemeColors();
   const router = useRouter();
   const stories = [
     { name: 'Alex', image: 'https://i.pravatar.cc/150?u=a' },
@@ -24,13 +26,13 @@ export function CommunityScreen() {
       >
         {/* Header */}
         <View className="px-6 mt-6 mb-8 flex-row items-center justify-between">
-           <Text className="text-white text-2xl font-bold font-kanit">Community</Text>
+           <Text className="text-text text-2xl font-bold font-kanit">Community</Text>
            <View className="flex-row space-x-4">
               <TouchableOpacity 
-                className="p-3 bg-card rounded-2xl border border-white/5"
-                onPress={() => router.push('/community-chat')}
+                className="p-3 bg-card rounded-2xl border border-stone-200/5 dark:border-stone-900/5"
+                onPress={() => router.push('/community/community-chat')}
               >
-                 <MessageSquare {...({ size: 20, stroke: "white" } as any)} />
+                 <MessageSquare {...({ size: 20, stroke: colors.text } as any)} />
               </TouchableOpacity>
            </View>
         </View>
@@ -39,7 +41,7 @@ export function CommunityScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-6 mb-8">
            <TouchableOpacity className="mr-4 items-center">
               <View className="w-16 h-16 rounded-full border-2 border-dashed border-primary items-center justify-center">
-                 <Plus {...({ size: 24, stroke: "#C8FF32" } as any)} />
+                 <Plus {...({ size: 24, stroke: colors.primary } as any)} />
               </View>
               <Text className="text-text-secondary text-[10px] mt-2 font-kanit">Your Story</Text>
            </TouchableOpacity>
@@ -48,18 +50,18 @@ export function CommunityScreen() {
                 <View className="w-16 h-16 rounded-full border-2 border-primary p-0.5">
                    <Image source={{ uri: story.image }} className="w-full h-full rounded-full" />
                 </View>
-                <Text className="text-white text-[10px] mt-2 font-kanit">{story.name}</Text>
+                <Text className="text-text text-[10px] mt-2 font-kanit">{story.name}</Text>
              </View>
            ))}
         </ScrollView>
 
         {/* Groups */}
         <View className="px-6 mb-6">
-           <Text className="text-white text-lg font-bold font-kanit mb-4">Discover Groups</Text>
+           <Text className="text-text text-lg font-bold font-kanit mb-4">Discover Groups</Text>
            <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-2">
               {['Fat Loss', 'Yoga Lovers', 'Powerlifting', 'Home Workout'].map((group, i) => (
-                <TouchableOpacity key={i} className="mx-2 bg-card px-6 py-4 rounded-3xl border border-white/5">
-                   <Text className="text-white font-bold font-kanit">{group}</Text>
+                <TouchableOpacity key={i} className="mx-2 bg-card px-6 py-4 rounded-3xl border border-stone-200/5 dark:border-stone-900/5">
+                   <Text className="text-text font-bold font-kanit">{group}</Text>
                 </TouchableOpacity>
               ))}
            </ScrollView>

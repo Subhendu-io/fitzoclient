@@ -82,7 +82,7 @@ export function OTPScreen() {
       <Header title="Verification" showBackButton />
       <ScrollView className="flex-1 px-8 py-6">
         <View className="mb-10">
-          <Text className="text-3xl font-extrabold text-white font-kanit mb-2">Verify <Text className="text-primary">OTP</Text></Text>
+          <Text className="text-3xl font-extrabold text-text font-kanit mb-2">Verify <Text className="text-primary">OTP</Text></Text>
           <Text className="text-base text-text-secondary font-kanit">
             Enter the 6-digit code sent to {phone}
           </Text>
@@ -95,7 +95,7 @@ export function OTPScreen() {
               ref={(ref) => {
                 otpInputRefs.current[index] = ref;
               }}
-              className={`w-[45px] h-[55px] bg-card border ${otp[index] ? 'border-primary' : 'border-white/10'} rounded-xl text-white text-center text-xl font-bold`}
+              className={`w-[45px] h-[55px] bg-card border ${otp[index] ? 'border-primary' : 'border-stone-200/10 dark:border-stone-900/10'} rounded-xl text-text text-center text-xl font-bold`}
               value={digit}
               onChangeText={(val) => handleOtpChange(index, val)}
               onKeyPress={({ nativeEvent }) => handleKeyPress(index, nativeEvent.key)}

@@ -4,8 +4,10 @@ import { ScreenWrapper } from '@/components/layout/ScreenWrapper';
 import { MapPin, Search, Navigation } from 'lucide-react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { GymCard } from '../components/GymCard';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 export function GymScreen() {
+  const colors = useThemeColors();
   return (
     <ScreenWrapper className="bg-background">
       <ScrollView 
@@ -22,21 +24,21 @@ export function GymScreen() {
              <View>
                 <Text className="text-text-secondary text-xs font-kanit">Location</Text>
                 <View className="flex-row items-center">
-                   <MapPin {...({ size: 14, stroke: "#C8FF32" } as any)} />
-                   <Text className="text-white text-sm font-bold font-kanit ml-1">New York, USA</Text>
+                   <MapPin {...({ size: 14, stroke: colors.primary } as any)} />
+                   <Text className="text-text text-sm font-bold font-kanit ml-1">New York, USA</Text>
                 </View>
              </View>
              <TouchableOpacity className="p-3 bg-primary rounded-2xl">
-                <Navigation {...({ size: 20, stroke: "black" } as any)} />
+                <Navigation {...({ size: 20, stroke: colors.onPrimary } as any)} />
              </TouchableOpacity>
           </View>
 
-          <View className="flex-row items-center bg-card rounded-2xl px-4 py-3 border border-white/5">
-             <Search {...({ size: 20, stroke: "#616161" } as any)} />
+          <View className="flex-row items-center bg-card rounded-2xl px-4 py-3 border border-stone-200/5 dark:border-stone-900/5">
+             <Search {...({ size: 20, stroke: colors.muted } as any)} />
              <TextInput 
                 placeholder="Search premium gyms..." 
-                placeholderTextColor="#616161"
-                className="flex-1 ml-3 text-white font-kanit"
+                placeholderTextColor={colors.muted}
+                className="flex-1 ml-3 text-text font-kanit"
              />
           </View>
         </Animated.View>
@@ -46,16 +48,16 @@ export function GymScreen() {
            {['All', 'Premium', 'Bodybuilding', 'CrossFit', 'Personal Training'].map((cat, i) => (
              <TouchableOpacity 
                 key={i} 
-                className={`mr-3 px-6 py-3 rounded-2xl border ${i === 0 ? 'bg-primary border-primary' : 'bg-card border-white/5'}`}
+                className={`mr-3 px-6 py-3 rounded-2xl border ${i === 0 ? 'bg-primary border-primary' : 'bg-card border-stone-200/5 dark:border-stone-900/5'}`}
              >
-                <Text className={`font-bold font-kanit ${i === 0 ? 'text-black' : 'text-white'}`}>{cat}</Text>
+                <Text className={`font-bold font-kanit ${i === 0 ? 'text-black' : 'text-text'}`}>{cat}</Text>
              </TouchableOpacity>
            ))}
         </ScrollView>
 
         {/* Gym List */}
         <View className="flex-row justify-between items-center mb-6">
-           <Text className="text-white text-xl font-bold font-kanit">Popular Near You</Text>
+           <Text className="text-text text-xl font-bold font-kanit">Popular Near You</Text>
            <TouchableOpacity>
               <Text className="text-primary text-xs font-kanit">See All</Text>
            </TouchableOpacity>

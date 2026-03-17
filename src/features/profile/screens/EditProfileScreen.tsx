@@ -8,8 +8,10 @@ import { updateAppUser } from '@/services/userService';
 import { profileUpdateSchema } from '../schemas/profileSchema';
 import { useRouter } from 'expo-router';
 import { User, Phone, Mail, Save } from 'lucide-react-native';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 export function EditProfileScreen() {
+  const colors = useThemeColors();
   const { profile, setProfile } = useAuthStore();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -63,8 +65,8 @@ export function EditProfileScreen() {
       <Header title="Edit Profile" showBackButton />
       <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
         <View className="py-8 items-center">
-            <View className="w-24 h-24 bg-card rounded-full items-center justify-center border border-white/5">
-                <User {...({ size: 40, stroke: "#C8FF32" } as any)} />
+            <View className="w-24 h-24 bg-card rounded-full items-center justify-center border border-stone-200/5 dark:border-stone-900/5">
+                <User {...({ size: 40, stroke: colors.primary } as any)} />
             </View>
             <Text className="text-text-secondary text-sm font-kanit mt-4">Profile UID: {profile?.uid?.slice(0, 8)}...</Text>
         </View>
@@ -122,10 +124,10 @@ export function EditProfileScreen() {
           className="bg-primary py-4 rounded-2xl items-center justify-center mt-12 mb-10 shadow-lg shadow-primary/20"
         >
           {loading ? (
-             <ActivityIndicator color="black" />
+             <ActivityIndicator color={colors.onPrimary} />
           ) : (
              <View className="flex-row items-center space-x-2">
-                <Save {...({ size: 20, stroke: "black" } as any)} />
+                <Save {...({ size: 20, stroke: colors.onPrimary } as any)} />
                 <Text className="text-black font-bold text-base font-kanit ml-2">Save Changes</Text>
              </View>
           )}

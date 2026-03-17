@@ -8,8 +8,10 @@ import { useWorkouts } from '@/hooks/useWorkouts';
 import { WorkoutItem } from '../components/WorkoutItem';
 
 import { Skeleton } from '@/components/ui/Skeleton';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 export function FitnessScreen() {
+  const colors = useThemeColors();
   const router = useRouter();
   const { data: workouts, isLoading } = useWorkouts();
 
@@ -61,15 +63,15 @@ export function FitnessScreen() {
           className="mt-6 mb-8"
         >
           <TouchableOpacity 
-            onPress={() => router.push('/attendance-calendar')}
+            onPress={() => router.push('/home/attendance-calendar')}
             activeOpacity={0.7}
             className="flex-row items-center justify-between"
           >
-            <View className="flex-row items-center bg-card p-2 rounded-full border border-white/5 space-x-4">
+            <View className="flex-row items-center bg-card p-2 rounded-full border border-stone-200/5 dark:border-stone-900/5 space-x-4">
                {days.map((item, i) => (
                  <View key={i} className={`items-center justify-center w-12 h-16 rounded-full ${item.active ? 'bg-primary' : ''}`}>
                     <Text className={`text-xs font-kanit ${item.active ? 'text-black font-bold' : 'text-text-secondary'}`}>{item.label}</Text>
-                    <Text className={`text-sm font-bold font-kanit ${item.active ? 'text-black' : 'text-white'}`}>{item.day}</Text>
+                    <Text className={`text-sm font-bold font-kanit ${item.active ? 'text-black' : 'text-text'}`}>{item.day}</Text>
                  </View>
                ))}
             </View>
@@ -83,16 +85,16 @@ export function FitnessScreen() {
         </Animated.View>
 
         {/* Today's Session Card */}
-        <Text className="text-white text-xl font-bold font-kanit mb-4">Today's Session</Text>
+        <Text className="text-text text-xl font-bold font-kanit mb-4">Today's Session</Text>
         <Animated.View 
           entering={FadeInUp.delay(400)}
-          className="bg-card rounded-[40px] overflow-hidden border border-white/5 mb-8"
+          className="bg-card rounded-[40px] overflow-hidden border border-stone-200/5 dark:border-stone-900/5 mb-8"
         >
            <View className="p-6">
               <View className="bg-white/10 self-start px-3 py-1 rounded-full mb-4">
-                 <Text className="text-white text-[10px] font-bold font-kanit uppercase">Day 10</Text>
+                 <Text className="text-text text-[10px] font-bold font-kanit uppercase">Day 10</Text>
               </View>
-              <Text className="text-white text-2xl font-bold font-kanit mb-1">
+              <Text className="text-text text-2xl font-bold font-kanit mb-1">
                 {featuredSession?.snapshot?.title || "Strength Training"}
               </Text>
               <Text className="text-text-secondary text-sm font-kanit mb-4">
@@ -110,19 +112,19 @@ export function FitnessScreen() {
                 className="w-full h-full"
               />
               <TouchableOpacity className="absolute bottom-6 right-6 w-14 h-14 bg-primary rounded-full items-center justify-center shadow-lg shadow-primary/40">
-                 <Play {...({ size: 24, stroke: "black", fill: "black" } as any)} />
+                 <Play {...({ size: 24, stroke: colors.onPrimary, fill: "black" } as any)} />
               </TouchableOpacity>
            </View>
         </Animated.View>
 
         {/* Assignments List */}
         <View className="flex-row justify-between items-center mb-6">
-            <Text className="text-white text-xl font-bold font-kanit">Your Plan</Text>
+            <Text className="text-text text-xl font-bold font-kanit">Your Plan</Text>
             <TouchableOpacity 
-              onPress={() => router.push('/workout-history')}
+              onPress={() => router.push('/fitness/workout-history')}
               className="flex-row items-center space-x-2 bg-white/5 px-4 py-2 rounded-xl"
             >
-               <History {...({ size: 16, stroke: "#C8FF32" } as any)} />
+               <History {...({ size: 16, stroke: colors.primary } as any)} />
                <Text className="text-primary text-xs font-bold font-kanit uppercase ml-1">History</Text>
             </TouchableOpacity>
         </View>

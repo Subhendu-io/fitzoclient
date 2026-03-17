@@ -90,14 +90,29 @@ export const signUpWithEmail = async (
  */
 export const signInWithPhone = async (phoneNumber: string): Promise<string> => {
   try {
-    const formattedPhone = phoneNumber.startsWith('+') ? phoneNumber : `+${phoneNumber}`;
-    const confirmation = await signInWithPhoneNumber(firebaseAuth, formattedPhone);
+    // Basic normalization: remove all non-numeric characters except +
+    let cleaned = phoneNumber.replace(/[^\d+]/g, '');
+    
+    // If it's 10 digits, assume India (+91)
+    if (cleaned.length === 10 && !cleaned.startsWith('+')) {
+      cleaned = `+91${cleaned}`;
+    } else if (cleaned.length === 12 && cleaned.startsWith('91')) {
+      cleaned = `+${cleaned}`;
+    } else if (!cleaned.startsWith('+')) {
+      cleaned = `+${cleaned}`;
+    }
+
+    console.log('Attempting phone login with:', cleaned);
+    const confirmation = await signInWithPhoneNumber(firebaseAuth, cleaned);
     if (!confirmation.verificationId) {
       throw new Error('Failed to get verification ID');
     }
     return confirmation.verificationId;
   } catch (error: any) {
     console.error('Phone login error:', error);
+    if (error.code === 'auth/invalid-phone-number') {
+      throw new Error('The phone number format is invalid. Please include your country code (e.g. +91).');
+    }
     throw error;
   }
 };

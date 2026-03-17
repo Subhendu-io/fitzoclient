@@ -79,7 +79,7 @@ export function useDashboard() {
   const forecastQuery = useQuery({
     queryKey: ['crowdForecast', tenantId, branchId],
     queryFn: () => getCrowdForecast(tenantId!, branchId),
-    enabled: !!tenantId && !!branchId,
+    enabled: !!tenantId,
   });
 
   const statsQuery = useQuery({

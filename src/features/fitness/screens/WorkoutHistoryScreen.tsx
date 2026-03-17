@@ -19,8 +19,10 @@ import { getMemberAttendance, getWorkoutHistory } from '../services/historyServi
 import { Attendance, MemberWorkoutAssignment } from '@/interfaces/member';
 import { getDateStringFromTimestamp, parseAttendanceTimestamp } from '@/utils/attendanceUtils';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 export function WorkoutHistoryScreen() {
+  const colors = useThemeColors();
   const router = useRouter();
   const { profile } = useAuthStore();
   const { data: memberLink } = useMemberLink();
@@ -73,7 +75,7 @@ export function WorkoutHistoryScreen() {
     for (let i = 0; i < firstDayOfMonth; i++) {
       days.push(
         <View key={`prev-${i}`} className="w-[14.28%] aspect-square items-center justify-center opacity-20">
-          <Text className="text-white text-xs font-kanit">{prevMonthDays - firstDayOfMonth + i + 1}</Text>
+          <Text className="text-text text-xs font-kanit">{prevMonthDays - firstDayOfMonth + i + 1}</Text>
         </View>
       );
     }
@@ -87,7 +89,7 @@ export function WorkoutHistoryScreen() {
       days.push(
         <View key={d} className="w-[14.28%] aspect-square items-center justify-center relative">
           <View className={`w-8 h-8 items-center justify-center rounded-full ${isToday ? 'bg-primary' : ''} ${hasAttended && !isToday ? 'border border-primary/40' : ''}`}>
-            <Text className={`text-xs font-kanit ${isToday ? 'text-black font-bold' : 'text-white'}`}>
+            <Text className={`text-xs font-kanit ${isToday ? 'text-black font-bold' : 'text-text'}`}>
               {d}
             </Text>
           </View>
@@ -109,7 +111,7 @@ export function WorkoutHistoryScreen() {
   if (loading && attendance.length === 0) {
     return (
       <ScreenWrapper className="bg-background items-center justify-center">
-        <ActivityIndicator color="#C8FF32" />
+        <ActivityIndicator color={colors.primary} />
       </ScreenWrapper>
     );
   }
@@ -125,14 +127,14 @@ export function WorkoutHistoryScreen() {
       >
         {/* Stats Row */}
         <View className="flex-row space-x-4 mb-8 mt-4">
-           <View className="flex-1 bg-card p-4 rounded-3xl border border-white/5 items-center">
-              <Flame {...({ size: 20, stroke: "#C8FF32" } as any)} />
-              <Text className="text-white text-xl font-bold font-kanit mt-1">{attendance.length}</Text>
+           <View className="flex-1 bg-card p-4 rounded-3xl border border-stone-200/5 dark:border-stone-900/5 items-center">
+              <Flame {...({ size: 20, stroke: colors.primary } as any)} />
+              <Text className="text-text text-xl font-bold font-kanit mt-1">{attendance.length}</Text>
               <Text className="text-text-secondary text-[10px] uppercase font-bold font-kanit">Check-ins</Text>
            </View>
-           <View className="flex-1 bg-card p-4 rounded-3xl border border-white/5 items-center">
-              <Trophy {...({ size: 20, stroke: "#C8FF32" } as any)} />
-              <Text className="text-white text-xl font-bold font-kanit mt-1">{workouts.length}</Text>
+           <View className="flex-1 bg-card p-4 rounded-3xl border border-stone-200/5 dark:border-stone-900/5 items-center">
+              <Trophy {...({ size: 20, stroke: colors.primary } as any)} />
+              <Text className="text-text text-xl font-bold font-kanit mt-1">{workouts.length}</Text>
               <Text className="text-text-secondary text-[10px] uppercase font-bold font-kanit">Workouts</Text>
            </View>
         </View>
@@ -140,16 +142,16 @@ export function WorkoutHistoryScreen() {
         {/* Calendar Card */}
         <Animated.View 
           entering={FadeInDown.delay(200)}
-          className="bg-card p-6 rounded-[32px] border border-white/5 mb-8"
+          className="bg-card p-6 rounded-[32px] border border-stone-200/5 dark:border-stone-900/5 mb-8"
         >
            <View className="flex-row justify-between items-center mb-6">
-              <Text className="text-white font-bold font-kanit text-lg">{monthName} {year}</Text>
+              <Text className="text-text font-bold font-kanit text-lg">{monthName} {year}</Text>
               <View className="flex-row space-x-2">
                  <TouchableOpacity onPress={() => changeMonth(-1)} className="p-2 bg-white/5 rounded-full">
-                    <ChevronLeft {...({ size: 20, stroke: "white" } as any)} />
+                    <ChevronLeft {...({ size: 20, stroke: colors.text } as any)} />
                  </TouchableOpacity>
                  <TouchableOpacity onPress={() => changeMonth(1)} className="p-2 bg-white/5 rounded-full">
-                    <ChevronRight {...({ size: 20, stroke: "white" } as any)} />
+                    <ChevronRight {...({ size: 20, stroke: colors.text } as any)} />
                  </TouchableOpacity>
               </View>
            </View>
@@ -165,7 +167,7 @@ export function WorkoutHistoryScreen() {
         </Animated.View>
 
         {/* Recent Activity List */}
-        <Text className="text-white text-xl font-bold font-kanit mb-4">Recent Sessions</Text>
+        <Text className="text-text text-xl font-bold font-kanit mb-4">Recent Sessions</Text>
         <View className="space-y-4">
            {workouts.length > 0 ? (
              workouts.map((work, i) => (
@@ -175,24 +177,24 @@ export function WorkoutHistoryScreen() {
                >
                  <Animated.View 
                    entering={FadeInUp.delay(300 + (i * 100))}
-                   className="bg-card p-5 rounded-3xl border border-white/5 flex-row items-center mb-4"
+                   className="bg-card p-5 rounded-3xl border border-stone-200/5 dark:border-stone-900/5 flex-row items-center mb-4"
                  >
                    <View className="bg-primary/10 p-3 rounded-2xl mr-4">
-                      <Dumbbell {...({ size: 24, stroke: "#C8FF32" } as any)} />
+                      <Dumbbell {...({ size: 24, stroke: colors.primary } as any)} />
                    </View>
                    <View className="flex-1">
-                      <Text className="text-white font-bold font-kanit mb-1">{work.snapshot?.title || 'Workout'}</Text>
+                      <Text className="text-text font-bold font-kanit mb-1">{work.snapshot?.title || 'Workout'}</Text>
                       <Text className="text-text-secondary text-xs font-kanit">
                          Assigned on {work.assignedAt ? new Date(work.assignedAt).toLocaleDateString() : 'N/A'}
                       </Text>
                    </View>
-                   <ChevronRight {...({ size: 16, stroke: "#616161" } as any)} />
+                   <ChevronRight {...({ size: 16, stroke: colors.muted } as any)} />
                  </Animated.View>
                </TouchableOpacity>
              ))
            ) : (
              <View className="items-center py-10">
-                <History {...({ size: 40, stroke: "#616161" } as any)} />
+                <History {...({ size: 40, stroke: colors.muted } as any)} />
                 <Text className="text-text-secondary font-kanit mt-4">No workout records yet.</Text>
              </View>
            )}

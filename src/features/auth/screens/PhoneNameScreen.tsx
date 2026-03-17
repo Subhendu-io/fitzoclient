@@ -46,7 +46,7 @@ export function PhoneNameScreen() {
       <Header title="Complete Profile" />
       <ScrollView className="flex-1 px-8 py-6">
         <View className="mb-10">
-          <Text className="text-3xl font-extrabold text-white font-kanit mb-2">Almost <Text className="text-primary">Done</Text></Text>
+          <Text className="text-3xl font-extrabold text-text font-kanit mb-2">Almost <Text className="text-primary">Done</Text></Text>
           <Text className="text-base text-text-secondary font-kanit">
             Tell us a bit about yourself
           </Text>

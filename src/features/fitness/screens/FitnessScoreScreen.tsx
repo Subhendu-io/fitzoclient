@@ -6,8 +6,10 @@ import { Header } from '@/components/layout/Header';
 import { analyzeFitness, FitnessAssessment } from '../services/fitnessScoreService';
 import * as ImagePicker from 'expo-image-picker';
 import Animated, { FadeInUp, ZoomIn } from 'react-native-reanimated';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 export function FitnessScoreScreen() {
+  const colors = useThemeColors();
   const [image, setImage] = useState<string | null>(null);
   const [base64, setBase64] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -57,7 +59,7 @@ export function FitnessScoreScreen() {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 80) return '#C8FF32';
+    if (score >= 80) return colors.primary;
     if (score >= 60) return '#60A5FA';
     if (score >= 40) return '#FBBF24';
     return '#F87171';
@@ -70,11 +72,11 @@ export function FitnessScoreScreen() {
       <ScrollView className="flex-1 px-6 pb-20" showsVerticalScrollIndicator={false}>
         {!result && !loading && (
           <View className="py-8">
-            <View className="bg-card border border-white/5 rounded-[40px] p-8 items-center mb-8">
+            <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[40px] p-8 items-center mb-8">
                <View className="w-20 h-20 rounded-3xl bg-primary/10 items-center justify-center mb-6">
-                 <Zap {...({ size: 32, stroke: "#C8FF32" } as any)} />
+                 <Zap {...({ size: 32, stroke: colors.primary } as any)} />
                </View>
-               <Text className="text-white text-2xl font-black font-kanit text-center mb-3">
+               <Text className="text-text text-2xl font-black font-kanit text-center mb-3">
                  Visual Fitness Score
                </Text>
                <Text className="text-text-secondary text-sm font-kanit text-center leading-5">
@@ -84,29 +86,29 @@ export function FitnessScoreScreen() {
 
             {image ? (
               <Animated.View entering={FadeInUp} className="mb-8">
-                <Image source={{ uri: image }} className="w-full aspect-[3/4] rounded-[40px] border-4 border-white/5" />
+                <Image source={{ uri: image }} className="w-full aspect-[3/4] rounded-[40px] border-4 border-stone-200/5 dark:border-stone-900/5" />
                 <TouchableOpacity 
                    onPress={() => setImage(null)}
                    className="absolute top-4 right-4 bg-black/60 p-2 rounded-full"
                 >
-                   <RefreshCcw {...({ size: 20, stroke: "white" } as any)} />
+                   <RefreshCcw {...({ size: 20, stroke: colors.text } as any)} />
                 </TouchableOpacity>
               </Animated.View>
             ) : (
               <View className="flex-row space-x-4 mb-8">
                 <TouchableOpacity 
                   onPress={() => pickImage(true)}
-                  className="flex-1 bg-card border border-white/5 rounded-3xl p-8 items-center"
+                  className="flex-1 bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-8 items-center"
                 >
-                   <Camera {...({ size: 32, stroke: "#C8FF32" } as any)} />
-                   <Text className="text-white font-bold font-kanit mt-4">Camera</Text>
+                   <Camera {...({ size: 32, stroke: colors.primary } as any)} />
+                   <Text className="text-text font-bold font-kanit mt-4">Camera</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
                   onPress={() => pickImage(false)}
-                  className="flex-1 bg-card border border-white/5 rounded-3xl p-8 items-center"
+                  className="flex-1 bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-8 items-center"
                 >
-                   <ImageIcon {...({ size: 32, stroke: "#C8FF32" } as any)} />
-                   <Text className="text-white font-bold font-kanit mt-4">Gallery</Text>
+                   <ImageIcon {...({ size: 32, stroke: colors.primary } as any)} />
+                   <Text className="text-text font-bold font-kanit mt-4">Gallery</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -125,9 +127,9 @@ export function FitnessScoreScreen() {
         {loading && (
           <View className="py-20 items-center">
             <Animated.View entering={ZoomIn} className="w-32 h-32 rounded-full bg-primary/10 items-center justify-center mb-8">
-               <ActivityIndicator color="#C8FF32" size="large" />
+               <ActivityIndicator color={colors.primary} size="large" />
             </Animated.View>
-            <Text className="text-white text-xl font-bold font-kanit">Analyzing your physique...</Text>
+            <Text className="text-text text-xl font-bold font-kanit">Analyzing your physique...</Text>
             <Text className="text-text-secondary font-kanit mt-2">Checking muscle tone and posture</Text>
           </View>
         )}
@@ -139,37 +141,37 @@ export function FitnessScoreScreen() {
                  style={{ borderColor: getScoreColor(result.score) }}
                  className="w-40 h-40 rounded-full border-[10px] items-center justify-center bg-card shadow-xl"
                >
-                 <Text className="text-white text-6xl font-black font-kanit">{result.score}</Text>
+                 <Text className="text-text text-6xl font-black font-kanit">{result.score}</Text>
                  <Text className="text-text-secondary text-[10px] font-bold font-kanit uppercase -mt-2">AI Score</Text>
                </View>
             </Animated.View>
 
             <View className="space-y-6">
-              <View className="bg-card border border-white/5 rounded-[32px] p-6">
+              <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[32px] p-6">
                 <View className="flex-row items-center mb-4">
-                  <Target {...({ size: 18, stroke: "#C8FF32" } as any)} />
-                  <Text className="text-white text-lg font-bold font-kanit ml-3">Today's Focus</Text>
+                  <Target {...({ size: 18, stroke: colors.primary } as any)} />
+                  <Text className="text-text text-lg font-bold font-kanit ml-3">Today's Focus</Text>
                 </View>
                 <Text className="text-text-secondary font-kanit leading-relaxed">{result.todayPlan}</Text>
               </View>
 
-              <View className="bg-card border border-white/5 rounded-[32px] p-6">
+              <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[32px] p-6">
                 <View className="flex-row items-center mb-4">
-                  <Zap {...({ size: 18, stroke: "#C8FF32" } as any)} />
-                  <Text className="text-white text-lg font-bold font-kanit ml-3">Phsysique Analysis</Text>
+                  <Zap {...({ size: 18, stroke: colors.primary } as any)} />
+                  <Text className="text-text text-lg font-bold font-kanit ml-3">Phsysique Analysis</Text>
                 </View>
                 <Text className="text-text-secondary font-kanit leading-relaxed">{result.analysis}</Text>
               </View>
 
-              <View className="bg-card border border-white/5 rounded-[32px] p-6">
+              <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[32px] p-6">
                 <View className="flex-row items-center mb-6">
-                  <ListChecks {...({ size: 18, stroke: "#C8FF32" } as any)} />
-                  <Text className="text-white text-lg font-bold font-kanit ml-3">Action Steps</Text>
+                  <ListChecks {...({ size: 18, stroke: colors.primary } as any)} />
+                  <Text className="text-text text-lg font-bold font-kanit ml-3">Action Steps</Text>
                 </View>
                 <View className="space-y-4">
                   {result.recommendations.map((rec, i) => (
                     <View key={i} className="flex-row space-x-4">
-                       <CheckCircle2 {...({ size: 20, stroke: "#C8FF32", opacity: 0.6 } as any)} />
+                       <CheckCircle2 {...({ size: 20, stroke: colors.primary, opacity: 0.6 } as any)} />
                        <Text className="flex-1 text-text-secondary font-kanit leading-5">{rec}</Text>
                     </View>
                   ))}
@@ -181,9 +183,9 @@ export function FitnessScoreScreen() {
                   setResult(null);
                   setImage(null);
                 }}
-                className="bg-white/5 py-5 rounded-3xl items-center border border-white/5"
+                className="bg-white/5 py-5 rounded-3xl items-center border border-stone-200/5 dark:border-stone-900/5"
               >
-                <Text className="text-white font-bold font-kanit">NEW ASSESSMENT</Text>
+                <Text className="text-text font-bold font-kanit">NEW ASSESSMENT</Text>
               </TouchableOpacity>
             </View>
           </View>

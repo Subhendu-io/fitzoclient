@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { ChevronLeft, ChevronRight, Activity } from 'lucide-react-native';
 import { getDateStringFromTimestamp } from '@/utils/attendanceUtils';
 import { Attendance } from '@/interfaces/member';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 interface CalendarViewProps {
   records: Attendance[];
@@ -11,6 +12,7 @@ interface CalendarViewProps {
 }
 
 export function CalendarView({ records, onMonthChange, isLoading }: CalendarViewProps) {
+  const colors = useThemeColors();
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -77,9 +79,9 @@ export function CalendarView({ records, onMonthChange, isLoading }: CalendarView
   };
 
   return (
-    <View className="bg-card border border-white/5 rounded-[40px] p-6">
+    <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[40px] p-6">
       <View className="flex-row justify-between items-center mb-6">
-        <Text className="text-white text-lg font-bold font-kanit">
+        <Text className="text-text text-lg font-bold font-kanit">
           {months[currentMonth]} {currentYear}
         </Text>
         <View className="flex-row space-x-2">
@@ -87,13 +89,13 @@ export function CalendarView({ records, onMonthChange, isLoading }: CalendarView
             onPress={() => navigateMonth('prev')}
             className="p-2 bg-white/5 rounded-full"
           >
-            <ChevronLeft {...({ size: 20, stroke: "#C8FF32" } as any)} />
+            <ChevronLeft {...({ size: 20, stroke: colors.primary } as any)} />
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={() => navigateMonth('next')}
             className="p-2 bg-white/5 rounded-full"
           >
-            <ChevronRight {...({ size: 20, stroke: "#C8FF32" } as any)} />
+            <ChevronRight {...({ size: 20, stroke: colors.primary } as any)} />
           </TouchableOpacity>
         </View>
       </View>
@@ -110,13 +112,13 @@ export function CalendarView({ records, onMonthChange, isLoading }: CalendarView
         {renderDays()}
       </View>
 
-      <View className="mt-6 pt-6 border-t border-white/5 flex-row items-center justify-between">
+      <View className="mt-6 pt-6 border-t border-stone-200/5 dark:border-stone-900/5 flex-row items-center justify-between">
         <View className="flex-row items-center">
           <View className="w-10 h-10 rounded-full bg-primary/10 items-center justify-center mr-3">
-            <Activity {...({ size: 18, stroke: "#C8FF32" } as any)} />
+            <Activity {...({ size: 18, stroke: colors.primary } as any)} />
           </View>
           <View>
-             <Text className="text-white text-base font-bold font-kanit">{records.length}</Text>
+             <Text className="text-text text-base font-bold font-kanit">{records.length}</Text>
              <Text className="text-text-secondary text-[10px] font-kanit uppercase">Check-ins this month</Text>
           </View>
         </View>

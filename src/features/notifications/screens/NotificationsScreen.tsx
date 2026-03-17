@@ -15,8 +15,10 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { subscribeToNotifications, markNotificationAsRead, markAllNotificationsAsRead, deleteNotification } from '../services/notificationService';
 import type { Notification } from '@/interfaces/member';
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated';
+import { useThemeColors } from '@/hooks/useThemeColors';
 
 export function NotificationsScreen() {
+  const colors = useThemeColors();
   const { user } = useAuthStore();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,7 +62,7 @@ export function NotificationsScreen() {
       exiting={FadeOut}
       layout={Layout}
       className={`mb-3 p-4 rounded-2xl border ${
-        item.read ? 'bg-card/50 border-white/5' : 'bg-card border-primary/20'
+        item.read ? 'bg-card/50 border-stone-200/5 dark:border-stone-900/5' : 'bg-card border-primary/20'
       }`}
     >
       <TouchableOpacity 
@@ -70,23 +72,23 @@ export function NotificationsScreen() {
         <View className={`w-10 h-10 rounded-full items-center justify-center ${
           item.read ? 'bg-white/5' : 'bg-primary/20'
         }`}>
-          <Bell {...({ size: 18, color: item.read ? '#666' : '#C8FF32' } as any)} />
+          <Bell {...({ size: 18, color: item.read ? '#666' : colors.primary } as any)} />
           {!item.read && <View className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />}
         </View>
         
         <View className="flex-1 ml-4">
           <View className="flex-row justify-between items-start">
-            <Text className={`text-base font-bold font-kanit ${item.read ? 'text-white/60' : 'text-white'}`}>
+            <Text className={`text-base font-bold font-kanit ${item.read ? 'text-text/60' : 'text-text'}`}>
               {item.title}
             </Text>
             <TouchableOpacity onPress={() => handleDelete(item.id)}>
-              <X {...({ size: 16, color: '#666' } as any)} />
+              <X {...({ size: 16, color: colors.muted } as any)} />
             </TouchableOpacity>
           </View>
-          <Text className={`text-sm mt-1 font-kanit ${item.read ? 'text-white/40' : 'text-white/80'}`}>
+          <Text className={`text-sm mt-1 font-kanit ${item.read ? 'text-text/40' : 'text-text/80'}`}>
             {item.body}
           </Text>
-          <Text className="text-[10px] mt-2 text-white/40">
+          <Text className="text-[10px] mt-2 text-text/40">
             {new Date(item.timestamp).toLocaleString()}
           </Text>
         </View>
@@ -102,7 +104,7 @@ export function NotificationsScreen() {
         rightElement={
           notifications.some(n => !n.read) && (
             <TouchableOpacity onPress={handleMarkAllRead}>
-              <CheckCircle2 {...({ size: 20, color: '#C8FF32' } as any)} />
+              <CheckCircle2 {...({ size: 20, color: colors.primary } as any)} />
             </TouchableOpacity>
           )
         }
@@ -122,8 +124,8 @@ export function NotificationsScreen() {
           contentContainerStyle={{ padding: 20 }}
           ListEmptyComponent={
             <View className="items-center py-20">
-              <BellOff {...({ size: 48, color: '#666' } as any)} />
-              <Text className="text-white/40 font-kanit mt-4 text-center">
+              <BellOff {...({ size: 48, color: colors.muted } as any)} />
+              <Text className="text-text/40 font-kanit mt-4 text-center">
                 You're all caught up!
               </Text>
             </View>

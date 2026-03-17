@@ -26,7 +26,7 @@ export function GettingStartedScreen() {
             <Text className="text-primary text-xs font-bold font-kanit uppercase tracking-[4px] mb-4">
               Premium Fitness Experience
             </Text>
-            <Text className="text-white text-5xl font-extrabold font-kanit leading-[56px] mb-6">
+            <Text className="text-text text-5xl font-extrabold font-kanit leading-[56px] mb-6">
               REACH YOUR <Text className="text-primary">ULTIMATE</Text> POTENTIAL
             </Text>
             <Text className="text-text-secondary text-base font-kanit leading-6 mb-12">
