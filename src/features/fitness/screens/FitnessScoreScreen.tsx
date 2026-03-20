@@ -7,8 +7,12 @@ import { analyzeFitness, FitnessAssessment } from '../services/fitnessScoreServi
 import * as ImagePicker from 'expo-image-picker';
 import Animated, { FadeInUp, ZoomIn } from 'react-native-reanimated';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { useToaster } from '@/providers/useToaster';
+import { useModal } from '@/providers/useModal';
 
 export function FitnessScoreScreen() {
+  const { showToast } = useToaster();
+  const { showModal } = useModal();
   const colors = useThemeColors();
   const [image, setImage] = useState<string | null>(null);
   const [base64, setBase64] = useState<string | null>(null);
@@ -20,7 +24,12 @@ export function FitnessScoreScreen() {
     if (useCamera) {
       const permission = await ImagePicker.requestCameraPermissionsAsync();
       if (!permission.granted) {
-        Alert.alert('Permission denied', 'We need camera access to take your fitness photo.');
+        showModal({
+           title: 'Permission denied', 
+           message: 'We need camera access to take your fitness photo.',
+           variant: 'warn',
+           buttons: [{ text: 'OK', style: 'default' }]
+        });
         return;
       }
       result = await ImagePicker.launchCameraAsync({
@@ -52,7 +61,7 @@ export function FitnessScoreScreen() {
       const assessment = await analyzeFitness(base64);
       setResult(assessment);
     } catch (error) {
-      Alert.alert('Analysis Failed', 'Could not analyze your fitness level. Please try again.');
+      showToast({ title: 'Analysis Failed', message: 'Could not analyze your fitness level. Please try again.', variant: 'danger' });
     } finally {
       setLoading(false);
     }

@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/Input";
 import { useAuthStore } from "@/store/useAuthStore";
 import { signInWithEmailAndPassword } from "@react-native-firebase/auth";
 import { auth } from "@/lib/firebase";
+import { useToaster } from "@/providers/useToaster";
 
 export function LoginScreen() {
+  const { showToast } = useToaster();
   const router = useRouter();
   const { setUser, setLoading } = useAuthStore();
   const [email, setEmail] = useState("");
@@ -25,7 +27,7 @@ export function LoginScreen() {
       router.replace("/(tabs)/home");
     } catch (error) {
       console.error("Login error:", error);
-      Alert.alert("Login failed", "Please check your email and password");
+      showToast({ title: "Login failed", message: "Please check your email and password", variant: "danger" });
     } finally {
       setIsSubmitting(false);
     }

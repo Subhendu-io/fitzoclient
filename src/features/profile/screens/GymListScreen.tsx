@@ -16,8 +16,10 @@ import { getTenantInfo } from "@/services/memberService";
 import { useRouter } from "expo-router";
 import Animated, { FadeInDown, FadeInUp } from "react-native-reanimated";
 import { useThemeColors } from "@/hooks/useThemeColors";
+import { useToaster } from "@/providers/useToaster";
 
 export function GymListScreen() {
+  const { showToast } = useToaster();
   const colors = useThemeColors();
   const router = useRouter();
   const { profile, activeGym, setActiveGym } = useAuthStore();
@@ -62,10 +64,10 @@ export function GymListScreen() {
     try {
       setLoading(true);
       setActiveGym(gymId);
-      Alert.alert("Success", "Active gym switched successfully");
+      showToast({ title: "Success", message: "Active gym switched successfully", variant: "success" });
       router.back();
     } catch (error) {
-      Alert.alert("Error", "Failed to switch gym");
+      showToast({ title: "Error", message: "Failed to switch gym", variant: "danger" });
     } finally {
       setLoading(false);
     }

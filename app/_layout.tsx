@@ -11,6 +11,10 @@ import { getAppUser } from "../src/services/userService";
 import { Kanit_400Regular, Kanit_700Bold, Kanit_800ExtraBold } from "@expo-google-fonts/kanit";
 import { registerForPushNotificationsAsync } from "../src/features/notifications";
 import { ThemeManager } from "../src/components/ThemeManager";
+import { ModalProvider } from "../src/providers/useModal";
+import { ToasterProvider } from "../src/providers/useToaster";
+import Modal from "../src/components/shared/Modal";
+import Toaster from "../src/components/shared/Toaster";
 import "../global.css";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -64,18 +68,24 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeManager />
       <QueryClientProvider client={queryClient}>
-        <Stack
-          screenOptions={{
-            headerShown: false,
-            contentStyle: { backgroundColor: "transparent" },
-            animation: "fade",
-          }}
-        >
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="(main)" options={{ headerShown: false }} />
-        </Stack>
+        <ToasterProvider>
+          <ModalProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+                contentStyle: { backgroundColor: "transparent" },
+                animation: "fade",
+              }}
+            >
+              <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+              <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
+              <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              <Stack.Screen name="(main)" options={{ headerShown: false }} />
+            </Stack>
+            <Modal />
+            <Toaster />
+          </ModalProvider>
+        </ToasterProvider>
       </QueryClientProvider>
     </GestureHandlerRootView>
   );

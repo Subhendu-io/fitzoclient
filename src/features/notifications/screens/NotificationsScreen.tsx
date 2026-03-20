@@ -16,8 +16,10 @@ import { subscribeToNotifications, markNotificationAsRead, markAllNotificationsA
 import type { Notification } from '@/interfaces/member';
 import Animated, { FadeIn, FadeOut, Layout } from 'react-native-reanimated';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { useToaster } from '@/providers/useToaster';
 
 export function NotificationsScreen() {
+  const { showToast } = useToaster();
   const colors = useThemeColors();
   const { user } = useAuthStore();
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -43,7 +45,7 @@ export function NotificationsScreen() {
     try {
       await markAllNotificationsAsRead(user.uid);
     } catch (error) {
-      Alert.alert('Error', 'Failed to mark all as read');
+      showToast({ title: 'Error', message: 'Failed to mark all as read', variant: 'danger' });
     }
   };
 
@@ -52,7 +54,7 @@ export function NotificationsScreen() {
     try {
       await deleteNotification(user.uid, id);
     } catch (error) {
-      Alert.alert('Error', 'Failed to delete notification');
+      showToast({ title: 'Error', message: 'Failed to delete notification', variant: 'danger' });
     }
   };
 

@@ -20,8 +20,10 @@ import { Subscription, Payment } from '@/interfaces/member';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { useToaster } from '@/providers/useToaster';
 
 export function WalletScreen() {
+  const { showToast } = useToaster();
   const colors = useThemeColors();
   const { profile } = useAuthStore();
   const { data: memberLink } = useMemberLink();
@@ -46,7 +48,7 @@ export function WalletScreen() {
         setPayments(pays);
       } catch (error) {
         console.error('Wallet load error:', error);
-        Alert.alert('Error', 'Failed to load wallet information');
+        showToast({ title: 'Error', message: 'Failed to load wallet information', variant: 'danger' });
       } finally {
         setLoading(false);
       }

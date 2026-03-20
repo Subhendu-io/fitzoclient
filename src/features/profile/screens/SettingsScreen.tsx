@@ -22,8 +22,12 @@ import Animated, { FadeInUp } from "react-native-reanimated";
 import { Palette } from "lucide-react-native";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import { UserAvatar } from "@/components/shared/UserAvatar";
+import { useModal } from "@/providers/useModal";
+import { useToaster } from "@/providers/useToaster";
 
 export function SettingsScreen() {
+  const { showModal, hideModal } = useModal();
+  const { showToast } = useToaster();
   const colors = useThemeColors();
   const router = useRouter();
   const { profile, setProfile, setUser, setLoading } = useAuthStore();
@@ -31,28 +35,39 @@ export function SettingsScreen() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
-    Alert.alert("Log Out", "Are you sure you want to log out of your Fitzo account?", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Log Out",
-        style: "destructive",
-        onPress: async () => {
-          try {
-            setIsLoggingOut(true);
-            setLoading(true);
-            await auth().signOut();
-            // Store will be updated by the listener in app/_layout.tsx
-            router.replace("/(auth)/login");
-          } catch (error) {
-            console.error("Logout error:", error);
-            Alert.alert("Error", "Failed to log out");
-          } finally {
-            setIsLoggingOut(false);
-            setLoading(false);
-          }
+    showModal({
+      title: "Log Out",
+      message: "Are you sure you want to log out of your Fitzo account?",
+      variant: "danger",
+      buttons: [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Log Out",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              hideModal();
+              setIsLoggingOut(true);
+              setLoading(true);
+              await auth().signOut();
+              // Store will be updated by the listener in app/_layout.tsx
+              router.replace("/(auth)/login");
+            } catch (error) {
+              console.error("Logout error:", error);
+              hideModal();
+              showToast({
+                title: "Error",
+                message: "Failed to log out",
+                variant: "danger"
+              });
+            } finally {
+              setIsLoggingOut(false);
+              setLoading(false);
+            }
+          },
         },
-      },
-    ]);
+      ]
+    });
   };
 
   const MenuItem = ({ icon: Icon, title, value, onPress, iconColor = colors.primary }: any) => (

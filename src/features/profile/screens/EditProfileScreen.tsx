@@ -9,8 +9,10 @@ import { profileUpdateSchema } from '../schemas/profileSchema';
 import { useRouter } from 'expo-router';
 import { User, Phone, Mail, Save } from 'lucide-react-native';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { useToaster } from '@/providers/useToaster';
 
 export function EditProfileScreen() {
+  const { showToast } = useToaster();
   const colors = useThemeColors();
   const { profile, setProfile } = useAuthStore();
   const router = useRouter();
@@ -42,7 +44,7 @@ export function EditProfileScreen() {
         });
       }
 
-      Alert.alert('Success', 'Profile updated successfully');
+      showToast({ title: 'Success', message: 'Profile updated successfully', variant: 'success' });
       router.back();
     } catch (error: any) {
       if (error.name === 'ZodError') {
@@ -53,7 +55,7 @@ export function EditProfileScreen() {
         setErrors(newErrors);
       } else {
         console.error('Profile update error:', error);
-        Alert.alert('Error', 'Failed to update profile');
+        showToast({ title: 'Error', message: 'Failed to update profile', variant: 'danger' });
       }
     } finally {
       setLoading(false);
