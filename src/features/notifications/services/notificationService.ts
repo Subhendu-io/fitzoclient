@@ -1,8 +1,8 @@
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import { Platform } from "react-native";
-import { firestore } from "@/lib/firebase";
 import {
+  getFirestore,
   collection,
   doc,
   setDoc,
@@ -30,7 +30,7 @@ Notifications.setNotificationHandler({
   }),
 });
 
-const db = firestore();
+const db = getFirestore();
 
 export async function registerForPushNotificationsAsync(uid: string) {
   const { status } = await Notifications.requestPermissionsAsync();

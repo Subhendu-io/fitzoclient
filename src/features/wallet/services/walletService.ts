@@ -1,4 +1,14 @@
-import { firestore } from "@/lib/firebase";
+import { 
+  getFirestore, 
+  collection, 
+  doc, 
+  query, 
+  where, 
+  orderBy, 
+  limit, 
+  getDocs, 
+  FirebaseFirestoreTypes
+} from "@react-native-firebase/firestore";
 import { Subscription, Payment } from "@/interfaces/member";
 import { COLLECTIONS } from "@/constants/collection";
 
@@ -6,13 +16,17 @@ const getBranchedCollectionRef = (
   tenantId: string,
   branchId: string = "main",
   collectionName: string,
-) =>
-  firestore()
-    .collection(COLLECTIONS.TENANTS)
-    .doc(tenantId)
-    .collection(COLLECTIONS.BRANCHES)
-    .doc(branchId)
-    .collection(collectionName);
+) => {
+  const db = getFirestore();
+  return collection(
+    db,
+    COLLECTIONS.TENANTS,
+    tenantId,
+    COLLECTIONS.BRANCHES,
+    branchId,
+    collectionName
+  );
+};
 
 /**
  * Get all subscriptions for a member
@@ -23,20 +37,23 @@ export const getMemberSubscriptions = async (
   branchId: string = "main",
 ): Promise<Subscription[]> => {
   try {
-    const subscriptionsRef = getBranchedCollectionRef(
+    const colRef = getBranchedCollectionRef(
       tenantId,
       branchId,
       COLLECTIONS.SUBSCRIPTIONS,
     );
 
-    const querySnapshot = await subscriptionsRef
-      .where("memberId", "==", memberId)
-      .orderBy("startDate", "desc")
-      .get();
+    const q = query(
+      colRef,
+      where("memberId", "==", memberId),
+      orderBy("startDate", "desc")
+    );
 
-    return querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((docSnap: FirebaseFirestoreTypes.QueryDocumentSnapshot) => ({
+      id: docSnap.id,
+      ...docSnap.data(),
     })) as Subscription[];
   } catch (error) {
     console.error("Error fetching member subscriptions:", error);
@@ -53,17 +70,20 @@ export const getActiveSubscription = async (
   branchId: string = "main",
 ): Promise<Subscription | null> => {
   try {
-    const subscriptionsRef = getBranchedCollectionRef(
+    const colRef = getBranchedCollectionRef(
       tenantId,
       branchId,
       COLLECTIONS.SUBSCRIPTIONS,
     );
 
-    const querySnapshot = await subscriptionsRef
-      .where("memberId", "==", memberId)
-      .where("status", "==", "active")
-      .limit(1)
-      .get();
+    const q = query(
+      colRef,
+      where("memberId", "==", memberId),
+      where("status", "==", "active"),
+      limit(1)
+    );
+
+    const querySnapshot = await getDocs(q);
 
     if (!querySnapshot.empty) {
       const subDoc = querySnapshot.docs[0];
@@ -82,21 +102,24 @@ export const getActiveSubscription = async (
 export const getMemberPayments = async (
   tenantId: string,
   memberId: string,
-  limit: number = 50,
+  limitCount: number = 50,
   branchId: string = "main",
 ): Promise<Payment[]> => {
   try {
-    const paymentsRef = getBranchedCollectionRef(tenantId, branchId, COLLECTIONS.PAYMENTS);
+    const colRef = getBranchedCollectionRef(tenantId, branchId, COLLECTIONS.PAYMENTS);
 
-    const querySnapshot = await paymentsRef
-      .where("memberId", "==", memberId)
-      .orderBy("paymentDate", "desc")
-      .limit(limit)
-      .get();
+    const q = query(
+      colRef,
+      where("memberId", "==", memberId),
+      orderBy("paymentDate", "desc"),
+      limit(limitCount)
+    );
 
-    return querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((docSnap: FirebaseFirestoreTypes.QueryDocumentSnapshot) => ({
+      id: docSnap.id,
+      ...docSnap.data(),
     })) as Payment[];
   } catch (error) {
     console.error("Error fetching member payments:", error);

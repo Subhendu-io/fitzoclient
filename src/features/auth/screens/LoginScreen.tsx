@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuthStore } from "@/store/useAuthStore";
 import { signInWithEmailAndPassword } from "@react-native-firebase/auth";
-import { auth } from "@/lib/firebase";
+import { getAuth } from "@/lib/firebase";
 import { useToaster } from "@/providers/useToaster";
 
 export function LoginScreen() {
@@ -22,7 +22,7 @@ export function LoginScreen() {
 
     setIsSubmitting(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth(), email, password);
+      const userCredential = await signInWithEmailAndPassword(getAuth(), email, password);
       setUser(userCredential.user);
       router.replace("/(tabs)/home");
     } catch (error) {

@@ -1,4 +1,16 @@
-import { functions } from '@/lib/firebase';
+import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
+import { 
+  getFirestore, 
+  collection, 
+  query, 
+  where, 
+  limit, 
+  getDocs, 
+  doc, 
+  writeBatch, 
+  arrayUnion 
+} from '@react-native-firebase/firestore';
+import { COLLECTIONS } from '@/constants/collection';
 
 export type VerifyQrScanStatus =
   | 'EXISTING_MEMBER'
@@ -40,7 +52,8 @@ export const verifyQrScan = async (
   }
   const branchIdNorm = branchId?.trim() || 'main';
 
-  const callable = functions().httpsCallable(VERIFY_QR_CALLABLE);
+  const functions = getFunctions();
+  const callable = httpsCallable(functions, VERIFY_QR_CALLABLE);
   const { data } = await callable({
     tenantId: tenantId.trim(),
     branchId: branchIdNorm,
@@ -76,7 +89,8 @@ export const linkMemberProfile = async (
   }
   const branchIdNorm = branchId?.trim() || 'main';
 
-  const callable = functions().httpsCallable(LINK_MEMBER_CALLABLE);
+  const functions = getFunctions();
+  const callable = httpsCallable(functions, LINK_MEMBER_CALLABLE);
   const { data } = await callable({
     tenantId: tenantId.trim(),
     branchId: branchIdNorm,
@@ -99,14 +113,12 @@ export interface CreateJoinRequestResult {
 }
 
 export const createJoinRequest = async (
-  input: CreateJoinRequestInput,
+  tenantId: string,
+  branchId: string,
+  displayName?: string,
 ): Promise<CreateJoinRequestResult> => {
-  const { tenantId, branchId, displayName } = input;
-  if (!tenantId?.trim()) {
-    throw new Error('tenantId is required');
-  }
-
-  const callable = functions().httpsCallable(CREATE_JOIN_REQUEST_CALLABLE);
+  const functions = getFunctions();
+  const callable = httpsCallable(functions, CREATE_JOIN_REQUEST_CALLABLE);
   const { data } = await callable({
     tenantId: tenantId.trim(),
     branchId: branchId?.trim() || 'main',
@@ -114,4 +126,109 @@ export const createJoinRequest = async (
   });
 
   return data as CreateJoinRequestResult;
+};
+
+export interface Invite {
+  id: string;
+  tenantId: string;
+  branchId: string;
+  email?: string;
+  phone?: string;
+  status: 'Invited' | 'Accepted' | 'Declined';
+}
+
+/**
+ * Check if there's an active invitation for the user at this branch.
+ */
+export const checkInvite = async (
+  tenantId: string,
+  branchId: string,
+  email?: string,
+  phone?: string
+): Promise<Invite | null> => {
+  const db = getFirestore();
+
+  const invitesRef = collection(
+    db,
+    COLLECTIONS.TENANTS,
+    tenantId,
+    COLLECTIONS.BRANCHES,
+    branchId,
+    COLLECTIONS.INVITES
+  );
+
+  // Try email first
+  if (email) {
+    const qEmail = query(
+      invitesRef,
+      where('email', '==', email.toLowerCase()),
+      where('status', '==', 'Invited'),
+      limit(1)
+    );
+    const snapEmail = await getDocs(qEmail);
+    if (!snapEmail.empty) {
+      return { id: snapEmail.docs[0].id, ...snapEmail.docs[0].data() } as Invite;
+    }
+  }
+
+  // Try phone if email fails or not provided
+  if (phone) {
+    const qPhone = query(
+      invitesRef,
+      where('phone', '==', phone),
+      where('status', '==', 'Invited'),
+      limit(1)
+    );
+    const snapPhone = await getDocs(qPhone);
+    if (!snapPhone.empty) {
+      return { id: snapPhone.docs[0].id, ...snapPhone.docs[0].data() } as Invite;
+    }
+  }
+
+  return null;
+};
+
+/**
+ * Accept an invite and link the member.
+ * This should technically update both the invite and the appUser gyms/branches.
+ */
+export const acceptInvite = async (
+  tenantId: string,
+  branchId: string,
+  inviteId: string,
+  uid: string
+): Promise<void> => {
+  const db = getFirestore();
+
+  const inviteRef = doc(
+    db,
+    COLLECTIONS.TENANTS,
+    tenantId,
+    COLLECTIONS.BRANCHES,
+    branchId,
+    COLLECTIONS.INVITES,
+    inviteId
+  );
+
+  const userRef = doc(db, COLLECTIONS.APPUSERS, uid);
+
+  const batch = writeBatch(db);
+
+  // Update invite status
+  batch.update(inviteRef, {
+    status: 'Accepted',
+    acceptedAt: new Date().toISOString(),
+    uid: uid
+  });
+
+  // Add gym and branch to user profile
+  batch.update(userRef, {
+    gyms: arrayUnion(tenantId),
+    branchIds: arrayUnion(branchId),
+    activeGym: tenantId,
+    activeBranchId: branchId,
+    updatedAt: new Date().toISOString()
+  });
+
+  await batch.commit();
 };

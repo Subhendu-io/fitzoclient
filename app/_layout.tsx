@@ -5,7 +5,8 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import * as SplashScreen from "expo-splash-screen";
 import { useFonts } from "expo-font";
 import { queryClient } from "../src/lib/queryClient";
-import { auth } from "../src/lib/firebase";
+import { onAuthStateChanged } from "@react-native-firebase/auth";
+import { getAuth } from "../src/lib/firebase";
 import { useAuthStore } from "../src/store/useAuthStore";
 import { getAppUser } from "../src/services/userService";
 import { Kanit_400Regular, Kanit_700Bold, Kanit_800ExtraBold } from "@expo-google-fonts/kanit";
@@ -17,11 +18,18 @@ import Modal from "../src/components/shared/Modal";
 import Toaster from "../src/components/shared/Toaster";
 import "../global.css";
 
+import * as Linking from "expo-linking";
+import { parseDeepLink } from "../src/services/deepLinkService";
+import { useDeepLinkStore } from "../src/store/useDeepLinkStore";
+import { useRouter } from "expo-router";
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const { setUser, setProfile, setLoading } = useAuthStore();
+  const { pendingTenantId, pendingBranchId, clearPending } = useDeepLinkStore();
+  const router = useRouter();
   const [appIsReady, setAppIsReady] = useState(false);
 
   const [fontsLoaded] = useFonts({
@@ -30,13 +38,49 @@ export default function RootLayout() {
     Kanit_800ExtraBold,
   });
 
+  const handleDeepLink = (url: string | null) => {
+    if (!url) return;
+    const params = parseDeepLink(url);
+    if (params) {
+      router.push({
+        pathname: "/(tabs)/scanner",
+        params: params as any
+      });
+    }
+  };
+
   useEffect(() => {
-    const unsubscribe = auth().onAuthStateChanged(async (user) => {
+    // Initial URL
+    Linking.getInitialURL().then(handleDeepLink);
+
+    // Listener
+    const subscription = Linking.addEventListener("url", ({ url }) => {
+      handleDeepLink(url);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user);
       if (user) {
         try {
           const profile = await getAppUser(user.uid);
           setProfile(profile);
+          
+          // Check for pending deep link scan
+          if (pendingTenantId) {
+            router.push({
+              pathname: "/(tabs)/scanner",
+              params: { tenantId: pendingTenantId, branchId: pendingBranchId }
+            });
+            clearPending();
+          }
+
           // Register for notifications
           registerForPushNotificationsAsync(user.uid).catch((err) =>
             console.error("Notification registration failed:", err),
@@ -52,7 +96,7 @@ export default function RootLayout() {
     });
 
     return unsubscribe;
-  }, []);
+  }, [pendingTenantId]);
 
   useEffect(() => {
     if (fontsLoaded && appIsReady) {

@@ -1,4 +1,13 @@
-import { firestore } from "@/lib/firebase";
+import { 
+  getFirestore, 
+  collection, 
+  doc, 
+  query, 
+  where, 
+  limit, 
+  getDocs, 
+  orderBy 
+} from "@react-native-firebase/firestore";
 import { Attendance, MemberWorkoutAssignment } from "@/interfaces/member";
 import { parseAttendanceTimestamp } from "@/utils/attendanceUtils";
 import { COLLECTIONS } from "@/constants/collection";
@@ -8,13 +17,17 @@ const getBranchedCollectionRef = (
   tenantId: string,
   branchId: string = BRANCH_CONFIG.DEFAULT_BRANCH_ID,
   collectionName: string,
-) =>
-  firestore()
-    .collection(COLLECTIONS.TENANTS)
-    .doc(tenantId)
-    .collection(COLLECTIONS.BRANCHES)
-    .doc(branchId)
-    .collection(collectionName);
+) => {
+  const db = getFirestore();
+  return collection(
+    db,
+    COLLECTIONS.TENANTS,
+    tenantId,
+    COLLECTIONS.BRANCHES,
+    branchId,
+    collectionName
+  );
+};
 
 /**
  * Get attendance records for a member
@@ -24,7 +37,7 @@ export const getMemberAttendance = async (
   memberId: string,
   startDate?: Date,
   endDate?: Date,
-  limit: number = 50,
+  limitCount: number = 50,
   branchId: string = BRANCH_CONFIG.DEFAULT_BRANCH_ID,
 ): Promise<Attendance[]> => {
   try {
@@ -32,25 +45,13 @@ export const getMemberAttendance = async (
 
     // Fetch records using both legacy memberId and new actorId
     const [legacySnapshot, newSnapshot] = await Promise.all([
-      attendanceRef
-        .where("memberId", "==", memberId)
-        .limit(limit * 2)
-        .get(),
-      attendanceRef
-        .where("actorId", "==", memberId)
-        .limit(limit * 2)
-        .get(),
+      getDocs(query(attendanceRef, where("memberId", "==", memberId), limit(limitCount * 2))),
+      getDocs(query(attendanceRef, where("actorId", "==", memberId), limit(limitCount * 2))),
     ]).catch(async () => {
       // Fallback if index missing
       return Promise.all([
-        attendanceRef
-          .where("memberId", "==", memberId)
-          .get()
-          .catch(() => ({ docs: [] })),
-        attendanceRef
-          .where("actorId", "==", memberId)
-          .get()
-          .catch(() => ({ docs: [] })),
+        getDocs(query(attendanceRef, where("memberId", "==", memberId))),
+        getDocs(query(attendanceRef, where("actorId", "==", memberId))),
       ]);
     });
 
@@ -58,12 +59,12 @@ export const getMemberAttendance = async (
 
     // Deduplicate
     const uniqueDocsMap = new Map();
-    combinedDocs.forEach((doc) => uniqueDocsMap.set(doc.id, doc));
+    combinedDocs.forEach((docSnap) => uniqueDocsMap.set(docSnap.id, docSnap));
     const uniqueDocs = Array.from(uniqueDocsMap.values());
 
-    let records = uniqueDocs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
+    let records = uniqueDocs.map((docSnap) => ({
+      id: docSnap.id,
+      ...docSnap.data(),
     })) as Attendance[];
 
     // Sort manually
@@ -83,7 +84,7 @@ export const getMemberAttendance = async (
       });
     }
 
-    return records.slice(0, limit);
+    return records.slice(0, limitCount);
   } catch (error) {
     console.error("Error fetching member attendance:", error);
     throw new Error("Failed to fetch attendance records");
@@ -105,15 +106,18 @@ export const getWorkoutHistory = async (
       COLLECTIONS.WORKOUT_ASSIGNMENTS,
     );
 
-    const querySnapshot = await assignmentsRef
-      .where("memberId", "==", memberId)
-      .orderBy("assignedAt", "desc")
-      .limit(50)
-      .get();
+    const q = query(
+      assignmentsRef,
+      where("memberId", "==", memberId),
+      orderBy("assignedAt", "desc"),
+      limit(50)
+    );
 
-    return querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
+    const querySnapshot = await getDocs(q);
+
+    return querySnapshot.docs.map((docSnap) => ({
+      id: docSnap.id,
+      ...docSnap.data(),
     })) as MemberWorkoutAssignment[];
   } catch (error) {
     console.error("Error fetching workout history:", error);

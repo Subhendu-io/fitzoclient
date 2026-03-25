@@ -14,7 +14,7 @@ import {
 import { useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthStore } from '@/store/useAuthStore';
-import { firestore } from '@/lib/firebase';
+import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
 import { MemberWorkoutAssignment } from '@/interfaces/member';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { useThemeColors } from '@/hooks/useThemeColors';
@@ -27,17 +27,20 @@ export function WorkoutDetailScreen() {
   const { data: assignment, isLoading } = useQuery({
     queryKey: ['workoutAssignment', id],
     queryFn: async () => {
-      const doc = await firestore()
-        .collection('tenants')
-        .doc(activeGym!)
-        .collection('branches')
-        .doc(activeBranchId || 'main')
-        .collection('workout_assignments')
-        .doc(id as string)
-        .get();
+      const workoutDoc = await getDoc(
+        doc(
+          getFirestore(),
+          'tenants',
+          activeGym!,
+          'branches',
+          activeBranchId || 'main',
+          'workout_assignments',
+          id as string
+        )
+      );
       
-      if (!doc.exists()) throw new Error('Workout not found');
-      return { id: doc.id, ...doc.data() } as MemberWorkoutAssignment;
+      if (!workoutDoc.exists()) throw new Error('Workout not found');
+      return { id: workoutDoc.id, ...workoutDoc.data() } as MemberWorkoutAssignment;
     },
     enabled: !!id && !!activeGym,
   });

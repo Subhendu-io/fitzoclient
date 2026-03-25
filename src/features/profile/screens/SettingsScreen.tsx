@@ -17,7 +17,8 @@ import {
 import { useRouter } from "expo-router";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useDashboard } from "@/hooks/useDashboard";
-import { auth } from "@/lib/firebase";
+import { signOut } from "@react-native-firebase/auth";
+import { getAuth } from "@/lib/firebase";
 import Animated, { FadeInUp } from "react-native-reanimated";
 import { Palette } from "lucide-react-native";
 import { useThemeColors } from "@/hooks/useThemeColors";
@@ -49,7 +50,7 @@ export function SettingsScreen() {
               hideModal();
               setIsLoggingOut(true);
               setLoading(true);
-              await auth().signOut();
+              await signOut(getAuth());
               // Store will be updated by the listener in app/_layout.tsx
               router.replace("/(auth)/login");
             } catch (error) {

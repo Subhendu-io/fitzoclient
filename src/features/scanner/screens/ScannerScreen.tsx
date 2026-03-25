@@ -1,38 +1,86 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ActivityIndicator, Modal, Alert } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator, Modal } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import * as Haptics from "expo-haptics";
 import { ScreenWrapper } from "@/components/layout/ScreenWrapper";
-import { X, Zap, ZapOff, CheckCircle2 } from "lucide-react-native";
+import { X, Zap, ZapOff, CheckCircle2, AlertCircle } from "lucide-react-native";
 import Animated, { FadeIn, Layout } from "react-native-reanimated";
-import { verifyQrScan, createJoinRequest, linkMemberProfile } from "../services/qrVerifyService";
-import { markAttendance } from "@/services/memberService";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useMemberStore } from "@/store/useMemberStore";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { BlurView } from "expo-blur";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import { useToaster } from "@/providers/useToaster";
 import { useModal } from "@/providers/useModal";
+import { executeScanFlow, ScanFlowResult } from "../services/scanFlowService";
 
 export function ScannerScreen() {
   const { showToast } = useToaster();
   const { showModal: showGlobalModal } = useModal();
   const colors = useThemeColors();
   const router = useRouter();
+  const params = useLocalSearchParams();
+  
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
   const [flash, setFlash] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [scanResult, setScanResult] = useState<any>(null);
+  const [showResultModal, setShowResultModal] = useState(false);
+  const [flowResult, setFlowResult] = useState<ScanFlowResult | null>(null);
 
   const { user, profile } = useAuthStore();
-  const { memberData, setMemberData, setTenantInfo } = useMemberStore();
 
   useEffect(() => {
     if (!permission) requestPermission();
   }, []);
+
+  const handleScan = React.useCallback(async (data: string) => {
+    if (scanned || isProcessing) return;
+
+    setScanned(true);
+    setIsProcessing(true);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    try {
+      const result = await executeScanFlow(data, user, profile);
+      setFlowResult(result);
+
+      if (result.type === 'INVALID_LINK') {
+        showToast({
+          title: "Invalid QR",
+          message: "The scanned QR code is invalid.",
+          variant: "danger",
+        });
+        setScanned(false);
+      } else if (result.type === 'AUTH_REQUIRED') {
+        // Handled by scanFlowService saving to store, we just need to redirect
+        showToast({
+          title: "Login Required",
+          message: "Please login to proceed with the scan.",
+          variant: "info",
+        });
+        router.push("/(auth)/login");
+      } else {
+        setShowResultModal(true);
+      }
+    } catch (error: any) {
+      showToast({
+        title: "Error",
+        message: error.message || "Failed to process scan",
+        variant: "danger",
+      });
+      setScanned(false);
+    } finally {
+      setIsProcessing(false);
+    }
+  }, [scanned, isProcessing, user, profile, router, showToast]);
+
+  // Handle incoming params from deep link
+  useEffect(() => {
+    if (params.tenantId && !scanned && !isProcessing) {
+      const data = `tenantId=${params.tenantId}&branchId=${params.branchId || 'main'}`;
+      handleScan(data);
+    }
+  }, [params.tenantId, handleScan, scanned, isProcessing]);
 
   if (!permission) {
     return <View className="flex-1 bg-background" />;
@@ -51,103 +99,120 @@ export function ScannerScreen() {
     );
   }
 
-  const handleBarCodeScanned = async ({ data }: { data: string }) => {
-    if (scanned || isProcessing) return;
+  const renderModalContent = () => {
+    if (!flowResult) return null;
 
-    setScanned(true);
-    setIsProcessing(true);
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    switch (flowResult.type) {
+      case 'ATTENDANCE_MARKED':
+        return (
+          <View className="items-center">
+            <View className="bg-green-500/20 p-4 rounded-full mb-4">
+              <CheckCircle2 color="#22c55e" size={40} />
+            </View>
+            <Text className="text-text text-2xl font-bold font-kanit mb-1">Checked In!</Text>
+            <Text className="text-text-secondary font-kanit text-center mb-8">
+              Welcome to {flowResult.gymName}. Your attendance has been recorded.
+            </Text>
+            <TouchableOpacity
+              className="w-full bg-primary py-4 rounded-2xl items-center"
+              onPress={() => {
+                setShowResultModal(false);
+                router.back();
+              }}
+            >
+              <Text className="text-black font-bold font-kanit">Done</Text>
+            </TouchableOpacity>
+          </View>
+        );
 
-    try {
-      // Basic URL parsing (mimicking deepLinkService behavior)
-      let tenantId = "";
-      let branchId = "main";
+      case 'JOIN_REQUEST_SENT':
+        return (
+          <View className="items-center">
+            <View className="bg-blue-500/20 p-4 rounded-full mb-4">
+              <AlertCircle color="#3b82f6" size={40} />
+            </View>
+            <Text className="text-text text-2xl font-bold font-kanit mb-1">Request Sent</Text>
+            <Text className="text-text-secondary font-kanit text-center mb-8">
+              Your request to join has been submitted. You will be notified once approved.
+            </Text>
+            <TouchableOpacity
+              className="w-full bg-primary py-4 rounded-2xl items-center"
+              onPress={() => {
+                setShowResultModal(false);
+                setScanned(false);
+              }}
+            >
+              <Text className="text-black font-bold font-kanit">Okay</Text>
+            </TouchableOpacity>
+          </View>
+        );
 
-      if (data.includes("tenantId=")) {
-        tenantId = data.split("tenantId=")[1].split("&")[0];
-        if (data.includes("branchId=")) {
-          branchId = data.split("branchId=")[1].split("&")[0];
-        }
-      } else {
-        // Assume raw text if not a URL
-        tenantId = data;
-      }
+      case 'INVITE_ACCEPTED':
+        return (
+          <View className="items-center">
+            <View className="bg-primary/20 p-4 rounded-full mb-4">
+              <CheckCircle2 color={colors.primary} size={40} />
+            </View>
+            <Text className="text-text text-2xl font-bold font-kanit mb-1">Welcome!</Text>
+            <Text className="text-text-secondary font-kanit text-center mb-8">
+              You have been successfully added to {flowResult.gymName}.
+            </Text>
+            <TouchableOpacity
+              className="w-full bg-primary py-4 rounded-2xl items-center"
+              onPress={() => {
+                setShowResultModal(false);
+                setScanned(false);
+                // We could re-trigger scan flow here to mark attendance immediately
+                // but usually user just wants to see they are in.
+              }}
+            >
+              <Text className="text-black font-bold font-kanit">Continue</Text>
+            </TouchableOpacity>
+          </View>
+        );
 
-      const result = await verifyQrScan({ tenantId, branchId });
-      setScanResult({ ...result, tenantId, branchId });
-      setShowModal(true);
-    } catch (error: any) {
-      showToast({
-        title: "Scan Error",
-        message: error.message || "Failed to verify QR code",
-        variant: "danger",
-      });
-      setScanned(false);
-    } finally {
-      setIsProcessing(false);
-    }
-  };
+      case 'NO_SUBSCRIPTION':
+        return (
+          <View className="items-center">
+            <View className="bg-yellow-500/20 p-4 rounded-full mb-4">
+              <AlertCircle color="#eab308" size={40} />
+            </View>
+            <Text className="text-text text-2xl font-bold font-kanit mb-1">No Active Plan</Text>
+            <Text className="text-text-secondary font-kanit text-center mb-8">
+              You need an active subscription to check in at this gym.
+            </Text>
+            <View className="flex-row space-x-4 w-full">
+              <TouchableOpacity
+                className="flex-1 bg-white/10 py-4 rounded-2xl items-center"
+                onPress={() => {
+                  setShowResultModal(false);
+                  setScanned(false);
+                }}
+              >
+                <Text className="text-text font-bold font-kanit">Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                className="flex-1 bg-primary py-4 rounded-2xl items-center"
+                onPress={() => {
+                  setShowResultModal(false);
+                  router.push({
+                    pathname: "/(main)/home/buy-subscription",
+                    params: { 
+                      tenantId: flowResult.tenantId, 
+                      branchId: flowResult.branchId,
+                      memberId: flowResult.memberId 
+                    }
+                  });
+                }}
+              >
+                <Text className="text-black font-bold font-kanit">Buy Plan</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        );
 
-  const handleAction = async () => {
-    if (!scanResult) return;
-    setIsProcessing(true);
-
-    try {
-      if (scanResult.status === "EXISTING_MEMBER") {
-        // Link profile
-        await linkMemberProfile({
-          tenantId: scanResult.tenantId,
-          branchId: scanResult.branchId,
-          memberId: scanResult.memberPreview.memberId,
-          consent: true,
-        });
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        showToast({
-          title: "Success",
-          message: "Profile linked successfully!",
-          variant: "success",
-        });
-      } else if (scanResult.status === "NO_MEMBER") {
-        // Join request
-        await createJoinRequest({
-          tenantId: scanResult.tenantId,
-          branchId: scanResult.branchId,
-          displayName: user?.displayName || undefined,
-        });
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        showToast({
-          title: "Request Sent",
-          message: "Your request to join has been submitted.",
-          variant: "success",
-        });
-      } else if (
-        scanResult.status === "EXISTING_MEMBER" &&
-        profile?.activeGym === scanResult.tenantId
-      ) {
-        // Attendance (if already a member)
-        if (memberData) {
-          await markAttendance(scanResult.tenantId, memberData.id, scanResult.branchId);
-          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-          showGlobalModal({
-            title: "Checked In!",
-            message: `Welcome to ${scanResult.gymName}`,
-            variant: "success",
-            cancelable: true,
-            buttons: [{ text: "Done", style: "default" }],
-          });
-        }
-      }
-
-      setShowModal(false);
-      setScanned(false);
-    } catch (error: any) {
-      showToast({
-        title: "Action Failed",
-        message: error.message || "Could not complete request",
-        variant: "danger",
-      });
-    } finally {
-      setIsProcessing(false);
+      default:
+        return null;
     }
   };
 
@@ -157,19 +222,18 @@ export function ScannerScreen() {
         style={{ flex: 1 }}
         facing="back"
         enableTorch={flash}
-        onBarcodeScanned={handleBarCodeScanned}
+        onBarcodeScanned={({ data }) => handleScan(data)}
         barcodeScannerSettings={{
           barcodeTypes: ["qr"],
         }}
       >
         <View className="flex-1 bg-black/40">
-          {/* Header */}
           <View className="flex-row items-center justify-between px-6 pt-14">
             <TouchableOpacity
               className="bg-black/50 p-2 rounded-full"
               onPress={() => router.back()}
             >
-              <X {...({ color: colors.text, size: 24 } as any)} />
+              <X color={colors.text} size={24} />
             </TouchableOpacity>
             <Text className="text-text font-bold text-lg font-kanit">Scan QR Code</Text>
             <TouchableOpacity
@@ -177,120 +241,42 @@ export function ScannerScreen() {
               onPress={() => setFlash(!flash)}
             >
               {flash ? (
-                <Zap {...({ color: colors.primary, size: 24 } as any)} />
+                <Zap color={colors.primary} size={24} />
               ) : (
-                <ZapOff {...({ color: colors.text, size: 24 } as any)} />
+                <ZapOff color={colors.text} size={24} />
               )}
             </TouchableOpacity>
           </View>
 
-          {/* Scanner Overlay */}
           <View className="flex-1 items-center justify-center">
             <View className="w-72 h-72 items-center justify-center">
-              {/* Corner brackets */}
               <View className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-primary rounded-tl-2xl" />
               <View className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-primary rounded-tr-2xl" />
               <View className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-primary rounded-bl-2xl" />
               <View className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-primary rounded-br-2xl" />
-
-              <View className="w-64 h-64 border border-stone-200/20 dark:border-stone-900/20 rounded-3xl" />
-
+              <View className="w-64 h-64 border border-stone-200/20 rounded-3xl" />
               {isProcessing && (
                 <View className="absolute inset-0 items-center justify-center bg-black/40 rounded-3xl">
                   <ActivityIndicator color={colors.primary} size="large" />
                 </View>
               )}
-
-              {/* Scanning animation line */}
-              {!isProcessing && !scanned && (
-                <Animated.View
-                  entering={FadeIn}
-                  className="absolute top-4 w-60 h-0.5 bg-primary/50 shadow-lg shadow-primary"
-                  style={{ transform: [{ translateY: 10 }] }} // This would need a loop in real use, but good for visual.
-                />
-              )}
             </View>
-            <Text className="text-text/60 mt-12 font-kanit font-medium tracking-wide">
+            <Text className="text-text/60 mt-12 font-kanit font-medium">
               Align QR Code within the frame
-            </Text>
-          </View>
-
-          {/* Footer Info */}
-          <View className="px-10 pb-28 items-center">
-            <Text className="text-text-secondary text-center font-kanit opacity-80">
-              Scan a gym QR code to mark attendance or join a new gym branch
             </Text>
           </View>
         </View>
       </CameraView>
 
-      {/* Confirmation Modal */}
-      <Modal visible={showModal} transparent animationType="slide">
+      <Modal visible={showResultModal} transparent animationType="slide">
         <View className="flex-1 justify-end">
-          <BlurView
-            intensity={100}
-            tint="dark"
-            className="bg-card h-[45%] rounded-t-[40px] px-8 py-10 border-t border-stone-200/10 dark:border-stone-900/10"
-          >
-            {scanResult && (
-              <Animated.View entering={FadeIn} layout={Layout} className="flex-1">
-                <View className="items-center mb-6">
-                  <View className="bg-primary/20 p-4 rounded-full mb-4">
-                    <CheckCircle2 {...({ color: colors.primary, size: 40 } as any)} />
-                  </View>
-                  <Text className="text-text text-2xl font-bold font-kanit mb-1">
-                    {scanResult.gymName || "New Gym Found"}
-                  </Text>
-                  <Text className="text-text-secondary font-kanit">
-                    {scanResult.branchName || "Main Branch"}
-                  </Text>
-                </View>
-
-                <View className="bg-white/5 p-5 rounded-2xl mb-8 border border-stone-200/5 dark:border-stone-900/5">
-                  <Text className="text-text/80 font-kanit leading-6 text-center">
-                    {scanResult.status === "EXISTING_MEMBER"
-                      ? "We found a membership linked to your phone number. Would you like to link it to your account?"
-                      : scanResult.status === "NO_MEMBER"
-                        ? "You are not a member of this gym yet. Would you like to send a join request?"
-                        : "You are already a member! Click below to mark your attendance."}
-                  </Text>
-                </View>
-
-                <View className="flex-row space-x-4">
-                  <TouchableOpacity
-                    className="flex-1 bg-white/10 py-4 rounded-2xl items-center"
-                    onPress={() => {
-                      setShowModal(false);
-                      setScanned(false);
-                    }}
-                  >
-                    <Text className="text-text font-bold font-kanit">Cancel</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    className="flex-1 bg-primary py-4 rounded-2xl items-center"
-                    onPress={handleAction}
-                    disabled={isProcessing}
-                  >
-                    {isProcessing ? (
-                      <ActivityIndicator color={colors.onPrimary} />
-                    ) : (
-                      <Text className="text-black font-bold font-kanit">
-                        {scanResult.status === "EXISTING_MEMBER"
-                          ? "Link Account"
-                          : scanResult.status === "NO_MEMBER"
-                            ? "Request to Join"
-                            : "Check In"}
-                      </Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </Animated.View>
-            )}
+          <BlurView intensity={100} tint="dark" className="bg-card rounded-t-[40px] px-8 py-10">
+            <Animated.View entering={FadeIn} layout={Layout}>
+              {renderModalContent()}
+            </Animated.View>
           </BlurView>
         </View>
       </Modal>
     </View>
   );
 }
-
-// Add simple BlurView polyfill for Android since intensity is used

@@ -1,13 +1,14 @@
-import { auth, firestore } from '@/lib/firebase';
+import { getAuth, getFirestore } from '@/lib/firebase';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signInWithPhoneNumber,
+  signInWithCredential,
   PhoneAuthProvider,
   updateProfile,
   signOut as firebaseSignOut,
   FirebaseAuthTypes,
-} from '@react-native-firebase/auth';
+} from "@react-native-firebase/auth";
 import {
   collection,
   doc,
@@ -15,8 +16,8 @@ import {
   serverTimestamp,
 } from '@react-native-firebase/firestore';
 
-const firebaseAuth = auth();
-const db = firestore();
+const firebaseAuth = getAuth();
+const db = getFirestore();
 
 export interface SignUpData {
   email: string;
@@ -126,7 +127,7 @@ export const verifyPhoneOTP = async (
 ): Promise<FirebaseAuthTypes.UserCredential> => {
   try {
     const credential = PhoneAuthProvider.credential(verificationId, code);
-    const userCredential = await firebaseAuth.signInWithCredential(credential);
+    const userCredential = await signInWithCredential(firebaseAuth, credential);
     return userCredential;
   } catch (error: any) {
     console.error('OTP verification error:', error);

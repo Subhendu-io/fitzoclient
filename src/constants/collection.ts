@@ -12,4 +12,6 @@ export const COLLECTIONS = {
   SUBSCRIPTIONS: "subscriptions",
   USERS: "users",
   WORKOUT_ASSIGNMENTS: "workoutAssignments",
+  INVITES: "invites",
+  JOIN_REQUESTS: "joinRequests",
 } as const;

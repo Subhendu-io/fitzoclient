@@ -1,4 +1,3 @@
-import { firestore } from "@/lib/firebase";
 import {
   collection,
   doc,
@@ -26,10 +25,11 @@ import {
   MemberSessionPlanItem,
   MemberRedemptionHistoryItem,
 } from "@/interfaces/member";
+import { getFirestore } from '@/lib/firebase';
 import { COLLECTIONS } from "@/constants/collection";
 import { BRANCH_CONFIG } from "@/constants/config";
 
-const db = firestore();
+const db = getFirestore();
 
 const isPermissionDeniedError = (error: unknown): boolean => {
   const message =
@@ -680,5 +680,31 @@ export const getWorkoutAssignments = async (
     }
     console.error("Error fetching workout assignments:", error);
     return [];
+  }
+};
+
+/**
+ * Get the currently active subscription with date validation
+ */
+export const getActiveSubscriptionForScan = async (
+  tenantId: string,
+  memberId: string,
+  branchId?: string,
+): Promise<Subscription | null> => {
+  try {
+    const subscriptions = await getMemberSubscriptions(tenantId, memberId, branchId);
+    const now = new Date();
+    
+    return subscriptions.find((s) => {
+      if (s.status !== "active") return false;
+      
+      const start = new Date(s.startDate);
+      const end = new Date(s.endDate);
+      
+      return now >= start && now <= end;
+    }) || null;
+  } catch (error) {
+    console.error("Error finding active subscription for scan:", error);
+    return null;
   }
 };

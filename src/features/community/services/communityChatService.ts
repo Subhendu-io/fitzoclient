@@ -1,4 +1,14 @@
-import { firestore } from '@/lib/firebase';
+import { 
+  getFirestore, 
+  collection, 
+  doc, 
+  onSnapshot, 
+  query, 
+  orderBy, 
+  addDoc, 
+  serverTimestamp,
+  FirebaseFirestoreTypes
+} from "@react-native-firebase/firestore";
 import type { CommunityMessage, CommunityChatMode } from '@/interfaces/member';
 
 const TENANTS_COLLECTION = 'tenants';
@@ -9,13 +19,17 @@ const DEFAULT_BRANCH_ID = 'main';
 const resolveBranchId = (branchId?: string): string =>
   branchId && branchId.trim().length > 0 ? branchId : DEFAULT_BRANCH_ID;
 
-const getCommunityMessagesCollection = (tenantId: string, branchId?: string) =>
-  firestore()
-    .collection(TENANTS_COLLECTION)
-    .doc(tenantId)
-    .collection(BRANCHES_SUBCOLLECTION)
-    .doc(resolveBranchId(branchId))
-    .collection(COMMUNITY_MESSAGES_SUBCOLLECTION);
+const getCommunityMessagesCollection = (tenantId: string, branchId?: string) => {
+  const db = getFirestore();
+  return collection(
+    db,
+    TENANTS_COLLECTION,
+    tenantId,
+    BRANCHES_SUBCOLLECTION,
+    resolveBranchId(branchId),
+    COMMUNITY_MESSAGES_SUBCOLLECTION
+  );
+};
 
 function normalizeCreatedAt(createdAt: any): number {
   if (typeof createdAt === 'number') return createdAt;
@@ -24,10 +38,10 @@ function normalizeCreatedAt(createdAt: any): number {
   return Date.now();
 }
 
-function toCommunityMessage(doc: any): CommunityMessage {
-  const data = doc.data();
+function toCommunityMessage(docSnapshot: FirebaseFirestoreTypes.QueryDocumentSnapshot): CommunityMessage {
+  const data = docSnapshot.data();
   return {
-    id: doc.id,
+    id: docSnapshot.id,
     senderId: data?.senderId ?? '',
     senderType: data?.senderType ?? 'member',
     senderName: data?.senderName ?? '',
@@ -49,19 +63,19 @@ export function subscribeToCommunityMessages(
 ): () => void {
   const resolvedBranchId = resolveBranchId(branchId);
   const colRef = getCommunityMessagesCollection(tenantId, resolvedBranchId);
+  const q = query(colRef, orderBy('createdAt', 'asc'));
   
-  const unsubscribe = colRef
-    .orderBy('createdAt', 'asc')
-    .onSnapshot(
-      (snapshot) => {
-        const messages = snapshot.docs.map((doc) => toCommunityMessage(doc));
-        onUpdate(messages);
-      },
-      (err: any) => {
-        console.error('[CommunityChatService] Error:', err);
-        if (onError) onError(new Error('Failed to load community messages'));
-      },
-    );
+  const unsubscribe = onSnapshot(
+    q,
+    (snapshot: FirebaseFirestoreTypes.QuerySnapshot) => {
+      const messages = snapshot.docs.map((docSnap: FirebaseFirestoreTypes.QueryDocumentSnapshot) => toCommunityMessage(docSnap));
+      onUpdate(messages);
+    },
+    (err: any) => {
+      console.error('[CommunityChatService] Error:', err);
+      if (onError) onError(new Error('Failed to load community messages'));
+    },
+  );
   return unsubscribe;
 }
 
@@ -77,13 +91,13 @@ export async function sendCommunityMessage(
 ): Promise<void> {
   const resolvedBranchId = resolveBranchId(branchId);
   const col = getCommunityMessagesCollection(tenantId, resolvedBranchId);
-  await col.add({
+  await addDoc(col, {
     senderId: uid,
     senderType: 'member',
     senderName: senderName.trim() || 'Member',
     text: text.trim(),
     tenantId,
     branchId: resolvedBranchId,
-    createdAt: firestore.FieldValue.serverTimestamp(),
+    createdAt: serverTimestamp(),
   });
 }

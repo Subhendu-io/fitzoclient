@@ -1,8 +1,4 @@
-/**
- * Service for AI-powered fitness score analysis.
- * Calls the analyzeFitness Cloud Function with a base64-encoded body photo.
- */
-import functions from '@react-native-firebase/functions';
+import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
 
 export interface FitnessAssessment {
   score: number;
@@ -25,7 +21,8 @@ export const analyzeFitness = async (
     throw new Error('Image data is required');
   }
 
-  const callable = functions().httpsCallable(ANALYZE_FITNESS_CALLABLE);
+  const functions = getFunctions();
+  const callable = httpsCallable(functions, ANALYZE_FITNESS_CALLABLE);
   const { data } = await callable({ imageBase64 });
 
   return data as FitnessAssessment;
