@@ -9,7 +9,7 @@ export function GymCard({ name, location, rating, image, delay }: any) {
   return (
     <Animated.View 
       entering={FadeInUp.delay(delay)}
-      className="bg-card rounded-[32px] overflow-hidden border border-stone-200/5 dark:border-stone-900/5"
+      className="bg-card mb-5 rounded-[32px] overflow-hidden border border-stone-200/5 dark:border-stone-900/5"
     >
        <View className="relative h-48">
           <Image source={{ uri: image }} className="w-full h-full" />

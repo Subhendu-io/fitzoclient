@@ -126,8 +126,11 @@ export function NotificationsScreen() {
           contentContainerStyle={{ padding: 20 }}
           ListEmptyComponent={
             <View className="items-center py-20">
-              <BellOff {...({ size: 48, color: colors.muted } as any)} />
-              <Text className="text-text/40 font-kanit mt-4 text-center">
+              <BellOff {...({ size: 48, color: colors.primary } as any)} />
+              <Text className="text-xl font-bold font-kanit mt-4 text-center text-black dark:text-white">
+                No Notifications
+              </Text>
+              <Text className="text-text/40 font-kanit mt-2 text-center text-gray-500 dark:text-gray-400">
                 You're all caught up!
               </Text>
             </View>

@@ -141,7 +141,10 @@ export function CommunityChatScreen() {
             ListEmptyComponent={
               <View className="items-center py-20">
                 <Users {...({ size: 48, color: colors.primary } as any)} />
-                <Text className="text-text font-kanit mt-4 text-center px-10">
+                <Text className="text-xl font-bold font-kanit mt-4 text-center text-black dark:text-white">
+                  No Messages
+                </Text>
+                <Text className="text-text/40 font-kanit mt-2 text-center text-gray-500 dark:text-gray-400">
                   No messages yet. Be the first to start the conversation!
                 </Text>
               </View>

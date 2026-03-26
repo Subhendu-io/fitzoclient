@@ -6,7 +6,7 @@ import { ScreenWrapper } from "@/components/layout/ScreenWrapper";
 import { X, Zap, ZapOff, CheckCircle2, AlertCircle } from "lucide-react-native";
 import Animated, { FadeIn, Layout } from "react-native-reanimated";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useRouter, useLocalSearchParams, useNavigation } from "expo-router";
 import { BlurView } from "expo-blur";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import { useToaster } from "@/providers/useToaster";
@@ -27,11 +27,22 @@ export function ScannerScreen() {
   const [showResultModal, setShowResultModal] = useState(false);
   const [flowResult, setFlowResult] = useState<ScanFlowResult | null>(null);
 
+  const navigation = useNavigation();
+  
   const { user, profile } = useAuthStore();
 
   useEffect(() => {
     if (!permission) requestPermission();
   }, []);
+
+  // Reset scanner state when screen focused
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setScanned(false);
+      setIsProcessing(false);
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const handleScan = React.useCallback(async (data: string) => {
     if (scanned || isProcessing) return;
@@ -74,6 +85,11 @@ export function ScannerScreen() {
     }
   }, [scanned, isProcessing, user, profile, router, showToast]);
 
+  const handleModalClose = () => {
+    setShowResultModal(false);
+    router.back();
+  };
+
   // Handle incoming params from deep link
   useEffect(() => {
     if (params.tenantId && !scanned && !isProcessing) {
@@ -115,10 +131,7 @@ export function ScannerScreen() {
             </Text>
             <TouchableOpacity
               className="w-full bg-primary py-4 rounded-2xl items-center"
-              onPress={() => {
-                setShowResultModal(false);
-                router.back();
-              }}
+              onPress={handleModalClose}
             >
               <Text className="text-black font-bold font-kanit">Done</Text>
             </TouchableOpacity>
@@ -137,10 +150,7 @@ export function ScannerScreen() {
             </Text>
             <TouchableOpacity
               className="w-full bg-primary py-4 rounded-2xl items-center"
-              onPress={() => {
-                setShowResultModal(false);
-                setScanned(false);
-              }}
+              onPress={handleModalClose}
             >
               <Text className="text-black font-bold font-kanit">Okay</Text>
             </TouchableOpacity>
@@ -159,12 +169,7 @@ export function ScannerScreen() {
             </Text>
             <TouchableOpacity
               className="w-full bg-primary py-4 rounded-2xl items-center"
-              onPress={() => {
-                setShowResultModal(false);
-                setScanned(false);
-                // We could re-trigger scan flow here to mark attendance immediately
-                // but usually user just wants to see they are in.
-              }}
+              onPress={handleModalClose}
             >
               <Text className="text-black font-bold font-kanit">Continue</Text>
             </TouchableOpacity>
