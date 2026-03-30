@@ -15,13 +15,20 @@ import {
   setDoc,
   serverTimestamp,
 } from '@react-native-firebase/firestore';
+import { COLLECTIONS } from '@/constants/collection';
 
 const firebaseAuth = getAuth();
 const db = getFirestore();
 
 export interface SignUpData {
   email: string;
-  password?: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface PhoneSignUpData {
+  phone: string;
   firstName: string;
   lastName: string;
 }
@@ -59,29 +66,39 @@ export const signInWithEmail = async (
 };
 
 /**
- * Sign up a new user with email and password
+ * Sign up a new user with email and password.
+ * Creates a Firebase Auth account and an appusers Firestore document.
  */
 export const signUpWithEmail = async (
   data: SignUpData,
 ): Promise<FirebaseAuthTypes.UserCredential> => {
   try {
     const { email, password, firstName, lastName } = data;
-    const userCredential = await createUserWithEmailAndPassword(firebaseAuth, email, password || '');
+    const userCredential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
 
-    await updateProfile(userCredential.user, {
-      displayName: `${firstName} ${lastName}`.trim(),
-    });
+    const displayName = `${firstName} ${lastName}`.trim();
+    await updateProfile(userCredential.user, { displayName });
 
-    await setDoc(doc(db, 'users', userCredential.user.uid), {
+    // Create the appusers doc (matches AppUser interface)
+    await setDoc(doc(db, COLLECTIONS.APPUSERS, userCredential.user.uid), {
+      uid: userCredential.user.uid,
       firstName,
       lastName,
       email,
-      createdAt: serverTimestamp(),
+      gyms: [],
+      createdAt: new Date().toISOString(),
     });
 
     return userCredential;
   } catch (error: any) {
     console.error('Signup error:', error);
+    if (error.code === 'auth/email-already-in-use') {
+      throw new Error('An account with this email already exists');
+    } else if (error.code === 'auth/weak-password') {
+      throw new Error('Password must be at least 6 characters');
+    } else if (error.code === 'auth/invalid-email') {
+      throw new Error('Please enter a valid email address');
+    }
     throw error;
   }
 };
@@ -136,7 +153,7 @@ export const verifyPhoneOTP = async (
 };
 
 /**
- * Complete phone signup profile
+ * Complete phone signup profile — creates/updates the appusers doc.
  */
 export const completePhoneSignup = async (
   uid: string,
@@ -152,11 +169,13 @@ export const completePhoneSignup = async (
       displayName: `${firstName} ${lastName}`.trim(),
     });
 
-    await setDoc(doc(db, 'users', uid), {
+    await setDoc(doc(db, COLLECTIONS.APPUSERS, uid), {
+      uid,
       firstName,
       lastName,
       phone,
-      createdAt: serverTimestamp(),
+      gyms: [],
+      createdAt: new Date().toISOString(),
     }, { merge: true });
   } catch (error: any) {
     console.error('Complete phone signup error:', error);

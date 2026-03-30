@@ -9,6 +9,7 @@ interface InputProps extends Omit<TextInputProps, 'style'> {
   className?: string;
   icon?: any;
   leftComponent?: React.ReactNode;
+  rightComponent?: React.ReactNode;
 }
 
 export function Input({
@@ -18,6 +19,7 @@ export function Input({
   className = '',
   icon: Icon,
   leftComponent,
+  rightComponent,
   ...props
 }: InputProps) {
   const colors = useThemeColors();
@@ -38,8 +40,10 @@ export function Input({
           onBlur={() => setIsFocused(false)}
           {...props}
         />
+        {rightComponent && <View className="ml-2">{rightComponent}</View>}
       </View>
       {error && <Text className="text-xs text-error mt-1 font-kanit">{error}</Text>}
     </View>
   );
 }
+

@@ -1,5 +1,5 @@
 import { FirebaseAuthTypes } from '@react-native-firebase/auth';
-import { AppUser, Subscription, Member } from '@/interfaces/member';
+import { AppUser } from '@/interfaces/member';
 import { parseDeepLink } from '@/services/deepLinkService';
 import { useDeepLinkStore } from '@/store/useDeepLinkStore';
 import { checkInvite, acceptInvite, createJoinRequest } from './qrVerifyService';

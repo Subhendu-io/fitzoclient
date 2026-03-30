@@ -11,7 +11,7 @@ export const parseDeepLink = (url: string): DeepLinkParams | null => {
   try {
     // Basic URL parsing
     let tenantId = "";
-    let branchId = BRANCH_CONFIG.DEFAULT_BRANCH_ID as "main";
+    let branchId: string = BRANCH_CONFIG.DEFAULT_BRANCH_ID;
 
     if (url.includes("tenantId=")) {
       const parts = url.split("tenantId=");

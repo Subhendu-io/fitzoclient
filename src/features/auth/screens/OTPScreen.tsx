@@ -4,11 +4,17 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { ScreenWrapper } from '@/components/layout/ScreenWrapper';
 import { Button } from '@/components/ui/Button';
 import { Header } from '@/components/layout/Header';
-import { verifyPhoneOTP, signInWithPhone } from '../services/authService';
+import { verifyPhoneOTP, signInWithPhone, completePhoneSignup } from '../services/authService';
 
 export function OTPScreen() {
   const router = useRouter();
-  const { verificationId: initialVerificationId, phone } = useLocalSearchParams<{ verificationId: string; phone: string }>();
+  const { verificationId: initialVerificationId, phone, firstName, lastName, isNewUser } = useLocalSearchParams<{
+    verificationId: string;
+    phone: string;
+    firstName?: string;
+    lastName?: string;
+    isNewUser?: string;
+  }>();
   
   const [verificationId, setVerificationId] = useState(initialVerificationId);
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -53,9 +59,22 @@ export function OTPScreen() {
     setIsSubmitting(true);
     setError('');
     try {
-      await verifyPhoneOTP(verificationId, otpCode);
-      // Auth state listener will handle redirection
-      router.replace('/(tabs)/home');
+      const userCredential = await verifyPhoneOTP(verificationId, otpCode);
+
+      if (isNewUser === 'true' && firstName && lastName) {
+        // Registration via phone — name was collected on RegisterScreen
+        await completePhoneSignup(userCredential.user.uid, firstName, lastName, phone);
+        router.replace('/(tabs)/home');
+      } else if (isNewUser === 'true') {
+        // Registration via phone — name still needed
+        router.replace({
+          pathname: '/phone-name',
+          params: { phone },
+        });
+      } else {
+        // Existing user login
+        router.replace('/(tabs)/home');
+      }
     } catch (err: any) {
       setError(err.message || 'Verification failed');
       setOtp(['', '', '', '', '', '']);
