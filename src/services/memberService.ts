@@ -25,7 +25,7 @@ import {
   MemberSessionPlanItem,
   MemberRedemptionHistoryItem,
 } from "@/interfaces/member";
-import { getFirestore } from '@/lib/firebase';
+import { getAuth, getFirestore } from '@/lib/firebase';
 import { COLLECTIONS } from "@/constants/collection";
 import { BRANCH_CONFIG } from "@/constants/config";
 
@@ -116,13 +116,19 @@ export const markAttendance = async (
   branchId?: string,
 ): Promise<void> => {
   try {
+    const authUid = getAuth().currentUser?.uid;
+    if (!authUid) {
+      throw new Error("Not authenticated");
+    }
+
     const resolvedBranchId = resolveBranchId(branchId);
     const colRef = getBranchedCollectionRef(tenantId, resolvedBranchId, COLLECTIONS.ATTENDANCE);
 
     await addDoc(colRef, {
       memberId,
       actorType: "member",
-      actorId: memberId,
+      // Firestore rules expect Firebase Auth uid here (member doc id stays in memberId)
+      actorId: authUid,
       punchedAt: serverTimestamp(),
       source: "QR",
       punchType: "CHECK_IN",

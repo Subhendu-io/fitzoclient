@@ -13,10 +13,15 @@ import {
 import { COLLECTIONS } from '@/constants/collection';
 
 export type VerifyQrScanStatus =
-  | 'EXISTING_MEMBER'
-  | 'NO_MEMBER'
+  | 'MEMBER_READY'
+  | 'MEMBER_LINKED'
+  | 'LEAD_CREATED'
+  | 'PHONE_REQUIRED'
   | 'TENANT_INVALID'
-  | 'BRANCH_INVALID';
+  | 'BRANCH_INVALID'
+  /** @deprecated server may still return for older deployments */
+  | 'EXISTING_MEMBER'
+  | 'NO_MEMBER';
 
 export interface VerifyQrScanMemberPreview {
   memberId: string;
@@ -26,6 +31,10 @@ export interface VerifyQrScanMemberPreview {
 
 export interface VerifyQrScanResult {
   status: VerifyQrScanStatus;
+  /** Set when member is linked or ready for check-in */
+  memberId?: string;
+  /** Set when a lead was created or reused */
+  leadId?: string;
   memberPreview?: VerifyQrScanMemberPreview;
   gymName?: string;
   branchName?: string;

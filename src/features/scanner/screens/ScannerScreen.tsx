@@ -12,6 +12,7 @@ import { useThemeColors } from "@/hooks/useThemeColors";
 import { useToaster } from "@/providers/useToaster";
 import { useModal } from "@/providers/useModal";
 import { executeScanFlow, ScanFlowResult } from "../services/scanFlowService";
+import { getAppUser } from "@/services/userService";
 
 export function ScannerScreen() {
   const { showToast } = useToaster();
@@ -29,7 +30,7 @@ export function ScannerScreen() {
 
   const navigation = useNavigation();
   
-  const { user, profile } = useAuthStore();
+  const { user, setProfile } = useAuthStore();
 
   useEffect(() => {
     if (!permission) requestPermission();
@@ -52,8 +53,14 @@ export function ScannerScreen() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
     try {
-      const result = await executeScanFlow(data, user, profile);
+      const result = await executeScanFlow(data, user);
       setFlowResult(result);
+
+      if (user && result.type !== "INVALID_LINK" && result.type !== "AUTH_REQUIRED") {
+        getAppUser(user.uid)
+          .then((p) => setProfile(p))
+          .catch(() => undefined);
+      }
 
       if (result.type === 'INVALID_LINK') {
         showToast({
@@ -83,7 +90,7 @@ export function ScannerScreen() {
     } finally {
       setIsProcessing(false);
     }
-  }, [scanned, isProcessing, user, profile, router, showToast]);
+  }, [scanned, isProcessing, user, router, showToast, setProfile]);
 
   const handleModalClose = () => {
     setShowResultModal(false);
@@ -138,15 +145,15 @@ export function ScannerScreen() {
           </View>
         );
 
-      case 'JOIN_REQUEST_SENT':
+      case "LEAD_PENDING":
         return (
           <View className="items-center">
             <View className="bg-blue-500/20 p-4 rounded-full mb-4">
               <AlertCircle color="#3b82f6" size={40} />
             </View>
-            <Text className="text-text text-2xl font-bold font-kanit mb-1">Request Sent</Text>
+            <Text className="text-text text-2xl font-bold font-kanit mb-1">Join request sent</Text>
             <Text className="text-text-secondary font-kanit text-center mb-8">
-              Your request to join has been submitted. You will be notified once approved.
+              {flowResult.gymName} will review your details. You will be notified when your membership is ready.
             </Text>
             <TouchableOpacity
               className="w-full bg-primary py-4 rounded-2xl items-center"
@@ -157,21 +164,21 @@ export function ScannerScreen() {
           </View>
         );
 
-      case 'INVITE_ACCEPTED':
+      case "PHONE_REQUIRED":
         return (
           <View className="items-center">
-            <View className="bg-primary/20 p-4 rounded-full mb-4">
-              <CheckCircle2 color={colors.primary} size={40} />
+            <View className="bg-amber-500/20 p-4 rounded-full mb-4">
+              <AlertCircle color="#f59e0b" size={40} />
             </View>
-            <Text className="text-text text-2xl font-bold font-kanit mb-1">Welcome!</Text>
+            <Text className="text-text text-2xl font-bold font-kanit mb-1">Phone number needed</Text>
             <Text className="text-text-secondary font-kanit text-center mb-8">
-              You have been successfully added to {flowResult.gymName}.
+              Add a verified phone number in your profile so we can match you to {flowResult.gymName}.
             </Text>
             <TouchableOpacity
               className="w-full bg-primary py-4 rounded-2xl items-center"
               onPress={handleModalClose}
             >
-              <Text className="text-black font-bold font-kanit">Continue</Text>
+              <Text className="text-black font-bold font-kanit">Okay</Text>
             </TouchableOpacity>
           </View>
         );
