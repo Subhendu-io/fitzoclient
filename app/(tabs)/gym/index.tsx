@@ -1,2 +1,2 @@
-import { GymScreen } from '@/features/gym';
-export default GymScreen;
+import { HealthScreen } from '@/features/health';
+export default HealthScreen;

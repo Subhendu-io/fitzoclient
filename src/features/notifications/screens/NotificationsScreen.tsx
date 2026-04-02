@@ -63,8 +63,8 @@ export function NotificationsScreen() {
       entering={FadeIn} 
       exiting={FadeOut}
       layout={Layout}
-      className={`mb-3 p-4 rounded-2xl border ${
-        item.read ? 'bg-card/50 border-stone-200/5 dark:border-stone-900/5' : 'bg-card border-primary/20'
+      className={`mb-3 p-4 rounded-2xl bg-card border ${
+        item.read ? 'border-stone-200/5 dark:border-stone-900/5' : 'border-primary/20'
       }`}
     >
       <TouchableOpacity 
@@ -72,7 +72,7 @@ export function NotificationsScreen() {
         className="flex-row items-start"
       >
         <View className={`w-10 h-10 rounded-full items-center justify-center ${
-          item.read ? 'bg-white/5' : 'bg-primary/20'
+          item.read ? 'bg-background' : 'bg-primary/20'
         }`}>
           <Bell {...({ size: 18, color: item.read ? '#666' : colors.primary } as any)} />
           {!item.read && <View className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />}
@@ -80,17 +80,17 @@ export function NotificationsScreen() {
         
         <View className="flex-1 ml-4">
           <View className="flex-row justify-between items-start">
-            <Text className={`text-base font-bold font-kanit ${item.read ? 'text-text/60' : 'text-text'}`}>
+            <Text className={`text-base font-bold font-kanit ${item.read ? 'text-text-secondary' : 'text-text'}`}>
               {item.title}
             </Text>
             <TouchableOpacity onPress={() => handleDelete(item.id)}>
               <X {...({ size: 16, color: colors.muted } as any)} />
             </TouchableOpacity>
           </View>
-          <Text className={`text-sm mt-1 font-kanit ${item.read ? 'text-text/40' : 'text-text/80'}`}>
+          <Text className={`text-sm mt-1 font-kanit ${item.read ? 'text-text-secondary' : 'text-text'}`}>
             {item.body}
           </Text>
-          <Text className="text-[10px] mt-2 text-text/40">
+          <Text className="text-[10px] mt-2 text-text-secondary">
             {new Date(item.timestamp).toLocaleString()}
           </Text>
         </View>
@@ -113,7 +113,7 @@ export function NotificationsScreen() {
       />
 
       {loading ? (
-        <View className="flex-1 px-5 pt-8">
+        <View className="flex-1 px-5 pt-5">
           {[1, 2, 3, 4, 5].map(i => (
             <Skeleton key={i} width="100%" height={100} borderRadius={24} className="mb-4" />
           ))}
@@ -123,14 +123,14 @@ export function NotificationsScreen() {
           data={notifications}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{ padding: 20 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 10 }}
           ListEmptyComponent={
             <View className="items-center py-20">
               <BellOff {...({ size: 48, color: colors.primary } as any)} />
-              <Text className="text-xl font-bold font-kanit mt-4 text-center text-black dark:text-white">
+              <Text className="text-xl font-bold font-kanit mt-4 text-center text-text">
                 No Notifications
               </Text>
-              <Text className="text-text/40 font-kanit mt-2 text-center text-gray-500 dark:text-gray-400">
+              <Text className="text-text-secondary font-kanit mt-2 text-center">
                 You're all caught up!
               </Text>
             </View>

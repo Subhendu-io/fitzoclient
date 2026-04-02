@@ -14,4 +14,8 @@ export const COLLECTIONS = {
   WORKOUT_ASSIGNMENTS: "workoutAssignments",
   INVITES: "invites",
   JOIN_REQUESTS: "joinRequests",
+  PLANS: "plans",
+  USER_HEALTH: "userHealth",
+  FITNESS_TRACKING: "fitnessTracking",
+  DIET_TRACKING: "dietTracking",
 } as const;

@@ -2,6 +2,20 @@
  * Type definitions for gym member data structures
  * These match the fitzocrm Firestore schema
  */
+import type { FoodAssessment } from '@/features/health/services/foodAnalysisService';
+
+// Plan data from tenants/{tenantId}/branches/{branchId}/plans subcollection
+export interface Plan {
+  id: string;
+  name: string;
+  duration: number; // in days
+  price: number;
+  description?: string;
+  features?: string[];
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 // Member data from tenants/{tenantId}/branches/{branchId}/members subcollection
 export interface Member {
@@ -276,3 +290,37 @@ export interface MemberRedemptionHistoryItem {
   validUntil: string;
   receiptNumber: string;
 }
+
+// Health and tracking metadata extensions under appusers collection
+export interface UserHealth {
+  id?: string;
+  height?: number; // cm
+  weight?: number; // kg
+  fatPercentage?: number;
+  bodyMeasurement?: {
+    chest?: number;
+    waist?: number;
+    hips?: number;
+    arms?: number;
+    thighs?: number;
+  };
+  updatedAt: number; // timestamp
+}
+
+export interface FitnessTrackingEntry {
+  id?: string;
+  date: string; // YYYY-MM-DD format
+  fitnessScore: number;
+  aiDetails: string;
+  imageUrl?: string;
+  createdAt: number; // timestamp
+}
+
+export interface DietTrackingEntry {
+  id?: string;
+  date: string; // YYYY-MM-DD
+  assessment: FoodAssessment;
+  imageUrl?: string;
+  createdAt: number; // timestamp
+}
+

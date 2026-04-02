@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
 import { BlurView } from 'expo-blur';
-import { Home, Dumbbell, Scan, Heart, Users } from 'lucide-react-native';
+import { Home, Dumbbell, Scan, HeartPulse, Users } from 'lucide-react-native';
 import { Platform, View, useColorScheme } from 'react-native';
 import { useThemeColors } from '../../src/hooks/useThemeColors';
 
@@ -67,7 +67,7 @@ export default function TabsLayout() {
         options={{
           tabBarIcon: ({ color, size, focused }) => (
             <View className={`p-2 rounded-xl ${focused ? 'bg-primary/10' : ''}`}>
-              <Heart {...({ size, stroke: color, strokeWidth: focused ? 2.5 : 2 } as any)} />
+              <HeartPulse {...({ size, stroke: color, strokeWidth: focused ? 2.5 : 2 } as any)} />
             </View>
           ),
         }}

@@ -108,6 +108,64 @@ export const getMemberByUid = async (
 };
 
 /**
+ * Get member record by phone number or email.
+ * Tries phone first, then email.
+ */
+export const getMemberByPhoneOrEmail = async (
+  tenantId: string,
+  phone?: string | null,
+  email?: string | null,
+  branchId?: string,
+): Promise<Member | null> => {
+  try {
+    const resolvedBranchId = resolveBranchId(branchId);
+    const colRef = getBranchedCollectionRef(
+      tenantId,
+      resolvedBranchId,
+      COLLECTIONS.MEMBERS,
+    );
+
+    // Try phone first
+    if (phone) {
+      const normalizedPhone = phone.replace(/\s+/g, '');
+      console.log('[getMemberByPhoneOrEmail] Querying by phone:', normalizedPhone);
+      const q = query(colRef, where("phone", "==", normalizedPhone), limit(1));
+      const snapshot = await getDocs(q);
+      console.log('[getMemberByPhoneOrEmail] Phone query result: empty=', snapshot.empty);
+      if (!snapshot.empty) {
+        const memberDoc = snapshot.docs[0];
+        console.log('[getMemberByPhoneOrEmail] ✅ Found member by phone:', memberDoc.id);
+        return { id: memberDoc.id, ...memberDoc.data() } as Member;
+      }
+    }
+
+    // Try email
+    if (email) {
+      const normalizedEmail = email.toLowerCase().trim();
+      console.log('[getMemberByPhoneOrEmail] Querying by email:', normalizedEmail);
+      const q = query(colRef, where("email", "==", normalizedEmail), limit(1));
+      const snapshot = await getDocs(q);
+      console.log('[getMemberByPhoneOrEmail] Email query result: empty=', snapshot.empty);
+      if (!snapshot.empty) {
+        const memberDoc = snapshot.docs[0];
+        console.log('[getMemberByPhoneOrEmail] ✅ Found member by email:', memberDoc.id);
+        return { id: memberDoc.id, ...memberDoc.data() } as Member;
+      }
+    }
+
+    console.log('[getMemberByPhoneOrEmail] ❌ No member found');
+    return null;
+  } catch (error: any) {
+    if (isPermissionDeniedError(error)) {
+      console.log('[getMemberByPhoneOrEmail] 🔒 PERMISSION DENIED — Firestore rules block this query');
+      return null;
+    }
+    console.error("[getMemberByPhoneOrEmail] Error:", error?.message || error);
+    return null;
+  }
+};
+
+/**
  * Mark attendance for a member
  */
 export const markAttendance = async (

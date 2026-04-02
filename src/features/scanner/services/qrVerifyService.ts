@@ -43,6 +43,10 @@ export interface VerifyQrScanResult {
 export interface VerifyQrScanInput {
   tenantId: string;
   branchId: string;
+  /** Hint for server-side phone matching (from Firebase Auth user) */
+  phone?: string | null;
+  /** Hint for server-side email matching (from Firebase Auth user) */
+  email?: string | null;
 }
 
 const VERIFY_QR_CALLABLE = 'verifyQrScan';
@@ -55,7 +59,7 @@ const CREATE_JOIN_REQUEST_CALLABLE = 'createJoinRequest';
 export const verifyQrScan = async (
   input: VerifyQrScanInput,
 ): Promise<VerifyQrScanResult> => {
-  const { tenantId, branchId } = input;
+  const { tenantId, branchId, phone, email } = input;
   if (!tenantId?.trim()) {
     throw new Error('tenantId is required');
   }
@@ -66,8 +70,12 @@ export const verifyQrScan = async (
   const { data } = await callable({
     tenantId: tenantId.trim(),
     branchId: branchIdNorm,
+    // Pass phone/email hints — server can use these for member matching
+    ...(phone ? { phone } : {}),
+    ...(email ? { email } : {}),
   });
 
+  console.log('[verifyQrScan] server response:', JSON.stringify(data));
   return data as VerifyQrScanResult;
 };
 
