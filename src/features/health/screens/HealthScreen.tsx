@@ -3,7 +3,7 @@ import { View, Text, ScrollView } from 'react-native';
 import { ScreenWrapper } from '@/components/layout/ScreenWrapper';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { HealthCard } from '../components/HealthCard';
-import { FitnessScoreCard } from '@/features/home/components/FitnessScoreCard';
+import { FitnessScoreCard } from '@/features/health/components/FitnessScoreCard';
 import { DietAnalyzerCard } from '../components/DietAnalyzerCard';
 import { useDashboard } from '@/hooks/useDashboard';
 import { Skeleton } from '@/components/ui/Skeleton';

@@ -14,7 +14,7 @@ import { SessionVoucherCard } from "../components/SessionVoucherCard";
 import { CrowdForecastCard } from "../components/CrowdForecastCard";
 import { StreakBoard } from "../components/StreakBoard";
 import { HeroCard } from "../components/HeroCard";
-import { FitnessScoreCard } from "../components/FitnessScoreCard";
+import { FitnessScoreCard } from "../../health/components/FitnessScoreCard";
 import { MembershipCard } from "../components/MembershipCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useRouter } from "expo-router";

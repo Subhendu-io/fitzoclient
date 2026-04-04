@@ -5,7 +5,7 @@ export * from './components/SessionVoucherCard';
 export * from './components/StreakBoard';
 export * from './components/WorkoutCard';
 export * from './components/HeroCard';
-export * from './components/FitnessScoreCard';
+export * from '../health/components/FitnessScoreCard';
 export * from './components/MembershipCard';
 export * from './components/StreakBoard';
 export * from './components/SessionVoucherCard';
