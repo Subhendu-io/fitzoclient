@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { Header } from '@/components/layout/Header';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useToaster } from '@/providers/useToaster';
-import { signUpWithEmail, signInWithPhone } from '../services/authService';
+import { signUpWithEmail, signInWithPhone, sendEmailVerificationToUser } from '../services/authService';
 import { CountryCodeSelector, countries } from '../components/CountryCodeSelector';
 
 type SignUpMode = 'email' | 'phone';
@@ -21,8 +21,6 @@ export function RegisterScreen() {
   const colors = useThemeColors();
 
   const [mode, setMode] = useState<SignUpMode>('email');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -34,10 +32,6 @@ export function RegisterScreen() {
   const [error, setError] = useState('');
 
   const validateEmail = () => {
-    if (!firstName.trim() || !lastName.trim()) {
-      setError('Please enter your full name');
-      return false;
-    }
     if (!email.trim()) {
       setError('Please enter your email');
       return false;
@@ -58,10 +52,6 @@ export function RegisterScreen() {
   };
 
   const validatePhone = () => {
-    if (!firstName.trim() || !lastName.trim()) {
-      setError('Please enter your full name');
-      return false;
-    }
     if (!phone || phone.length < 8) {
       setError('Please enter a valid phone number');
       return false;
@@ -78,11 +68,14 @@ export function RegisterScreen() {
       const userCredential = await signUpWithEmail({
         email: email.trim(),
         password,
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
       });
       setUser(userCredential.user);
-      router.replace('/(tabs)/home');
+      // Send verification email then go to verification screen
+      await sendEmailVerificationToUser(userCredential.user);
+      router.push({
+        pathname: '/(auth)/email-otp',
+        params: { email: email.trim() },
+      });
     } catch (err: any) {
       console.error('Registration error:', err);
       setError(err.message || 'Registration failed. Please try again.');
@@ -104,8 +97,6 @@ export function RegisterScreen() {
         params: {
           verificationId,
           phone: fullPhone,
-          firstName: firstName.trim(),
-          lastName: lastName.trim(),
           isNewUser: 'true',
         },
       });
@@ -159,26 +150,6 @@ export function RegisterScreen() {
         </View>
 
         <View className="w-full space-y-4">
-          {/* Name fields — shared between both modes */}
-          <View className="flex-row space-x-3 gap-2">
-            <View className="flex-1">
-              <Input 
-                label="First Name" 
-                placeholder="John" 
-                value={firstName}
-                onChangeText={(text) => { setFirstName(text); if (error) setError(''); }}
-              />
-            </View>
-            <View className="flex-1">
-              <Input 
-                label="Last Name" 
-                placeholder="Doe" 
-                value={lastName}
-                onChangeText={(text) => { setLastName(text); if (error) setError(''); }}
-              />
-            </View>
-          </View>
-
           {mode === 'email' ? (
             <>
               <Input 

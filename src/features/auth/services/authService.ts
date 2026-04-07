@@ -6,6 +6,7 @@ import {
   signInWithCredential,
   PhoneAuthProvider,
   updateProfile,
+  sendEmailVerification,
   signOut as firebaseSignOut,
   FirebaseAuthTypes,
 } from "@react-native-firebase/auth";
@@ -16,6 +17,7 @@ import {
   serverTimestamp,
 } from '@react-native-firebase/firestore';
 import { COLLECTIONS } from '@/constants/collection';
+import { UserFitnessProfile } from '@/interfaces/member';
 
 const firebaseAuth = getAuth();
 const db = getFirestore();
@@ -23,14 +25,14 @@ const db = getFirestore();
 export interface SignUpData {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 export interface PhoneSignUpData {
   phone: string;
-  firstName: string;
-  lastName: string;
+  firstName?: string;
+  lastName?: string;
 }
 
 export interface SignInData {
@@ -73,21 +75,13 @@ export const signUpWithEmail = async (
   data: SignUpData,
 ): Promise<FirebaseAuthTypes.UserCredential> => {
   try {
-    const { email, password, firstName, lastName } = data;
+    const { email, password, firstName = '', lastName = '' } = data;
     const userCredential = await createUserWithEmailAndPassword(firebaseAuth, email, password);
 
     const displayName = `${firstName} ${lastName}`.trim();
-    await updateProfile(userCredential.user, { displayName });
-
-    // Create the appusers doc (matches AppUser interface)
-    await setDoc(doc(db, COLLECTIONS.APPUSERS, userCredential.user.uid), {
-      uid: userCredential.user.uid,
-      firstName,
-      lastName,
-      email,
-      gyms: [],
-      createdAt: new Date().toISOString(),
-    });
+    if (displayName) {
+      await updateProfile(userCredential.user, { displayName });
+    }
 
     return userCredential;
   } catch (error: any) {
@@ -157,17 +151,18 @@ export const verifyPhoneOTP = async (
  */
 export const completePhoneSignup = async (
   uid: string,
-  firstName: string,
-  lastName: string,
+  firstName: string = '',
+  lastName: string = '',
   phone?: string
 ) => {
   try {
     const user = firebaseAuth.currentUser;
     if (!user) throw new Error('No user found');
 
-    await updateProfile(user, {
-      displayName: `${firstName} ${lastName}`.trim(),
-    });
+    const displayName = `${firstName} ${lastName}`.trim();
+    if (displayName) {
+      await updateProfile(user, { displayName });
+    }
 
     await setDoc(doc(db, COLLECTIONS.APPUSERS, uid), {
       uid,
@@ -179,6 +174,107 @@ export const completePhoneSignup = async (
     }, { merge: true });
   } catch (error: any) {
     console.error('Complete phone signup error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Complete email signup profile — creates the appusers doc after email is verified.
+ */
+export const completeEmailSignup = async (uid: string, email: string) => {
+  try {
+    await setDoc(doc(db, COLLECTIONS.APPUSERS, uid), {
+      uid,
+      firstName: '',
+      lastName: '',
+      email,
+      gyms: [],
+      createdAt: new Date().toISOString(),
+    }, { merge: true });
+  } catch (error: any) {
+    console.error('Complete email signup error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Send a verification email to the newly created user.
+ * Call this right after signUpWithEmail.
+ */
+export const sendEmailVerificationToUser = async (
+  user: FirebaseAuthTypes.User,
+): Promise<void> => {
+  try {
+    await sendEmailVerification(user);
+  } catch (error: any) {
+    console.error('Send email verification error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Reload the Firebase user and return whether their email is verified.
+ */
+export const reloadAndCheckEmailVerified = async (): Promise<boolean> => {
+  const user = firebaseAuth.currentUser;
+  if (!user) return false;
+  await user.reload();
+  return firebaseAuth.currentUser?.emailVerified ?? false;
+};
+
+/**
+ * Save the user's fitness profile to:
+ *   appusers/{uid}/fitness/profile
+ * Uses merge:true so it is safe to call multiple times (e.g. from settings).
+ */
+export const saveUserFitnessProfile = async (
+  uid: string,
+  data: Omit<UserFitnessProfile, 'updatedAt'>,
+): Promise<void> => {
+  try {
+    await setDoc(
+      doc(db, COLLECTIONS.APPUSERS, uid, 'fitness', 'profile'),
+      { ...data, updatedAt: new Date().toISOString() },
+      { merge: true },
+    );
+  } catch (error: any) {
+    console.error('Save fitness profile error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Update the user's basic info (first name, last name) in the appusers document
+ */
+export const updateUserBasicInfo = async (
+  uid: string,
+  data: {
+    firstName: string;
+    lastName: string;
+    dateOfBirth?: string;
+    gender?: 'male' | 'female' | 'other';
+    location?: string;
+  }
+): Promise<void> => {
+  try {
+    const user = firebaseAuth.currentUser;
+    if (user) {
+      await updateProfile(user, { displayName: `${data.firstName} ${data.lastName}`.trim() });
+    }
+    await setDoc(
+      doc(db, COLLECTIONS.APPUSERS, uid),
+      {
+        firstName: data.firstName,
+        lastName: data.lastName,
+        ...(data.dateOfBirth ? { dateOfBirth: data.dateOfBirth } : {}),
+        ...(data.gender ? { gender: data.gender } : {}),
+        ...(data.location ? { location: data.location } : {}),
+        updatedAt: new Date().toISOString(),
+      },
+      { merge: true }
+    );
+  } catch (error: any) {
+    console.error('Update user basic info error:', error);
     throw error;
   }
 };

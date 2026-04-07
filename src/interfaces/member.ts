@@ -111,6 +111,28 @@ export interface Attendance {
   createdBy?: string;
 }
 
+// Fitness profile saved to appusers/{uid}/fitness/profile
+export interface UserFitnessProfile {
+  bodyStats?: {
+    height?: number;                // cm
+    weight?: number;                // kg
+    targetWeight?: number;          // kg
+  };
+  bodyMeasurement?: {
+    chest?: number;               // cm
+    waist?: number;               // cm
+    hips?: number;                // cm
+    arms?: number;                // cm
+    thighs?: number;              // cm
+  };
+  preferences?: {
+    dietPreference?: 'veg' | 'non-veg' | 'vegan' | 'eggetarian';
+    fitnessGoal?: 'lose_weight' | 'gain_muscle' | 'maintain' | 'improve_health';
+    activityLevel?: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
+  };
+  updatedAt?: string;
+}
+
 // AppUser data from appusers collection
 export interface AppUser {
   uid: string;
@@ -124,6 +146,9 @@ export interface AppUser {
   branchIds?: string[];
   activeBranchId?: string;
   fcmToken?: string;
+  dateOfBirth?: string;
+  gender?: 'male' | 'female' | 'other';
+  location?: string;
   createdAt?: string;
   updatedAt?: string;
 }

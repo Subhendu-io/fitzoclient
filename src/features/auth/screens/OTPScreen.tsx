@@ -8,11 +8,9 @@ import { verifyPhoneOTP, signInWithPhone, completePhoneSignup } from '../service
 
 export function OTPScreen() {
   const router = useRouter();
-  const { verificationId: initialVerificationId, phone, firstName, lastName, isNewUser } = useLocalSearchParams<{
+  const { verificationId: initialVerificationId, phone, isNewUser } = useLocalSearchParams<{
     verificationId: string;
     phone: string;
-    firstName?: string;
-    lastName?: string;
     isNewUser?: string;
   }>();
   
@@ -61,16 +59,10 @@ export function OTPScreen() {
     try {
       const userCredential = await verifyPhoneOTP(verificationId, otpCode);
 
-      if (isNewUser === 'true' && firstName && lastName) {
-        // Registration via phone — name was collected on RegisterScreen
-        await completePhoneSignup(userCredential.user.uid, firstName, lastName, phone);
-        router.replace('/(tabs)/home');
-      } else if (isNewUser === 'true') {
-        // Registration via phone — name still needed
-        router.replace({
-          pathname: '/phone-name',
-          params: { phone },
-        });
+      if (isNewUser === 'true') {
+        // Registration via phone — new user needs to provide their details next
+        await completePhoneSignup(userCredential.user.uid, '', '', phone);
+        router.replace('/(auth)/user-details');
       } else {
         // Existing user login
         router.replace('/(tabs)/home');

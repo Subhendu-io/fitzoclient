@@ -16,7 +16,8 @@ export default function AuthLayout() {
       <Stack.Screen name="register" />
       <Stack.Screen name="phone-login" />
       <Stack.Screen name="otp" />
-      <Stack.Screen name="phone-name" />
+      <Stack.Screen name="email-otp" options={{ gestureEnabled: false }} />
+      <Stack.Screen name="user-details" options={{ gestureEnabled: false }} />
     </Stack>
   );
 }

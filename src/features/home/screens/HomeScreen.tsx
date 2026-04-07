@@ -109,7 +109,7 @@ export function HomeScreen() {
           <View className="flex-row items-center space-x-3">
             <TouchableOpacity
               onPress={() => router.push("/home/notifications" as any)}
-              className="p-3 mr-2 bg-white/10 rounded-2xl relative"
+              className="p-3 mr-2 rounded-2xl relative"
             >
               <Bell {...({ size: 22, stroke: '#ffffff', opacity: 0.85 } as any)} />
               {unreadNotificationCount > 0 && (

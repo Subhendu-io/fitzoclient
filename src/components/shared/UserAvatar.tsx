@@ -21,9 +21,9 @@ export function UserAvatar({
   const source = profile?.photoURL;
 
   return (
-    <View>
+    <View className="w-full h-full items-center justify-center">
       {source ? (
-        <Image source={{ uri: source }} className={`w-full h-full`} />
+        <Image source={{ uri: source }} className="w-full h-full rounded-full" resizeMode="cover" />
       ) : (
         <Text className={`text-onPrimary font-${textWeight} ${textSize}`}>{getInitials()}</Text>
       )}

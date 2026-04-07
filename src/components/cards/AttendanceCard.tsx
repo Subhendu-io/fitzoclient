@@ -128,7 +128,7 @@ export function AttendanceCard({ weekAttendance, startOfWeek, isLoading }: Atten
 
   return (
     <LinearGradient
-      colors={isDark ? ['#5e3ed8', '#a886d8'] : ['#d3f687', '#3da83a']}
+      colors={isDark ? ['#5e3ed8', '#a886d8'] : ['#3da83a', '#d3f687']}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={{ borderRadius: 40, padding: 24, marginBottom: 24, overflow: 'hidden' }}

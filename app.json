@@ -67,7 +67,8 @@
         }
       ],
       "expo-dev-client",
-      "expo-notifications"
+      "expo-notifications",
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true

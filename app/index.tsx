@@ -19,8 +19,15 @@ export default function Index() {
     return <Redirect href="/(auth)" />;
   }
 
-  if (!profile && user) {
-      return <Redirect href="/(onboarding)/step1" />;
+  // If they signed up with email but haven't verified yet, trap them in the verification screen
+  const isEmailUser = user.providerData?.some((p: any) => p.providerId === 'password');
+  if (isEmailUser && !user.emailVerified) {
+    return <Redirect href={{ pathname: "/(auth)/email-otp", params: { email: user.email } }} />;
+  }
+
+  // If they have no profile or haven't finished setting up their mandatory details
+  if (!profile || !profile.firstName || !profile.lastName) {
+    return <Redirect href="/(auth)/user-details" />;
   }
 
   return <Redirect href="/(tabs)/home" />;
