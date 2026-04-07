@@ -33,7 +33,7 @@ export const useUserStore = create<UserState>()(
         set({ profile: null, onboardingComplete: false }),
     }),
     {
-      name: '@fitzo/user-store',
+      name: '@scorefit/user-store',
       storage: createJSONStorage(() => AsyncStorage),
     },
   ),

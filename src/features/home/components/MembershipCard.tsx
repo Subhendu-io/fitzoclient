@@ -18,7 +18,7 @@ export function MembershipCard({ subscription, daysRemaining, isLoading }: Membe
 
   if (isLoading) {
     return (
-      <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[40px] p-6 mb-6 h-40 items-center justify-center">
+      <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-6 mb-6 h-40 items-center justify-center">
         <Text className="text-text-secondary font-kanit">Loading membership...</Text>
       </View>
     );
@@ -26,7 +26,7 @@ export function MembershipCard({ subscription, daysRemaining, isLoading }: Membe
 
   if (!subscription) {
     return (
-      <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[40px] p-6 mb-6">
+      <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-6 mb-6">
         <View className="flex-row items-center mb-4">
           <View className="w-10 h-10 rounded-full bg-white/5 items-center justify-center mr-3">
             <CreditCard {...({ size: 20, stroke: colors.primary } as any)} />
@@ -53,7 +53,7 @@ export function MembershipCard({ subscription, daysRemaining, isLoading }: Membe
     <TouchableOpacity 
       activeOpacity={0.9}
       onPress={() => router.push('/home/subscription-details')}
-      className={`bg-card border ${isExpiringSoon ? 'border-orange-500/50' : 'border-stone-200/5 dark:border-stone-900/5'} rounded-[40px] p-6 mb-6`}
+      className={`bg-card border ${isExpiringSoon ? 'border-orange-500/50' : 'border-stone-200/5 dark:border-stone-900/5'} rounded-3xl p-6 mb-6`}
     >
       <View className="flex-row justify-between items-start mb-6">
         <View className="flex-row items-center">

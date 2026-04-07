@@ -17,6 +17,7 @@ import {
 
 const getWeekRange = () => {
   const start = new Date();
+  // Start of the CURRENT week (Sunday)
   start.setDate(start.getDate() - start.getDay());
   start.setHours(0, 0, 0, 0);
 
@@ -24,7 +25,11 @@ const getWeekRange = () => {
   end.setDate(start.getDate() + 6);
   end.setHours(23, 59, 59, 999);
 
-  return { start, end };
+  // Previous week start (7 days before current week start)
+  const prevStart = new Date(start);
+  prevStart.setDate(start.getDate() - 7);
+
+  return { start, end, prevStart };
 };
 
 const getSubscriptionProgress = (startDate?: string, endDate?: string) => {
@@ -89,14 +94,14 @@ export function useDashboard() {
   });
 
   const weekAttendanceQuery = useQuery<Attendance[]>({
-    queryKey: ['currentWeekAttendance', tenantId, memberId, branchId],
+    queryKey: ['twoWeekAttendance', tenantId, memberId, branchId],
     queryFn: () =>
       getMemberAttendance(
         tenantId!,
         memberId!,
-        weekRange.start,
-        weekRange.end,
-        50,
+        weekRange.prevStart,   // two weeks ago
+        weekRange.end,         // end of current week
+        100,
         branchId,
       ),
     enabled: !!tenantId && !!memberId,

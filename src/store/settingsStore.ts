@@ -31,7 +31,7 @@ export const useSettingsStore = create<SettingsState>()(
         set({ theme: 'system', notifications: true, units: 'metric', language: 'en' }),
     }),
     {
-      name: '@fitzo/settings-store',
+      name: '@scorefit/settings-store',
       storage: createJSONStorage(() => AsyncStorage),
     },
   ),

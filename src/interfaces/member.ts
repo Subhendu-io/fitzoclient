@@ -1,6 +1,6 @@
 /**
  * Type definitions for gym member data structures
- * These match the fitzocrm Firestore schema
+ * These match the scorefitcrm Firestore schema
  */
 import type { FoodAssessment } from '@/features/health/services/foodAnalysisService';
 

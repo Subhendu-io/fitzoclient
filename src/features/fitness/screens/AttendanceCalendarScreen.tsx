@@ -17,7 +17,7 @@ export function AttendanceCalendarScreen() {
 
   // In a real app, tenantId/memberId would come from context
   // For now using placeholders or identifying from user
-  const tenantId = 'fitzo-dev'; // Should be dynamic
+  const tenantId = 'scorefit-dev'; // Should be dynamic
   const memberId = user?.uid || ''; // Should be the member record ID
 
   const fetchAttendance = async (date: Date) => {

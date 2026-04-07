@@ -6,6 +6,7 @@ import { useRouter } from 'expo-router';
 import Animated, { FadeInUp, FadeInDown } from 'react-native-reanimated';
 import { useWorkouts } from '@/hooks/useWorkouts';
 import { WorkoutItem } from '../components/WorkoutItem';
+import { WorkoutSlider } from '../components/WorkoutSlider';
 
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useThemeColors } from '@/hooks/useThemeColors';
@@ -82,6 +83,12 @@ export function FitnessScreen() {
                </View>
             </View>
           </TouchableOpacity>
+        </Animated.View>
+
+        {/* Workout Exercise Slider */}
+        <Text className="text-text text-xl font-bold font-kanit mb-4">Exercise Breakdown</Text>
+        <Animated.View entering={FadeInUp.delay(350)}>
+          <WorkoutSlider />
         </Animated.View>
 
         {/* Today's Session Card */}

@@ -38,7 +38,7 @@ export function SettingsScreen() {
   const handleLogout = async () => {
     showModal({
       title: "Log Out",
-      message: "Are you sure you want to log out of your Fitzo account?",
+      message: "Are you sure you want to log out of your ScoreFit account?",
       variant: "danger",
       buttons: [
         { text: "Cancel", style: "cancel" },
@@ -74,7 +74,7 @@ export function SettingsScreen() {
   const MenuItem = ({ icon: Icon, title, value, onPress, iconColor = colors.primary }: any) => (
     <TouchableOpacity
       onPress={onPress}
-      className="flex-row items-center justify-between p-4 bg-card/50 mb-3 rounded-3xl border border-stone-200 dark:border-stone-900"
+      className="flex-row items-center justify-between p-4 bg-card/50 mb-3 rounded-3xl border border-border dark:border-stone-900"
     >
       <View className="flex-row items-center">
         <View className="w-10 h-10 rounded-2xl bg-white/5 items-center justify-center mr-3">
@@ -268,7 +268,7 @@ export function SettingsScreen() {
           <MenuItem icon={Shield} title="Privacy Policy" onPress={() => {}} iconColor="#10B981" />
           <MenuItem
             icon={Info}
-            title="About Fitzo"
+            title="About ScoreFit"
             value="v2.0.1"
             onPress={() => {}}
             iconColor="#6B7280"

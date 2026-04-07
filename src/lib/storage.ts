@@ -39,8 +39,8 @@ export const storage = {
 
 /** Storage keys used throughout the app */
 export const STORAGE_KEYS = {
-  AUTH_TOKEN: '@fitzo/auth-token',
-  USER_PROFILE: '@fitzo/user-profile',
-  ONBOARDING_COMPLETE: '@fitzo/onboarding-complete',
-  SETTINGS: '@fitzo/settings',
+  AUTH_TOKEN: '@scorefit/auth-token',
+  USER_PROFILE: '@scorefit/user-profile',
+  ONBOARDING_COMPLETE: '@scorefit/onboarding-complete',
+  SETTINGS: '@scorefit/settings',
 } as const;

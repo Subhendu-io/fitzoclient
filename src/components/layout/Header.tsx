@@ -15,7 +15,7 @@ export function Header({ title, showBackButton = false, rightElement }: HeaderPr
   const colors = useThemeColors();
 
   return (
-    <View className="flex-row items-center justify-between px-6 h-20 bg-background">
+    <View className="flex-row items-center justify-between px-6 h-20 bg-transparent">
       <View className="w-10">
         {showBackButton && (
           <TouchableOpacity

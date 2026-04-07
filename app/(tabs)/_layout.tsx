@@ -19,12 +19,17 @@ export default function TabsLayout() {
         tabBarShowLabel: false,
         tabBarStyle: {
           position: 'absolute',
-          borderTopWidth: 0,
-          backgroundColor: Platform.OS === 'ios' ? 'transparent' : colors.background,
+          backgroundColor: isDark ? colors.background : colors.background,
           elevation: 0,
-          height: 80,
-          paddingBottom: 25,
-          paddingTop: 10,
+          height: 68,
+          paddingBottom: 15,
+          paddingTop: 15,
+          borderWidth: 0.1,
+          borderTopWidth: 0.1,
+          borderColor: isDark ? colors.accentLight : colors.accent,
+          borderRadius: 40,
+          marginHorizontal: 20,
+          marginVertical: 20,
         },
         tabBarBackground: () => 
           Platform.OS === 'ios' ? (
@@ -36,8 +41,8 @@ export default function TabsLayout() {
         name="home/index"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
-            <View className={`p-2 rounded-xl ${focused ? 'bg-primary/10' : ''}`}>
-              <Home {...({ size, stroke: color, strokeWidth: focused ? 2.5 : 2 } as any)} />
+            <View className="p-4" style={{ backgroundColor: focused ? isDark ? '#1a1826' : colors.accentLight : 'transparent', borderRadius: 50 }}>
+              <Home {...({ size, stroke: focused ? colors.primary : color, strokeWidth: focused ? 2.5 : 2 } as any)} />
             </View>
           ),
         }}
@@ -46,8 +51,8 @@ export default function TabsLayout() {
         name="fitness/index"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
-            <View className={`p-2 rounded-xl ${focused ? 'bg-primary/10' : ''}`}>
-              <Dumbbell {...({ size, stroke: color, strokeWidth: focused ? 2.5 : 2 } as any)} />
+            <View className="p-4" style={{ backgroundColor: focused ? isDark ? '#1a1826' : colors.accentLight : 'transparent', borderRadius: 50 }}>
+              <Dumbbell {...({ size, stroke: focused ? colors.warning : color, strokeWidth: focused ? 2.5 : 2 } as any)} />
             </View>
           ),
         }}
@@ -56,8 +61,8 @@ export default function TabsLayout() {
         name="scanner/index"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
-            <View className={`p-2 rounded-xl ${focused ? 'bg-primary/10' : ''}`}>
-              <Scan {...({ size, stroke: color, strokeWidth: focused ? 2.5 : 2 } as any)} />
+            <View className="p-4" style={{ backgroundColor: focused ? isDark ? '#1a1826' : colors.accentLight : 'transparent', borderRadius: 50 }}>
+              <Scan {...({ size, stroke: focused ? colors.accent : color, strokeWidth: focused ? 2.5 : 2 } as any)} />
             </View>
           ),
         }}
@@ -66,8 +71,8 @@ export default function TabsLayout() {
         name="gym/index"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
-            <View className={`p-2 rounded-xl ${focused ? 'bg-primary/10' : ''}`}>
-              <HeartPulse {...({ size, stroke: color, strokeWidth: focused ? 2.5 : 2 } as any)} />
+            <View className="p-4" style={{ backgroundColor: focused ? isDark ? '#1a1826' : colors.accentLight : 'transparent', borderRadius: 50 }}>
+              <HeartPulse {...({ size, stroke: focused ? colors.primaryHover : color, strokeWidth: focused ? 2.5 : 2 } as any)} />
             </View>
           ),
         }}
@@ -76,8 +81,8 @@ export default function TabsLayout() {
         name="community/index"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
-            <View className={`p-2 rounded-xl ${focused ? 'bg-primary/10' : ''}`}>
-              <Users {...({ size, stroke: color, strokeWidth: focused ? 2.5 : 2 } as any)} />
+            <View className="p-4" style={{ backgroundColor: focused ? isDark ? '#1a1826' : colors.accentLight : 'transparent', borderRadius: 50 }}>
+              <Users {...({ size, stroke: focused ? colors.accent : color, strokeWidth: focused ? 2.5 : 2 } as any)} />
             </View>
           ),
         }}

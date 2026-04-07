@@ -1,9 +1,9 @@
 /** Firebase configuration — replace with your project's config */
 export const FIREBASE_CONFIG = {
   apiKey: "AIzaSyDmTe7kho49Elm6FXjHYdMiayJviojqErA",
-  authDomain: "fitzo-dev.firebaseapp.com",
-  projectId: "fitzo-dev",
-  storageBucket: "fitzo-dev.firebasestorage.app",
+  authDomain: "scorefit-dev.firebaseapp.com",
+  projectId: "scorefit-dev",
+  storageBucket: "scorefit-dev.firebasestorage.app",
   messagingSenderId: "357393783635",
   appId: "1:357393783635:ios:b77c5002affae13ff01fa6",
   measurementId: "G-XXXXXXXXXX",
@@ -11,7 +11,7 @@ export const FIREBASE_CONFIG = {
 
 /** App-wide configuration */
 export const APP_CONFIG = {
-  APP_NAME: "Fitzo",
+  APP_NAME: "ScoreFit",
   API_TIMEOUT: 10000,
   MAX_RETRIES: 3,
   PAGINATION_LIMIT: 20,

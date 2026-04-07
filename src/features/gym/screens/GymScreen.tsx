@@ -65,7 +65,7 @@ export function GymScreen() {
 
         <View className="space-y-6">
            <GymCard 
-              name="Fitzo Elite Center" 
+              name="ScoreFit Elite Center" 
               location="Manhattan, NY" 
               rating="4.9" 
               image="https://images.unsplash.com/photo-1540497077202-7c8a3999166f?w=800"

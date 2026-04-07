@@ -169,7 +169,7 @@ export function GymListScreen() {
                           style={{ color: onPrimary }}
                           numberOfLines={1}
                         >
-                          {activeGymData.name || "Fitzo Gym"}
+                          {activeGymData.name || "ScoreFit Gym"}
                         </Text>
                         <View className="flex-row items-center mt-2">
                           <MapPin
@@ -230,7 +230,7 @@ export function GymListScreen() {
                             className="text-base font-bold font-kanit text-text"
                             numberOfLines={1}
                           >
-                            {gym.name || "Fitzo Gym"}
+                            {gym.name || "ScoreFit Gym"}
                           </Text>
                           <View className="flex-row items-center mt-0.5">
                             <MapPin

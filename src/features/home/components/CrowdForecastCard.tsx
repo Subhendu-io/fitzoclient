@@ -32,7 +32,7 @@ export function CrowdForecastCard({ forecast }: CrowdForecastCardProps) {
 
   if (!forecast) {
     return (
-      <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[40px] p-8 mb-6 items-center justify-center">
+      <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-8 mb-6 items-center justify-center">
         <View className="w-12 h-12 rounded-full bg-white/5 items-center justify-center mb-4">
           <Users {...({ size: 24, stroke: colors.primary, opacity: 0.5 } as any)} />
         </View>
@@ -45,7 +45,7 @@ export function CrowdForecastCard({ forecast }: CrowdForecastCardProps) {
   }
 
   return (
-    <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[40px] p-6 mb-6">
+    <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-6 mb-6">
       <View className="flex-row justify-between items-start mb-8">
         <View className="flex-row items-center">
           <View className="w-10 h-10 rounded-full bg-white/5 items-center justify-center mr-3">

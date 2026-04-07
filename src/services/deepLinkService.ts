@@ -25,7 +25,7 @@ export const parseDeepLink = (url: string): DeepLinkParams | null => {
           branchId = branchParts[1].split("&")[0];
         }
       }
-    } else if (url.startsWith("fitzo://") || url.startsWith("https://")) {
+    } else if (url.startsWith("scorefit://") || url.startsWith("https://")) {
       // If it's a URL but doesn't have tenantId=, check if it's raw text after a specific path
       // Handle potential raw text after slash if not a query param
       const lastSlashIndex = url.lastIndexOf('/');

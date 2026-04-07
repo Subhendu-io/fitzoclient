@@ -13,13 +13,15 @@ import { WorkoutCard } from "../components/WorkoutCard";
 import { SessionVoucherCard } from "../components/SessionVoucherCard";
 import { CrowdForecastCard } from "../components/CrowdForecastCard";
 import { StreakBoard } from "../components/StreakBoard";
-import { HeroCard } from "../components/HeroCard";
+import { CardSlider } from "../components/CardSlider";
 import { FitnessScoreCard } from "../../health/components/FitnessScoreCard";
+import { DietAnalyzerCard } from "../../health/components/DietAnalyzerCard";
 import { MembershipCard } from "../components/MembershipCard";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { useRouter } from "expo-router";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import { UserAvatar } from "@/components/shared/UserAvatar";
+import { ComparisonCard } from "@/components/cards/ComparisonCard";
 
 export function HomeScreen() {
   const colors = useThemeColors();
@@ -78,35 +80,40 @@ export function HomeScreen() {
   }
 
   return (
-    <ScreenWrapper className="bg-background">
+    <ScreenWrapper className="bg-transparent">
       <ScrollView
         className="flex-1 px-6"
         contentContainerStyle={{ paddingBottom: 100 }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Aura Header */}
+        {/* ── Dashboard Header ── */}
         <Animated.View
           entering={FadeInUp.delay(200)}
-          className="flex-row items-center justify-between mt-6 mb-8"
+          className="flex-row items-center justify-between mt-6 mb-6"
         >
           <View>
-            <View className="flex-row items-center">
-              <Text className="text-text-secondary text-sm font-kanit">Hello, </Text>
-              <Text className="text-primary text-sm font-bold font-kanit">{displayName} 👋</Text>
-            </View>
-            <Text className="text-text text-2xl font-black font-kanit leading-tight mt-1">
-              Ready to crush{"\n"}your goals today?
+            <Text className="text-white/80 text-base font-kanit mb-3">
+              Hi, {displayName} 👋
             </Text>
+            {/* Membership badge */}
+            {activeSubscription && (
+              <View className="flex-row items-center bg-primary self-start rounded-full px-4 py-1.5 mb-2">
+                <Text className="text-xs mr-1">👑</Text>
+                <Text className="text-black text-xs font-bold font-kanit">
+                  {activeSubscription.plan?.name ?? 'Active Member'}
+                </Text>
+              </View>
+            )}
           </View>
 
           <View className="flex-row items-center space-x-3">
             <TouchableOpacity
               onPress={() => router.push("/home/notifications" as any)}
-              className="p-3 mr-2 bg-card rounded-2xl border border-stone-200/5 dark:border-stone-900/5 relative"
+              className="p-3 mr-2 bg-white/10 rounded-2xl relative"
             >
-              <Bell {...({ size: 22, stroke: colors.text } as any)} />
+              <Bell {...({ size: 22, stroke: '#ffffff', opacity: 0.85 } as any)} />
               {unreadNotificationCount > 0 && (
-                <View className="absolute top-2 right-2 w-4 h-4 rounded-full bg-primary items-center justify-center border-2 border-background">
+                <View className="absolute top-2 right-2 w-4 h-4 rounded-full bg-primary items-center justify-center">
                   <Text className="text-black text-[8px] font-black">
                     {unreadNotificationCount > 9 ? "9+" : unreadNotificationCount}
                   </Text>
@@ -116,21 +123,45 @@ export function HomeScreen() {
 
             <TouchableOpacity
               onPress={() => router.push("/settings" as any)}
-              className="w-14 h-14 rounded-2xl bg-primary border border-stone-200/10 dark:border-stone-900/10 items-center justify-center overflow-hidden"
+              className="w-14 h-14 rounded-full border-2 border-white/30 bg-primary items-center justify-center overflow-hidden"
             >
-              <UserAvatar textSize="text-3xl" textWeight="black" profile={profile || null} />
+              <UserAvatar textSize="text-2xl" textWeight="bold" profile={profile || null} />
             </TouchableOpacity>
           </View>
         </Animated.View>
 
-        {/* Hero Section: QR + Attendance */}
-        <Animated.View entering={FadeInUp.delay(300)}>
-          <HeroCard weekAttendance={currentWeekAttendance} startOfWeek={weekRange.start} />
+        {/* Tagline */}
+        <Animated.View entering={FadeInUp.delay(250)} className="mb-8">
+          <Text className="text-white font-black font-kanit leading-tight" style={{ fontSize: 32 }}>
+            Ready to crush{"\n"}
+            <Text style={{ color: '#c8ff32' }}>your goals today?</Text>
+          </Text>
         </Animated.View>
 
-        {/* Fitness Score Card */}
-        <Animated.View entering={FadeInUp.delay(400)}>
-          <FitnessScoreCard score={90} />
+        {/* Card Slider: Attendance + Achievements */}
+        <Animated.View entering={FadeInUp.delay(300)}>
+          <CardSlider
+            weekAttendance={currentWeekAttendance}
+            startOfWeek={weekRange.start}
+          />
+        </Animated.View>
+
+        {/* Monthly Steps Comparison */}
+        <Animated.View entering={FadeInUp.delay(350)} className="mb-4">
+          <ComparisonCard
+            left={{
+              backgroundColor: '#957eff',
+              color: '#ffffff',
+              header: 'Last Month',
+              description: '1032 steps',
+            }}
+            right={{
+              backgroundColor: '#95d548',
+              color: '#2a4d00',
+              header: 'This Month',
+              description: '5670 steps',
+            }}
+          />
         </Animated.View>
 
         {/* Dynamic Widgets Area */}
@@ -140,10 +171,22 @@ export function HomeScreen() {
           </Animated.View>
         )}
 
+        {/* Membership Card */}
         <Animated.View entering={FadeInUp.delay(500)}>
           <MembershipCard subscription={activeSubscription || null} daysRemaining={daysRemaining} />
         </Animated.View>
 
+        {/* Fitness Score Card */}
+        <Animated.View entering={FadeInUp.delay(400)}>
+          <FitnessScoreCard showScanOptions={true} score={90} />
+        </Animated.View>
+
+        {/* Diet Analyzer Card */}
+        <Animated.View entering={FadeInUp.delay(400)}>
+          <DietAnalyzerCard />
+        </Animated.View>
+
+        {/* Crowd Forecast Card */}
         <Animated.View entering={FadeInUp.delay(600)}>
           <CrowdForecastCard forecast={crowdForecast || null} />
         </Animated.View>

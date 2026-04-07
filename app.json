@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "Fitzo",
-    "slug": "fitzo-dev",
+    "name": "ScoreFit Dev",
+    "slug": "scorefit-dev",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
-    "scheme": "fitzo",
+    "scheme": "scorefit",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.fitzo.app",
+      "bundleIdentifier": "fit.score.dev",
       "googleServicesFile": "./GoogleService-Info.plist"
     },
     "android": {
@@ -24,7 +24,7 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "package": "com.fitzo.app",
+      "package": "fit.score.dev",
       "googleServicesFile": "./google-services.json",
       "permissions": [
         "android.permission.RECORD_AUDIO",
@@ -55,10 +55,17 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Allow Fitzo to access your camera to scan QR codes."
+          "cameraPermission": "Allow ScoreFit to access your camera to scan QR codes."
         }
       ],
-      "expo-build-properties",
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
+      ],
       "expo-dev-client",
       "expo-notifications"
     ],
@@ -66,10 +73,11 @@
       "typedRoutes": true
     },
     "extra": {
+      "router": {},
       "eas": {
-        "projectId": "2b429e0e-c286-4753-a67e-d169d7a4c7de"
+        "projectId": "02a6a590-5b7a-4ada-9839-519ec0b8ec14"
       }
     },
-    "owner": "fitzo-client"
+    "owner": "scorefit"
   }
 }

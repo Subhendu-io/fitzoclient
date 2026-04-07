@@ -4,22 +4,54 @@
 
 @layer base {
   :root {
-    --color-primary: #60d05e;
-    --color-background: #f2f2f7;
-    --color-card: #ffffff;
-    --color-text: #1a1a1a;
-    --color-text-secondary: #6b7280;
-    --color-border: #e5e7eb;
+    /* Semantic */
+    --color-danger:           #e85555;
+    --color-success:          #3da83a;
+    --color-warning:          #ef9f27;
+    --color-info:             #378add;
+
+    /* Core brand */
+    --color-primary:          #81e300;
+    --color-primary-hover:    #3da83a;
+    --color-primary-light:    #f4ffe0;
+
+    /* Accent (light mode = green, dark = lime) */
+    --color-accent:           #7c5cfc;
+    --color-accent-hover:     #5e3ed8;
+    --color-accent-light:     #ece8ff;
+
+    /* Surfaces */
+    --color-background:       #ebe7ff;
+    --color-surface:          #f0eeff;
+    --color-surface-elevated: #ebe7ff;
+
+    /* Text */
+    --color-text:             #1a1a2e;
+    --color-text-secondary:   #6b6890;
+    --color-text-muted:       #9e9cc0;
+
+    /* Border */
+    --color-border:           #d4cfff;
+    --color-border-subtle:    #e8e5ff;
   }
 
   @media (prefers-color-scheme: dark) {
     :root {
-      --color-primary: #c8ff32;
-      --color-background: #0d0d0d;
-      --color-card: #1a1a1a;
-      --color-text: #ffffff;
-      --color-text-secondary: #9e9e9e;
-      --color-border: #262626;
+      /* Accent (light mode = green, dark = lime) */
+      --color-accent:           #7c5cfc;
+      --color-accent-hover:     #5e3ed8;
+      --color-accent-light:     #ece8ff;
+
+      --color-background:       #0d0d14;
+      --color-surface:          #1a1826;
+      --color-surface-elevated: #262040;
+
+      --color-text:             #ffffff;
+      --color-text-secondary:   #9e9eb8;
+      --color-text-muted:       #5e5c78;
+
+      --color-border:           #2e2a48;
+      --color-border-subtle:    #201c38;
     }
   }
 }

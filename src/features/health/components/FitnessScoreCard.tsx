@@ -17,7 +17,7 @@ export function FitnessScoreCard({ score = 90, showScanOptions = false }: Fitnes
     <TouchableOpacity 
       activeOpacity={0.9}
       onPress={() => router.push('/home/fitness-score')}
-      className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[40px] p-6 mb-6 overflow-hidden"
+      className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-6 mb-6 overflow-hidden"
     >
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center flex-1">
@@ -45,7 +45,7 @@ export function FitnessScoreCard({ score = 90, showScanOptions = false }: Fitnes
       
       {showScanOptions ? (
         <View
-          className="flex-row mt-5 pt-5 border-t border-border"
+          className="flex-row mt-5 pt-5 border-t border-border dark:border-border"
           style={{ gap: 10 }}
         >
           <TouchableOpacity

@@ -2,13 +2,13 @@ import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import { ScreenWrapper } from '@/components/layout/ScreenWrapper';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { HealthCard } from '../components/HealthCard';
 import { FitnessScoreCard } from '@/features/health/components/FitnessScoreCard';
 import { DietAnalyzerCard } from '../components/DietAnalyzerCard';
 import { useDashboard } from '@/hooks/useDashboard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { HeartPulse } from 'lucide-react-native';
+import { AchievementCard } from '@/components/cards/AchievementCard';
 
 export function HealthScreen() {
   const colors = useThemeColors();
@@ -59,7 +59,7 @@ export function HealthScreen() {
 
         {/* Achievements + Weekly Steps Tracking */}
         <Animated.View entering={FadeInUp.delay(250)}>
-          <HealthCard startOfWeek={weekRange.start} />
+          <AchievementCard startOfWeek={weekRange.start} />
         </Animated.View>
 
         {/* Fitness Score */}

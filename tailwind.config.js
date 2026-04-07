@@ -9,8 +9,9 @@ module.exports = {
     extend: {
       colors: {
         primary: 'var(--color-primary)',
+        accent: 'var(--color-accent)',
         background: 'var(--color-background)',
-        card: 'var(--color-card)',
+        card: 'var(--color-surface)',
         text: {
           DEFAULT: 'var(--color-text)',
           secondary: 'var(--color-text-secondary)',
