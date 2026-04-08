@@ -29,6 +29,7 @@ interface ScreenWrapperProps {
   backgroundVariant?: ScreenVariant;
   /** Pass false to disable the abstract background entirely */
   showBackground?: boolean;
+  style?: import('react-native').StyleProp<import('react-native').ViewStyle>;
 }
 
 export function ScreenWrapper({
@@ -37,13 +38,14 @@ export function ScreenWrapper({
   withSafeArea = true,
   backgroundVariant,
   showBackground = true,
+  style,
 }: ScreenWrapperProps) {
   const Container = withSafeArea ? SafeAreaView : View;
   const colorScheme = useColorScheme();
   const variant = useScreenVariant(backgroundVariant);
 
   return (
-    <Container className={`flex-1 bg-background ${className}`}>
+    <Container className={`flex-1 bg-background ${className}`} style={style}>
       <StatusBar
         barStyle={colorScheme === "dark" ? "light-content" : "dark-content"}
         backgroundColor="transparent"

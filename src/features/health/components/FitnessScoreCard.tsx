@@ -50,12 +50,12 @@ export function FitnessScoreCard({ score = 90, showScanOptions = false }: Fitnes
         >
           <TouchableOpacity
             className="flex-1 flex-row items-center justify-center py-3 rounded-2xl"
-            style={{ backgroundColor: colors.primary + '15', gap: 8 }}
+            style={{ backgroundColor: colors.primary, gap: 8 }}
             onPress={() => router.push({ pathname: '/home/fitness-score', params: { source: 'camera' } } as any)}
             activeOpacity={0.8}
           >
-            <Camera {...({ size: 16, stroke: colors.primary } as any)} />
-            <Text className="font-bold font-kanit text-sm text-primary">Camera</Text>
+            <Camera {...({ size: 16, stroke: 'black' } as any)} />
+            <Text className="font-bold font-kanit text-sm text-black">Camera</Text>
           </TouchableOpacity>
 
           <TouchableOpacity

@@ -14,6 +14,7 @@ import {
   collection,
   doc,
   setDoc,
+  getDoc,
   serverTimestamp,
 } from '@react-native-firebase/firestore';
 import { COLLECTIONS } from '@/constants/collection';
@@ -288,5 +289,19 @@ export const signOut = async (): Promise<void> => {
   } catch (error) {
     console.error('Sign out error:', error);
     throw error;
+  }
+};
+
+/**
+ * Get the user's fitness profile
+ */
+export const getUserFitnessProfile = async (uid: string): Promise<UserFitnessProfile | null> => {
+  try {
+    const docRef = doc(db, COLLECTIONS.APPUSERS, uid, 'fitness', 'profile');
+    const snap = await getDoc(docRef);
+    return snap.exists() ? (snap.data() as UserFitnessProfile) : null;
+  } catch (error: any) {
+    console.error('Get fitness profile error:', error);
+    return null;
   }
 };

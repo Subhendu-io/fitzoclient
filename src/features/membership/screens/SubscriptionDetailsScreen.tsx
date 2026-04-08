@@ -45,7 +45,7 @@ export function SubscriptionDetailsScreen() {
 
   if (isLoading) {
     return (
-      <ScreenWrapper className="bg-background">
+      <ScreenWrapper className="bg-background" backgroundVariant="default">
         <Header title="Membership" showBackButton />
         <View className="flex-1 items-center justify-center">
           <ActivityIndicator color={colors.primary} size="large" />
@@ -55,7 +55,7 @@ export function SubscriptionDetailsScreen() {
   }
 
   return (
-    <ScreenWrapper className="bg-background">
+    <ScreenWrapper className="bg-background" backgroundVariant="default">
       <Header
         title="Membership"
         showBackButton

@@ -115,7 +115,7 @@ export const getWorkoutHistory = async (
 
     const querySnapshot = await getDocs(q);
 
-    return querySnapshot.docs.map((docSnap) => ({
+    return querySnapshot.docs.map((docSnap: any) => ({
       id: docSnap.id,
       ...docSnap.data(),
     })) as MemberWorkoutAssignment[];

@@ -1,5 +1,5 @@
 import React from "react";
-import { Text, ActivityIndicator, Pressable, View } from "react-native";
+import { Text, ActivityIndicator, Pressable, View, StyleProp, ViewStyle } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -19,6 +19,7 @@ interface ButtonProps {
   disabled?: boolean;
   className?: string;
   textClassName?: string;
+  style?: StyleProp<ViewStyle>;
 }
 
 export function Button({
@@ -30,6 +31,7 @@ export function Button({
   disabled = false,
   className = "",
   textClassName = "",
+  style,
 }: ButtonProps) {
   const colors = useThemeColors();
   const isDisabled = disabled || loading;
@@ -96,7 +98,7 @@ export function Button({
       onPressOut={handlePressOut}
       disabled={isDisabled}
       className={`rounded-2xl flex-row items-center justify-center ${getVariantClass()} ${getSizeClass()} ${isDisabled ? "opacity-50" : ""} ${className}`}
-      style={animatedStyle}
+      style={[animatedStyle, style]}
     >
       {loading ? (
         <ActivityIndicator color={variant === "primary" ? "#000" : colors.primary} size="small" />

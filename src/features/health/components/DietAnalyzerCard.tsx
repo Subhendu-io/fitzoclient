@@ -37,12 +37,12 @@ export function DietAnalyzerCard() {
       >
         <TouchableOpacity
           className="flex-1 flex-row items-center justify-center py-3 rounded-2xl"
-          style={{ backgroundColor: colors.warning + '15', gap: 8 }}
+          style={{ backgroundColor: colors.warning, gap: 8 }}
           onPress={() => router.push({ pathname: '/(main)/food-analysis', params: { source: 'camera' } })}
           activeOpacity={0.8}
         >
-          <Camera {...({ size: 16, stroke: colors.warning } as any)} />
-          <Text className="font-bold font-kanit text-sm text-orange-500">Camera</Text>
+          <Camera {...({ size: 16, stroke: colors.text } as any)} />
+          <Text className="font-bold font-kanit text-sm text-text">Camera</Text>
         </TouchableOpacity>
 
         <TouchableOpacity

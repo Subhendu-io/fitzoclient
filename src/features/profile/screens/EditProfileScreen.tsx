@@ -150,7 +150,7 @@ export function EditProfileScreen() {
   };
 
   return (
-    <ScreenWrapper className="bg-background">
+    <ScreenWrapper className="bg-background" backgroundVariant="default">
       <Header title="Edit Profile" showBackButton />
       <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
         <View className="py-8 items-center">

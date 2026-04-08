@@ -13,6 +13,7 @@ import {
   Info,
   Calendar,
   Pencil,
+  Activity,
 } from "lucide-react-native";
 import { useRouter } from "expo-router";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -214,6 +215,30 @@ export function SettingsScreen() {
                 </View>
               </>
             )}
+          </TouchableOpacity>
+        </Animated.View>
+
+        {/* Fitness Profile Card */}
+        <Animated.View entering={FadeInUp.delay(350)}>
+          <TouchableOpacity
+            onPress={() => router.push("/home/edit-fitness" as any)}
+            activeOpacity={0.9}
+            className="bg-card rounded-3xl p-6 mb-8 border border-stone-200/5 dark:border-stone-900/5 overflow-hidden"
+          >
+            <View className="flex-row items-center">
+              <View className="w-12 h-12 rounded-2xl bg-primary/10 items-center justify-center mr-4">
+                <Activity {...({ size: 22, stroke: colors.primary } as any)} />
+              </View>
+              <View className="flex-1 min-w-0">
+                <Text className="text-text-secondary text-[10px] font-bold font-kanit uppercase tracking-wider mb-1">
+                  Health & Body
+                </Text>
+                <Text className="text-text text-lg font-black font-kanit" numberOfLines={1}>
+                  Fitness Details
+                </Text>
+              </View>
+              <ChevronRight {...({ size: 20, stroke: colors.muted } as any)} />
+            </View>
           </TouchableOpacity>
         </Animated.View>
 
