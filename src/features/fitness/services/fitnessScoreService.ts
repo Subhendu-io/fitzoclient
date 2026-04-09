@@ -5,6 +5,7 @@ export interface FitnessAssessment {
   analysis: string;
   recommendations: string[];
   todayPlan: string;
+  imageUrl?: string;
 }
 
 const ANALYZE_FITNESS_CALLABLE = 'analyzeFitness';
