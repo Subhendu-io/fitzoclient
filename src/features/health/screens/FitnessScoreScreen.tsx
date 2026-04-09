@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator, Alert } from 'react-native';
-import { Camera, Image as ImageIcon, RefreshCcw, CheckCircle2, Info, Zap, Target, ListChecks, Scale, Activity, Flame } from 'lucide-react-native';
+import { Camera, Image as ImageIcon, RefreshCcw, Info, Zap } from 'lucide-react-native';
 import { ScreenWrapper } from '@/components/layout/ScreenWrapper';
 import { Header } from '@/components/layout/Header';
-import { analyzeFitness, FitnessAssessment } from '../services/fitnessScoreService';
 import * as ImagePicker from 'expo-image-picker';
 import Animated, { FadeInUp, ZoomIn } from 'react-native-reanimated';
 import { useThemeColors } from '@/hooks/useThemeColors';
@@ -12,6 +11,12 @@ import { useModal } from '@/providers/useModal';
 import { useAuthStore } from '@/store/useAuthStore';
 import { getUserFitnessProfile } from '@/features/auth/services/authService';
 import { UserFitnessProfile } from '@/interfaces/member';
+
+import HeroSection from '../components/HeroSection';
+import { LastResults } from '../components/LastResults';
+import { FitnessProfile } from '../components/FitnessProfile';
+import { FitnessResult } from '../components/FitnessResult';
+import { analyzeFitness, FitnessAssessment } from '../services/fitnessScoreService';
 
 export function FitnessScoreScreen() {
   const { showToast } = useToaster();
@@ -72,15 +77,7 @@ export function FitnessScoreScreen() {
     if (!base64) return;
     setLoading(true);
     try {
-      const assessment = await analyzeFitness({
-        imageBase64: base64,
-        userStats: profile ? {
-          weight: profile.bodyStats?.weight,
-          height: profile.bodyStats?.height,
-          goal: profile.preferences?.fitnessGoal,
-          activityLevel: profile.preferences?.activityLevel
-        } : undefined
-      });
+      const assessment = await analyzeFitness(base64);
       setResult(assessment);
     } catch (error) {
       showToast({ title: 'Analysis Failed', message: 'Could not analyze your fitness level. Please try again.', variant: 'danger' });
@@ -99,27 +96,27 @@ export function FitnessScoreScreen() {
   return (
     <ScreenWrapper className="bg-background">
       <Header title="AI Fitness Assessment" showBackButton />
-      
-      <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
-        {!result && !loading && (
-          <View className="py-4">
-            {/* HERO SECTION */}
-            <View className="bg-primary rounded-[40px] p-8 items-center mb-8 shadow-2xl shadow-primary/40 relative overflow-hidden">
-               <View className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
-               <View className="absolute -bottom-10 -left-10 w-40 h-40 bg-black/10 rounded-full blur-2xl" />
-               
-               <View className="w-20 h-20 rounded-[32px] bg-white/20 items-center justify-center mb-6 shadow-sm border border-white/20 z-10">
-                 <Zap {...({ size: 40, stroke: '#FFFFFF' } as any)} />
-               </View>
-               
-               <Text className="text-black text-3xl font-black font-kanit text-center mb-3 z-10" style={{ letterSpacing: 0.5 }}>
-                 FITNESS AI PRO
-               </Text>
-               <Text className="text-black/80 text-[15px] font-kanit text-center leading-6 px-2 z-10 font-medium">
-                 Unlock an instant, clinical-grade analysis of your physique, posture, and muscle definition.
-               </Text>
-            </View>
 
+      <ScrollView className="flex-1 px-6" showsVerticalScrollIndicator={false}>
+
+        {loading && (
+          <View className="mb-6 items-center">
+            <Animated.View entering={ZoomIn} className="w-32 h-32 rounded-full bg-primary/10 items-center justify-center mb-8">
+              <ActivityIndicator color={colors.primary} size="large" />
+            </Animated.View>
+            <Text className="text-text text-xl font-bold font-kanit">Analyzing your physique...</Text>
+            <Text className="text-text-secondary font-kanit mt-2">Checking muscle tone and posture</Text>
+          </View>
+        )}
+
+        {!result && !loading && (
+          <View className="mb-8">
+            <HeroSection />
+          </View>
+        )}
+
+        {!result && !loading && (
+          <View className="mb-6">
             {image ? (
               <Animated.View entering={FadeInUp} className="mb-8">
                 <Image source={{ uri: image }} className="w-full aspect-[3/4] rounded-[40px] border-[6px] border-stone-100 dark:border-stone-800 shadow-xl shadow-black/10" />
@@ -167,142 +164,28 @@ export function FitnessScoreScreen() {
           </View>
         )}
 
-        {profile && (
-          <View className="py-4">
-            <Animated.View entering={FadeInUp.delay(100)} className="p-6 bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[32px] shadow-xl shadow-black/5">
-              <Text className="text-text font-black font-kanit text-lg mb-5">Your Health Profile</Text>
-              
-              <View className="flex-row flex-wrap">
-                {/* Body Stats */}
-                <View className="w-[50%] flex-row items-center mb-6 pl-1 pr-2">
-                  <View className="w-10 h-10 rounded-xl bg-lime-100/20 dark:bg-lime-800/20 items-center justify-center mr-3">
-                    <Scale {...({ size: 18, stroke: colors.primary } as any)} />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-text-secondary text-[10px] uppercase font-bold font-kanit">Body</Text>
-                    <Text className="text-text font-black font-kanit text-[13px] leading-tight mt-0.5" numberOfLines={2}>
-                      {profile.bodyStats?.weight ? `${profile.bodyStats?.weight}kg` : '--'} {profile.bodyStats?.height ? `• ${profile.bodyStats?.height}cm` : ''}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Goal */}
-                <View className="w-[50%] flex-row items-center mb-6 pl-1 pr-2">
-                  <View className="w-10 h-10 rounded-xl bg-[#60A5FA]/10 items-center justify-center mr-3">
-                    <Target {...({ size: 18, stroke: '#60A5FA' } as any)} />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-text-secondary text-[10px] uppercase font-bold font-kanit">Goal</Text>
-                    <Text className="text-text font-black font-kanit text-[13px] leading-tight capitalize mt-0.5" numberOfLines={2}>
-                      {profile.preferences?.fitnessGoal?.replace('_', ' ') || '--'}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Activity Level */}
-                <View className="w-[50%] flex-row items-center pl-1 pr-2">
-                  <View className="w-10 h-10 rounded-xl bg-[#FBBF24]/10 items-center justify-center mr-3">
-                    <Activity {...({ size: 18, stroke: '#FBBF24' } as any)} />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-text-secondary text-[10px] uppercase font-bold font-kanit">Activity</Text>
-                    <Text className="text-text font-black font-kanit text-[13px] leading-tight capitalize mt-0.5" numberOfLines={2}>
-                      {profile.preferences?.activityLevel?.replace('_', ' ') || '--'}
-                    </Text>
-                  </View>
-                </View>
-
-                {/* Diet Focus */}
-                <View className="w-[50%] flex-row items-center pl-1 pr-2">
-                  <View className="w-10 h-10 rounded-xl bg-[#34D399]/10 items-center justify-center mr-3">
-                    <Flame {...({ size: 18, stroke: '#34D399' } as any)} />
-                  </View>
-                  <View className="flex-1">
-                    <Text className="text-text-secondary text-[10px] uppercase font-bold font-kanit">Diet</Text>
-                    <Text className="text-text font-black font-kanit text-[13px] leading-tight capitalize mt-0.5" numberOfLines={2}>
-                      {profile.preferences?.dietPreference || '--'}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </Animated.View>
-          </View>
-        )}
-
-        {loading && (
-          <View className="py-4 items-center">
-            <Animated.View entering={ZoomIn} className="w-32 h-32 rounded-full bg-primary/10 items-center justify-center mb-8">
-               <ActivityIndicator color={colors.primary} size="large" />
-            </Animated.View>
-            <Text className="text-text text-xl font-bold font-kanit">Analyzing your physique...</Text>
-            <Text className="text-text-secondary font-kanit mt-2">Checking muscle tone and posture</Text>
+        {!loading && (
+          <View className="mb-6">
+            <FitnessProfile profile={profile} />
           </View>
         )}
 
         {result && (
-          <View className="py-4">
-            <Animated.View entering={FadeInUp} className="mb-10 items-center">
-              {/* Show the uploaded user image attractively as a background relative to score */}
-              <View className="w-full relative items-center justify-center mb-8">
-                <Image 
-                  source={{ uri: result.imageUrl || image || '' }} 
-                  className="w-full aspect-[4/3] rounded-[40px] opacity-80" 
-                  style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' }} 
-                />
-                
-                {/* Score overlaps the image bottom */}
-                <View 
-                  style={{ borderColor: getScoreColor(result.score), elevation: 15 }}
-                  className="absolute -bottom-10 w-32 h-32 rounded-full border-[8px] items-center justify-center bg-card shadow-2xl shadow-black/50"
-                >
-                  <Text className="text-text text-5xl font-black font-kanit">{result.score}</Text>
-                  <Text className="text-text-secondary text-[10px] font-bold font-kanit uppercase mt-0">AI Score</Text>
-                </View>
-              </View>
-            </Animated.View>
+          <View className="mb-6">
+            <FitnessResult 
+              result={result} 
+              image={image}
+              onReset={() => {
+                setResult(null);
+                setImage(null);
+              }} 
+            />
+          </View>
+        )}
 
-            <View className="space-y-6">
-              <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[32px] p-6">
-                <View className="flex-row items-center mb-4">
-                  <Target {...({ size: 18, stroke: colors.primary } as any)} />
-                  <Text className="text-text text-lg font-bold font-kanit ml-3">Today's Focus</Text>
-                </View>
-                <Text className="text-text-secondary font-kanit leading-relaxed">{result.todayPlan}</Text>
-              </View>
-
-              <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[32px] p-6">
-                <View className="flex-row items-center mb-4">
-                  <Zap {...({ size: 18, stroke: colors.primary } as any)} />
-                  <Text className="text-text text-lg font-bold font-kanit ml-3">Phsysique Analysis</Text>
-                </View>
-                <Text className="text-text-secondary font-kanit leading-relaxed">{result.analysis}</Text>
-              </View>
-
-              <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[32px] p-6">
-                <View className="flex-row items-center mb-6">
-                  <ListChecks {...({ size: 18, stroke: colors.primary } as any)} />
-                  <Text className="text-text text-lg font-bold font-kanit ml-3">Action Steps</Text>
-                </View>
-                <View className="space-y-4">
-                  {result.recommendations.map((rec, i) => (
-                    <View key={i} className="flex-row space-x-4">
-                       <CheckCircle2 {...({ size: 20, stroke: colors.primary, opacity: 0.6 } as any)} />
-                       <Text className="flex-1 text-text-secondary font-kanit leading-5">{rec}</Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-
-              <TouchableOpacity 
-                onPress={() => {
-                  setResult(null);
-                  setImage(null);
-                }}
-                className="bg-white/5 py-5 rounded-3xl items-center border border-stone-200/5 dark:border-stone-900/5"
-              >
-                <Text className="text-text font-bold font-kanit">NEW ASSESSMENT</Text>
-              </TouchableOpacity>
-            </View>
+        {!result && ( 
+          <View className="mb-6">
+            <LastResults onSelectResult={(result) => setResult(result)} />
           </View>
         )}
 

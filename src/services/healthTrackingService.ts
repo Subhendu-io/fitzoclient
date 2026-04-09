@@ -69,7 +69,7 @@ export const saveFitnessTracking = async (
   data: Omit<FitnessTrackingEntry, "id" | "createdAt">
 ): Promise<void> => {
   try {
-    const fitnessColRef = collection(getUserDocRef(), COLLECTIONS.FITNESS_TRACKING);
+    const fitnessColRef = collection(getUserDocRef(), COLLECTIONS.FITNESS, COLLECTIONS.TRACKING);
     // You could also use doc(fitnessColRef, data.date) if you want 1 doc per date.
     // For now, appending it to the subcollection so history is preserved.
     await addDoc(fitnessColRef, {
@@ -91,7 +91,7 @@ export const saveDietTracking = async (
   data: Omit<DietTrackingEntry, "id" | "createdAt">
 ): Promise<void> => {
   try {
-    const dietColRef = collection(getUserDocRef(), COLLECTIONS.DIET_TRACKING);
+    const dietColRef = collection(getUserDocRef(), COLLECTIONS.DIET, COLLECTIONS.TRACKING);
     await addDoc(dietColRef, {
       ...data,
       createdAt: Date.now(),
