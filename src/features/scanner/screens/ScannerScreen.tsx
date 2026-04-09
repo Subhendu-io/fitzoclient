@@ -77,7 +77,7 @@ export function ScannerScreen() {
         } else {
           // Navigate to PostScanScreen with the result
           router.push({
-            pathname: "/(main)/scan-result",
+            pathname: "/(tabs)/(scanner)/scan-result",
             params: { result: JSON.stringify(result) },
           });
         }

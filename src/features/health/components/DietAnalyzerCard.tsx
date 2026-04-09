@@ -11,7 +11,7 @@ export function DietAnalyzerCard() {
   return (
     <TouchableOpacity
       activeOpacity={0.9}
-      onPress={() => router.push('/(main)/food-analysis')}
+      onPress={() => router.push('/(tabs)/(health)/food-analysis')}
       className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-6 mb-6 overflow-hidden"
     >
       <View className="flex-row items-center justify-between">
@@ -38,7 +38,7 @@ export function DietAnalyzerCard() {
         <TouchableOpacity
           className="flex-1 flex-row items-center justify-center py-3 rounded-2xl"
           style={{ backgroundColor: colors.warning, gap: 8 }}
-          onPress={() => router.push({ pathname: '/(main)/food-analysis', params: { source: 'camera' } })}
+          onPress={() => router.push({ pathname: '/(tabs)/(health)/food-analysis', params: { source: 'camera' } })}
           activeOpacity={0.8}
         >
           <Camera {...({ size: 16, stroke: colors.text } as any)} />
@@ -48,7 +48,7 @@ export function DietAnalyzerCard() {
         <TouchableOpacity
           className="flex-1 flex-row items-center justify-center py-3 rounded-2xl"
           style={{ backgroundColor: colors.warning + '15', gap: 8 }}
-          onPress={() => router.push({ pathname: '/(main)/food-analysis', params: { source: 'gallery' } })}
+          onPress={() => router.push({ pathname: '/(tabs)/(health)/food-analysis', params: { source: 'gallery' } })}
           activeOpacity={0.8}
         >
           <Image {...({ size: 16, stroke: colors.warning } as any)} />

@@ -7,7 +7,7 @@ import { useUserProfile } from "@/hooks/useUserProfile";
 import { useWorkouts } from "@/hooks/useWorkouts";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useAuthStore } from "@/store/useAuthStore";
-import { subscribeToNotifications } from "@/features/notifications/services/notificationService";
+import { subscribeToNotifications } from "../services/notificationService";
 import { MetricCard } from "../components/MetricCard";
 import { WorkoutCard } from "../components/WorkoutCard";
 import { SessionVoucherCard } from "../components/SessionVoucherCard";
@@ -108,7 +108,7 @@ export function HomeScreen() {
 
           <View className="flex-row items-center space-x-3">
             <TouchableOpacity
-              onPress={() => router.push("/home/notifications" as any)}
+              onPress={() => router.push("/(tabs)/(home)/notifications" as any)}
               className="p-3 mr-2 rounded-2xl relative"
             >
               <Bell {...({ size: 22, stroke: '#ffffff', opacity: 0.85 } as any)} />
@@ -122,7 +122,7 @@ export function HomeScreen() {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => router.push("/settings" as any)}
+              onPress={() => router.push("/(settings)" as any)}
               className="w-14 h-14 rounded-full border-2 border-white/30 bg-primary items-center justify-center overflow-hidden"
             >
               <UserAvatar textSize="text-2xl" textWeight="bold" profile={profile || null} />
@@ -194,7 +194,7 @@ export function HomeScreen() {
         {/* Journey Stats */}
         <View className="flex-row justify-between items-center mb-6 px-1">
           <Text className="text-text text-xl font-bold font-kanit">My Journey</Text>
-          <TouchableOpacity onPress={() => router.push("/home/edit-profile" as any)}>
+          <TouchableOpacity onPress={() => router.push("/(settings)/edit-profile" as any)}>
             <Text className="text-primary text-xs font-bold font-kanit uppercase tracking-wider">
               View All
             </Text>

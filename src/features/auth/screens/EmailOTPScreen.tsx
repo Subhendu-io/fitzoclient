@@ -91,13 +91,13 @@ export function EmailOTPScreen() {
         </Animated.View>
 
         {/* Steps */}
-        <Animated.View entering={FadeInUp.delay(200)} className="bg-card rounded-3xl p-5 mb-8">
+        <Animated.View entering={FadeInUp.delay(200)} className="bg-card rounded-3xl p-5 pb-2 mb-8">
           {[
             { num: '1', text: 'Open the email from Fitzo' },
             { num: '2', text: 'Tap the verification link' },
             { num: '3', text: 'Come back and tap the button below' },
           ].map((step) => (
-            <View key={step.num} className="flex-row items-center mb-4 last:mb-0">
+            <View key={step.num} className="flex-row items-center mb-4">
               <View className="w-8 h-8 rounded-full bg-primary items-center justify-center mr-4">
                 <Text className="text-black font-bold font-kanit text-sm">{step.num}</Text>
               </View>
@@ -116,7 +116,7 @@ export function EmailOTPScreen() {
         {/* Primary CTA */}
         <Animated.View entering={FadeInUp.delay(300)}>
           <Button
-            title="I've Verified My Email"
+            title="I Have Verified My Email"
             onPress={handleVerified}
             loading={isVerifying}
             className="mb-4"

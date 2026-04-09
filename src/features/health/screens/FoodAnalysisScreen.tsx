@@ -27,13 +27,17 @@ import {
   ThumbsDown,
   Flame,
   ShieldCheck,
+  Target,
+  Scale,
+  Activity,
 } from 'lucide-react-native';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import Animated, { FadeInUp, FadeIn } from 'react-native-reanimated';
 import { analyzeFood, FoodAssessment } from '../services/foodAnalysisService';
-import { saveDietTracking, uploadHealthImage } from '@/services/healthTrackingService';
 import { useToaster } from '@/providers/useToaster';
-import { Save } from 'lucide-react-native';
+import { useAuthStore } from '@/store/useAuthStore';
+import { getUserFitnessProfile } from '@/features/auth/services/authService';
+import { UserFitnessProfile } from '@/interfaces/member';
 
 export function FoodAnalysisScreen() {
   const colors = useThemeColors();
@@ -45,9 +49,18 @@ export function FoodAnalysisScreen() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<FoodAssessment | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [hasSaved, setHasSaved] = useState(false);
   const { showToast } = useToaster();
+
+  const user = useAuthStore(s => s.user);
+  const [profile, setProfile] = useState<UserFitnessProfile | null>(null);
+
+  useEffect(() => {
+    if (user?.uid) {
+      getUserFitnessProfile(user.uid).then(p => {
+        if (p) setProfile(p);
+      });
+    }
+  }, [user?.uid]);
 
   // Helper to trigger picker based on params on mount
   useEffect(() => {
@@ -101,7 +114,6 @@ export function FoodAnalysisScreen() {
         setImageBase64(asset.base64 || null);
         setResult(null);
         setError(null);
-        setHasSaved(false);
       }
     } catch (err) {
       console.error('Image picker error:', err);
@@ -116,9 +128,18 @@ export function FoodAnalysisScreen() {
     setError(null);
 
     try {
-      const assessment = await analyzeFood(imageBase64);
+      const assessment = await analyzeFood({
+        imageBase64,
+        userStats: profile ? {
+          weight: profile.bodyStats?.weight,
+          height: profile.bodyStats?.height,
+          goal: profile.preferences?.fitnessGoal,
+          activityLevel: profile.preferences?.activityLevel,
+          dietPreference: profile.preferences?.dietPreference
+        } : undefined
+      });
       setResult(assessment);
-      setHasSaved(false);
+      showToast({ title: 'Success', message: 'Meal analyzed and tracked automatically!', variant: 'success' });
     } catch (err: any) {
       console.error('[FoodAnalysis] Error:', err);
       const message = err?.message || 'Something went wrong. Please try again.';
@@ -126,47 +147,14 @@ export function FoodAnalysisScreen() {
     } finally {
       setLoading(false);
     }
-  }, [imageBase64]);
+  }, [imageBase64, profile]);
 
   const handleReset = useCallback(() => {
     setImageUri(null);
     setImageBase64(null);
     setResult(null);
     setError(null);
-    setHasSaved(false);
   }, []);
-
-  const handleSaveToLog = async () => {
-    if (!result || hasSaved) return;
-    
-    setIsSaving(true);
-    try {
-      let imageUrl;
-      if (imageUri) {
-        imageUrl = await uploadHealthImage(imageUri, 'dietTracking');
-      }
-
-      await saveDietTracking({
-        date: new Date().toISOString().split('T')[0],
-        assessment: result,
-        imageUrl,
-      });
-      setHasSaved(true);
-      showToast({
-        title: "Saved!",
-        message: "This meal has been added to your diet log.",
-        variant: "success",
-      });
-    } catch (err) {
-      showToast({
-        title: "Error",
-        message: "Failed to save to log. Please try again.",
-        variant: "danger",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   return (
     <ScreenWrapper className="bg-background">
@@ -198,6 +186,17 @@ export function FoodAnalysisScreen() {
         {/* Result State */}
         {!loading && result && (
           <Animated.View entering={FadeInUp.delay(200)} className="space-y-4">
+          
+            {result.imageUrl && (
+               <View className="w-full relative items-center justify-center mb-2 mt-4">
+                 <Image 
+                   source={{ uri: result.imageUrl }} 
+                   className="w-full aspect-[4/3] rounded-[32px] opacity-90" 
+                   style={{ backgroundColor: colors.card, borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)' }} 
+                 />
+               </View>
+            )}
+
             {/* Calories Card */}
             <LinearGradient
               colors={
@@ -207,7 +206,7 @@ export function FoodAnalysisScreen() {
               }
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              className="rounded-[32px] p-6 items-center mb-4"
+              className="rounded-[32px] p-6 items-center mb-4 mt-2"
             >
               <View className="flex-row items-center bg-black/20 px-3 py-1.5 rounded-full mb-4 space-x-2">
                 {result.isHealthy ? (
@@ -229,7 +228,7 @@ export function FoodAnalysisScreen() {
             </LinearGradient>
 
             {/* Health Notes */}
-            <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-5 mb-4">
+            <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-5 mb-4 shadow-sm shadow-black/5">
               <View className="flex-row items-center mb-3">
                 <View className="w-10 h-10 rounded-xl bg-blue-500/10 items-center justify-center mr-3">
                   <ShieldCheck {...({ size: 20, stroke: '#3b82f6' } as any)} />
@@ -244,7 +243,7 @@ export function FoodAnalysisScreen() {
             {/* Benefits & Drawbacks */}
             <View className="flex-row space-x-4 mb-4" style={{ gap: 16 }}>
               {result.benefits && result.benefits.length > 0 && (
-                <View className="flex-1 bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-5">
+                <View className="flex-1 bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-5 shadow-sm shadow-black/5">
                   <View className="flex-row items-center mb-3 space-x-2">
                     <ThumbsUp {...({ size: 16, stroke: '#10b981' } as any)} />
                     <Text className="text-text font-bold font-kanit ml-2">Benefits</Text>
@@ -257,7 +256,7 @@ export function FoodAnalysisScreen() {
                 </View>
               )}
               {result.drawbacks && result.drawbacks.length > 0 && (
-                <View className="flex-1 bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-5">
+                <View className="flex-1 bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-5 shadow-sm shadow-black/5">
                   <View className="flex-row items-center mb-3 space-x-2">
                     <ThumbsDown {...({ size: 16, stroke: '#ef4444' } as any)} />
                     <Text className="text-text font-bold font-kanit ml-2">Drawbacks</Text>
@@ -273,7 +272,7 @@ export function FoodAnalysisScreen() {
 
             {/* Workout Suggestions */}
             {result.workoutSuggestions && result.workoutSuggestions.length > 0 && (
-              <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-5 mb-4">
+              <View className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-5 mb-4 shadow-sm shadow-black/5">
                 <View className="flex-row items-center mb-4 space-x-3">
                   <View className="w-10 h-10 rounded-xl bg-orange-500/10 items-center justify-center mr-3">
                     <Flame {...({ size: 20, stroke: '#f97316' } as any)} />
@@ -291,121 +290,85 @@ export function FoodAnalysisScreen() {
               </View>
             )}
 
-            {/* Save to Log Button */}
-            <TouchableOpacity
-              className={`flex-row items-center justify-center py-4 rounded-2xl mt-4 ${
-                hasSaved ? 'bg-green-500/10 border border-green-500/20' : 'bg-primary'
-              }`}
-              onPress={handleSaveToLog}
-              disabled={isSaving || hasSaved}
-              activeOpacity={0.8}
-            >
-              {isSaving ? (
-                <ActivityIndicator color={colors.background} size="small" />
-              ) : hasSaved ? (
-                <>
-                  <CheckCircle2 {...({ size: 20, stroke: '#10b981' } as any)} />
-                  <Text className="text-green-500 font-bold font-kanit text-lg ml-2">Saved to Log</Text>
-                </>
-              ) : (
-                <>
-                  <Save {...({ size: 20, stroke: colors.background } as any)} />
-                  <Text className="text-background font-bold font-kanit text-lg ml-2">Save to Diet Log</Text>
-                </>
-              )}
-            </TouchableOpacity>
-
             {/* Scan Again Button */}
             <TouchableOpacity
-              className="flex-row items-center justify-center py-4 rounded-2xl border border-primary mt-2"
+              className="bg-white/5 py-5 rounded-3xl items-center border border-stone-200/5 dark:border-stone-900/5 mt-4"
               onPress={handleReset}
               activeOpacity={0.8}
             >
-              <RefreshCw {...({ size: 18, stroke: colors.primary } as any)} />
-              <Text className="text-primary font-bold font-kanit ml-2">Analyze Another Item</Text>
+              <Text className="text-text font-bold font-kanit">NEW ASSESSMENT</Text>
             </TouchableOpacity>
           </Animated.View>
         )}
 
         {/* Upload State */}
         {!loading && !result && (
-          <Animated.View entering={FadeInUp.delay(200)} className="space-y-6">
-            {/* Hero Section */}
-            <View className="items-center py-6">
-              <View className="w-20 h-20 rounded-3xl bg-teal-500/10 items-center justify-center mb-6">
-                <UtensilsCrossed {...({ size: 36, stroke: '#0D9488' } as any)} />
-              </View>
-              <Text className="text-text text-2xl font-bold font-kanit text-center mb-2">
-                Food & Drink Analyzer
-              </Text>
-              <Text className="text-text-secondary font-kanit text-center leading-5 max-w-[280px]">
-                Upload a photo of your meal or drink to instantly calculate calories and get tailored health notes.
-              </Text>
+          <Animated.View entering={FadeInUp.delay(200)} className="space-y-6 gap-4">
+            {/* HERO SECTION */}
+            <View className="bg-teal-600 rounded-[40px] p-8 items-center mb-2 shadow-2xl shadow-teal-500/40 relative overflow-hidden">
+               <View className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl" />
+               <View className="absolute -bottom-10 -left-10 w-40 h-40 bg-black/10 rounded-full blur-2xl" />
+               
+               <View className="w-20 h-20 rounded-[32px] bg-white/20 items-center justify-center mb-6 shadow-sm border border-white/20 z-10">
+                 <UtensilsCrossed {...({ size: 40, stroke: '#FFFFFF' } as any)} />
+               </View>
+               
+               <Text className="text-white text-3xl font-black font-kanit text-center mb-3 z-10" style={{ letterSpacing: 0.5 }}>
+                 DIET AI PRO
+               </Text>
+               <Text className="text-white/90 text-[15px] font-kanit text-center leading-6 px-2 z-10 font-medium">
+                 Unlock an instant, clinical-grade analysis of your meal, calorie breakdown, and tailored workout ideas.
+               </Text>
             </View>
+
 
             {/* Image Preview */}
             {imageUri && (
-              <View className="rounded-3xl overflow-hidden relative w-full aspect-[3/4] mb-6">
+              <View className="rounded-[40px] overflow-hidden relative w-full aspect-[3/4] mb-2 border-[6px] border-stone-100 dark:border-stone-800 shadow-xl shadow-black/10">
                 <Image source={{ uri: imageUri }} className="w-full h-full" resizeMode="cover" />
                 <TouchableOpacity
-                  className="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/60 items-center justify-center backdrop-blur-sm"
+                  className="absolute top-6 right-6 w-12 h-12 rounded-full bg-black/70 items-center justify-center"
                   onPress={() => setImageUri(null)}
                 >
-                  <X {...({ size: 20, stroke: '#FFFFFF' } as any)} />
+                  <X {...({ size: 24, stroke: '#FFFFFF' } as any)} />
                 </TouchableOpacity>
               </View>
             )}
 
             {/* Pick Image Buttons */}
             {!imageUri && (
-              <View className="flex-row space-x-4 mb-6" style={{ gap: 16 }}>
-                <TouchableOpacity
-                  className="flex-1"
+              <View className="flex-row gap-4 mb-2">
+                <TouchableOpacity 
                   onPress={() => handlePickImage('camera')}
-                  activeOpacity={0.8}
+                  className="flex-1 bg-card border-2 border-border rounded-[32px] p-5 items-center shadow-lg shadow-black/5"
                 >
-                  <LinearGradient
-                    colors={['#0D9488', '#0F766E']}
-                    start={{ x: 0, y: 0 }}
-                    end={{ x: 1, y: 1 }}
-                    className="rounded-3xl p-5 items-center justify-center"
-                  >
-                    <Camera {...({ size: 32, stroke: '#FFFFFF' } as any)} />
-                    <Text className="text-white font-bold font-kanit mt-3">Take Photo</Text>
-                    <Text className="text-white/70 text-xs font-kanit mt-1 text-center">Use your camera</Text>
-                  </LinearGradient>
+                   <View className="w-12 h-12 bg-lime-100/20 dark:bg-lime-800/20 rounded-2xl items-center justify-center mb-3">
+                     <Camera {...({ size: 24, stroke: colors.primary } as any)} />
+                   </View>
+                   <Text className="text-text text-center text-[15px] font-black font-kanit">Take Photo</Text>
+                   <Text className="text-text-secondary text-center font-kanit text-[11px] mt-1 leading-tight">Live scan picture</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                  className="flex-1 bg-card border-2 border-border rounded-3xl p-5 items-center justify-center"
+                <TouchableOpacity 
                   onPress={() => handlePickImage('gallery')}
-                  activeOpacity={0.8}
+                  className="flex-1 bg-card border-2 border-border rounded-[32px] p-5 items-center shadow-md shadow-black/5"
                 >
-                  <ImageIcon {...({ size: 32, stroke: colors.primary } as any)} />
-                  <Text className="text-text font-bold font-kanit mt-3">Gallery</Text>
-                  <Text className="text-text-secondary text-xs font-kanit mt-1 text-center">Choose an existing photo</Text>
+                   <View className="w-12 h-12 bg-lime-100/20 dark:bg-lime-800/20 rounded-2xl items-center justify-center mb-3">
+                     <ImageIcon {...({ size: 24, stroke: colors.primary } as any)} />
+                   </View>
+                   <Text className="text-text text-center text-[15px] font-black font-kanit">Gallery</Text>
+                   <Text className="text-text-secondary text-center font-kanit text-[11px] mt-1 leading-tight">Upload existing file</Text>
                 </TouchableOpacity>
               </View>
             )}
 
             {/* Analyze Button */}
             {imageUri && (
-              <TouchableOpacity
-                className="overflow-hidden rounded-2xl mb-6 shadow-sm shadow-teal-500/20"
+              <TouchableOpacity 
                 onPress={handleAnalyze}
-                activeOpacity={0.8}
+                className="bg-primary py-5 rounded-3xl items-center shadow-lg shadow-primary/30 active:scale-95 transition-transform"
               >
-                <LinearGradient
-                  colors={['#0D9488', '#0F766E']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  className="flex-row items-center justify-center py-4 space-x-2"
-                >
-                  <Text className="text-white font-bold font-kanit text-lg mr-2">
-                    Calculate Nutrition
-                  </Text>
-                  <UtensilsCrossed {...({ size: 20, stroke: '#FFFFFF' } as any)} />
-                </LinearGradient>
+                <Text className="text-black font-black text-xl font-kanit" style={{ letterSpacing: 1 }}>ANALYZE NUTRITION</Text>
               </TouchableOpacity>
             )}
 
@@ -417,8 +380,68 @@ export function FoodAnalysisScreen() {
               </View>
             )}
 
+            {profile && (
+              <Animated.View entering={FadeInUp.delay(100)} className="mb-4 bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-[32px] p-6 shadow-xl shadow-black/5">
+                <Text className="text-text font-black font-kanit text-lg mb-5">Your Health Profile</Text>
+                
+                <View className="flex-row flex-wrap">
+                  {/* Body Stats */}
+                  <View className="w-[50%] flex-row items-center mb-6 pl-1 pr-2">
+                    <View className="w-10 h-10 rounded-xl bg-lime-100/20 dark:bg-lime-800/20 items-center justify-center mr-3">
+                      <Scale {...({ size: 18, stroke: colors.primary } as any)} />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-text-secondary text-[10px] uppercase font-bold font-kanit">Body</Text>
+                      <Text className="text-text font-black font-kanit text-[13px] leading-tight mt-0.5" numberOfLines={2}>
+                        {profile.bodyStats?.weight ? `${profile.bodyStats?.weight}kg` : '--'} {profile.bodyStats?.height ? `• ${profile.bodyStats?.height}cm` : ''}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Goal */}
+                  <View className="w-[50%] flex-row items-center mb-6 pl-1 pr-2">
+                    <View className="w-10 h-10 rounded-xl bg-[#60A5FA]/10 items-center justify-center mr-3">
+                      <Target {...({ size: 18, stroke: '#60A5FA' } as any)} />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-text-secondary text-[10px] uppercase font-bold font-kanit">Goal</Text>
+                      <Text className="text-text font-black font-kanit text-[13px] leading-tight capitalize mt-0.5" numberOfLines={2}>
+                        {profile.preferences?.fitnessGoal?.replace('_', ' ') || '--'}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Activity Level */}
+                  <View className="w-[50%] flex-row items-center pl-1 pr-2">
+                    <View className="w-10 h-10 rounded-xl bg-[#FBBF24]/10 items-center justify-center mr-3">
+                      <Activity {...({ size: 18, stroke: '#FBBF24' } as any)} />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-text-secondary text-[10px] uppercase font-bold font-kanit">Activity</Text>
+                      <Text className="text-text font-black font-kanit text-[13px] leading-tight capitalize mt-0.5" numberOfLines={2}>
+                        {profile.preferences?.activityLevel?.replace('_', ' ') || '--'}
+                      </Text>
+                    </View>
+                  </View>
+
+                  {/* Diet Focus */}
+                  <View className="w-[50%] flex-row items-center pl-1 pr-2">
+                    <View className="w-10 h-10 rounded-xl bg-[#34D399]/10 items-center justify-center mr-3">
+                      <Flame {...({ size: 18, stroke: '#34D399' } as any)} />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-text-secondary text-[10px] uppercase font-bold font-kanit">Diet</Text>
+                      <Text className="text-text font-black font-kanit text-[13px] leading-tight capitalize mt-0.5" numberOfLines={2}>
+                        {profile.preferences?.dietPreference || '--'}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </Animated.View>
+            )}
+
             {/* Disclaimer */}
-            <View className="flex-row items-start px-2 mt-4 pb-8">
+            <View className="flex-row items-start px-2 mt-2">
               <Info {...({ size: 16, stroke: colors.muted, marginTop: 2 } as any)} />
               <Text className="text-text-secondary text-xs font-kanit flex-1 ml-2 leading-5">
                 Estimations are provided by AI and may not be 100% accurate. Do not rely entirely on these values for strict medical dietary needs.

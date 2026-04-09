@@ -279,7 +279,7 @@ export function UserDetailsScreen() {
         activityLevel: activity,
       });
 
-      // 2. Save all remaining fitness data to fitness subcollection
+      // 2. Save all remaining fitness data to fitness subCollection
       const profile: Omit<UserFitnessProfile, 'updatedAt'> = {};
       
       if (Object.keys(bodyStats).length > 0) profile.bodyStats = bodyStats;
@@ -287,7 +287,7 @@ export function UserDetailsScreen() {
       if (Object.keys(preferences).length > 0) profile.preferences = preferences as any;
 
       await saveUserFitnessProfile(user.uid, profile);
-      router.replace('/(tabs)/home');
+      router.replace('/(tabs)/(home)');
     } catch (err: any) {
       setError(err.message || 'Failed to save. Please try again.');
     } finally {

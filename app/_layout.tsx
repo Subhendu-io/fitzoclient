@@ -10,7 +10,7 @@ import { getAuth } from "../src/lib/firebase";
 import { useAuthStore } from "../src/store/useAuthStore";
 import { getAppUser } from "../src/services/userService";
 import { Kanit_400Regular, Kanit_700Bold, Kanit_800ExtraBold } from "@expo-google-fonts/kanit";
-import { registerForPushNotificationsAsync } from "../src/features/notifications";
+import { registerForPushNotificationsAsync } from "../src/features/home/services/notificationService";
 import { ThemeManager } from "../src/components/ThemeManager";
 import { ModalProvider } from "../src/providers/useModal";
 import { ToasterProvider } from "../src/providers/useToaster";
@@ -43,7 +43,7 @@ export default function RootLayout() {
     const params = parseDeepLink(url);
     if (params) {
       router.push({
-        pathname: "/(tabs)/scanner",
+        pathname: "/(tabs)/(scanner)",
         params: params as any
       });
     }
@@ -75,14 +75,14 @@ export default function RootLayout() {
           // Check for pending deep link scan
           if (pendingTenantId) {
             router.push({
-              pathname: "/(tabs)/scanner",
+              pathname: "/(tabs)/(scanner)",
               params: { tenantId: pendingTenantId, branchId: pendingBranchId }
             });
             clearPending();
           }
 
           // Register for notifications
-          registerForPushNotificationsAsync(user.uid).catch((err) =>
+          registerForPushNotificationsAsync(user.uid).catch((err: any) =>
             console.error("Notification registration failed:", err),
           );
         } catch (error) {
@@ -123,7 +123,7 @@ export default function RootLayout() {
             >
               <Stack.Screen name="(auth)" options={{ headerShown: false }} />
               <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-              <Stack.Screen name="(main)" options={{ headerShown: false }} />
+              <Stack.Screen name="(settings)" options={{ headerShown: false }} />
             </Stack>
             <Modal />
             <Toaster />

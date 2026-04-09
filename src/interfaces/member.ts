@@ -46,6 +46,7 @@ export interface Payment {
   paymentDate: string;
   status: "pending" | "paid" | "failed" | "refunded";
   transactionId?: string;
+  receiptUrl?: string;
   notes?: string;
   createdBy?: string;
   createdAt?: string;

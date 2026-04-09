@@ -13,24 +13,36 @@ export interface FoodAssessment {
   benefits: string[];
   drawbacks: string[];
   workoutSuggestions: string[];
+  imageUrl?: string;
 }
 
 const ANALYZE_FOOD_CALLABLE = 'analyzeFood';
+
+export interface AnalysisPayload {
+  imageBase64: string;
+  userStats?: {
+    weight?: number;
+    height?: number;
+    goal?: string;
+    activityLevel?: string;
+    dietPreference?: string;
+  };
+}
 
 /**
  * Call the analyzeFood Cloud Function.
  * Sends a base64-encoded image and receives a nutritional assessment.
  */
 export const analyzeFood = async (
-  imageBase64: string,
+  payload: AnalysisPayload,
 ): Promise<FoodAssessment> => {
-  if (!imageBase64?.trim()) {
+  if (!payload.imageBase64?.trim()) {
     throw new Error('Image data is required');
   }
 
   const functions = getFunctions();
   const callable = httpsCallable(functions, ANALYZE_FOOD_CALLABLE);
-  const { data } = await callable({ imageBase64 });
+  const { data } = await callable(payload);
 
   return data as FoodAssessment;
 };

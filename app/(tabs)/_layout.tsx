@@ -38,7 +38,7 @@ export default function TabsLayout() {
       }}
     >
       <Tabs.Screen
-        name="home/index"
+        name="(home)"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
             <View className="p-4" style={{ backgroundColor: focused ? isDark ? '#1a1826' : colors.accentLight : 'transparent', borderRadius: 50 }}>
@@ -48,7 +48,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="fitness/index"
+        name="(fitness)"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
             <View className="p-4" style={{ backgroundColor: focused ? isDark ? '#1a1826' : colors.accentLight : 'transparent', borderRadius: 50 }}>
@@ -58,7 +58,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="scanner/index"
+        name="(scanner)"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
             <View className="p-4" style={{ backgroundColor: focused ? isDark ? '#1a1826' : colors.accentLight : 'transparent', borderRadius: 50 }}>
@@ -68,7 +68,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="gym/index"
+        name="(health)"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
             <View className="p-4" style={{ backgroundColor: focused ? isDark ? '#1a1826' : colors.accentLight : 'transparent', borderRadius: 50 }}>
@@ -78,7 +78,7 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="community/index"
+        name="(community)"
         options={{
           tabBarIcon: ({ color, size, focused }) => (
             <View className="p-4" style={{ backgroundColor: focused ? isDark ? '#1a1826' : colors.accentLight : 'transparent', borderRadius: 50 }}>

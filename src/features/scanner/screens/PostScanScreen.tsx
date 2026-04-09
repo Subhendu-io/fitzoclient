@@ -39,7 +39,7 @@ export function PostScanScreen() {
 
   const navigateHome = () => {
     router.dismissAll();
-    router.replace("/(tabs)/home");
+    router.replace("/(tabs)/(home)");
   };
 
   const getResultConfig = (): ResultConfig | null => {
@@ -102,7 +102,7 @@ export function PostScanScreen() {
           primaryLabel: "Browse Plans",
           primaryAction: () => {
             router.replace({
-              pathname: "/(main)/home/buy-subscription",
+              pathname: "/(tabs)/(scanner)/buy-subscription",
               params: {
                 tenantId: flowResult!.tenantId,
                 branchId: flowResult!.branchId,

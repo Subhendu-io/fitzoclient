@@ -6,6 +6,14 @@ import { useSegments } from "expo-router";
 import { ScreenBackground, type ScreenVariant } from "./ScreenBackground";
 
 const TAB_VARIANTS: Record<string, ScreenVariant> = {
+  // New group-based segments (Expo Router wraps in parentheses)
+  "(home)": "home",
+  "(fitness)": "fitness",
+  "(scanner)": "scanner",
+  "(health)": "gym",
+  "(community)": "community",
+  "(settings)": "default",
+  // Legacy bare names (fallback)
   home: "home",
   fitness: "fitness",
   scanner: "scanner",
@@ -16,7 +24,7 @@ const TAB_VARIANTS: Record<string, ScreenVariant> = {
 function useScreenVariant(override?: ScreenVariant): ScreenVariant {
   const segments = useSegments();
   if (override) return override;
-  // segments example: ['(tabs)', 'home', 'index'] → look for a known tab key
+  // segments example: ['(tabs)', '(home)', 'index'] → look for a known key
   const tab = segments.find((s) => s in TAB_VARIANTS);
   return tab ? TAB_VARIANTS[tab] : "default";
 }

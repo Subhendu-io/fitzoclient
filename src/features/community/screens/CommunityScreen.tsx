@@ -30,7 +30,7 @@ export function CommunityScreen() {
            <View className="flex-row space-x-4">
               <TouchableOpacity 
                 className="p-3 bg-card rounded-2xl border border-stone-200/5 dark:border-stone-900/5"
-                onPress={() => router.push('/community/community-chat')}
+                onPress={() => router.push('/(tabs)/(community)/community-chat')}
               >
                  <MessageSquare {...({ size: 20, stroke: colors.text } as any)} />
               </TouchableOpacity>

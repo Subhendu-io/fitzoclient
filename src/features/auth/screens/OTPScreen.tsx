@@ -65,7 +65,7 @@ export function OTPScreen() {
         router.replace('/(auth)/user-details');
       } else {
         // Existing user login
-        router.replace('/(tabs)/home');
+        router.replace('/(tabs)/(home)');
       }
     } catch (err: any) {
       setError(err.message || 'Verification failed');

@@ -64,7 +64,7 @@ export function FitnessScreen() {
           className="mt-6 mb-8"
         >
           <TouchableOpacity 
-            onPress={() => router.push('/home/attendance-calendar')}
+            onPress={() => router.push('/(tabs)/(fitness)/attendance')}
             activeOpacity={0.7}
             className="flex-row items-center justify-between"
           >
@@ -128,7 +128,7 @@ export function FitnessScreen() {
         <View className="flex-row justify-between items-center mb-6">
             <Text className="text-text text-xl font-bold font-kanit">Your Plan</Text>
             <TouchableOpacity 
-              onPress={() => router.push('/fitness/workout-history')}
+              onPress={() => router.push('/(tabs)/(fitness)/workout-history')}
               className="flex-row items-center space-x-2 bg-white/5 px-4 py-2 rounded-xl"
             >
                <History {...({ size: 16, stroke: colors.primary } as any)} />

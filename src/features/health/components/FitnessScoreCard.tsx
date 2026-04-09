@@ -16,7 +16,7 @@ export function FitnessScoreCard({ score = 90, showScanOptions = false }: Fitnes
   return (
     <TouchableOpacity 
       activeOpacity={0.9}
-      onPress={() => router.push('/home/fitness-score')}
+      onPress={() => router.push('/(tabs)/(health)/fitness-score')}
       className="bg-card border border-stone-200/5 dark:border-stone-900/5 rounded-3xl p-6 mb-6 overflow-hidden"
     >
       <View className="flex-row items-center justify-between">
@@ -51,7 +51,7 @@ export function FitnessScoreCard({ score = 90, showScanOptions = false }: Fitnes
           <TouchableOpacity
             className="flex-1 flex-row items-center justify-center py-3 rounded-2xl"
             style={{ backgroundColor: colors.primary, gap: 8 }}
-            onPress={() => router.push({ pathname: '/home/fitness-score', params: { source: 'camera' } } as any)}
+            onPress={() => router.push({ pathname: '/(tabs)/(health)/fitness-score', params: { source: 'camera' } } as any)}
             activeOpacity={0.8}
           >
             <Camera {...({ size: 16, stroke: 'black' } as any)} />
@@ -61,7 +61,7 @@ export function FitnessScoreCard({ score = 90, showScanOptions = false }: Fitnes
           <TouchableOpacity
             className="flex-1 flex-row items-center justify-center py-3 rounded-2xl"
             style={{ backgroundColor: colors.primary + '15', gap: 8 }}
-            onPress={() => router.push({ pathname: '/home/fitness-score', params: { source: 'gallery' } } as any)}
+            onPress={() => router.push({ pathname: '/(tabs)/(health)/fitness-score', params: { source: 'gallery' } } as any)}
             activeOpacity={0.8}
           >
             <Image {...({ size: 16, stroke: colors.primary } as any)} />

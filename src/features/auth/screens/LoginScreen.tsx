@@ -24,7 +24,7 @@ export function LoginScreen() {
     try {
       const userCredential = await signInWithEmailAndPassword(getAuth(), email, password);
       setUser(userCredential.user);
-      router.replace("/(tabs)/home");
+      router.replace("/(tabs)/(home)");
     } catch (error) {
       console.error("Login error:", error);
       showToast({ title: "Login failed", message: "Please check your email and password", variant: "danger" });

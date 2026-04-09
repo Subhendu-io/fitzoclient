@@ -37,7 +37,7 @@ export function MembershipCard({ subscription, daysRemaining, isLoading }: Membe
           You don't have an active membership yet. Contact your gym to get started.
         </Text>
         <TouchableOpacity 
-          onPress={() => router.push('/help')}
+          onPress={() => router.push('/(settings)/help')}
           className="bg-primary py-3 rounded-2xl items-center"
         >
           <Text className="text-black font-bold font-kanit">Contact Support</Text>
@@ -52,7 +52,7 @@ export function MembershipCard({ subscription, daysRemaining, isLoading }: Membe
   return (
     <TouchableOpacity 
       activeOpacity={0.9}
-      onPress={() => router.push('/home/subscription-details')}
+      onPress={() => router.push('/(settings)/subscription-details')}
       className={`bg-card border ${isExpiringSoon ? 'border-orange-500/50' : 'border-stone-200/5 dark:border-stone-900/5'} rounded-3xl p-6 mb-6`}
     >
       <View className="flex-row justify-between items-start mb-6">
