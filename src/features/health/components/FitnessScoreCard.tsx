@@ -1,17 +1,43 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Zap, ChevronRight, Activity, Camera, Image } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { useThemeColors } from '@/hooks/useThemeColors';
+import { useAuthStore } from '@/store/useAuthStore';
+import { getFitnessHistory } from '../services/fitnessScoreService';
 
 interface FitnessScoreCardProps {
-  score?: number;
   showScanOptions?: boolean;
 }
 
-export function FitnessScoreCard({ score = 90, showScanOptions = false }: FitnessScoreCardProps) {
+export function FitnessScoreCard({ showScanOptions = false }: FitnessScoreCardProps) {
   const colors = useThemeColors();
   const router = useRouter();
+  const user = useAuthStore(s => s.user);
+  
+  const [score, setScore] = useState<number | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    async function fetchLastScore() {
+      if (!user?.uid) {
+        setLoading(false);
+        return;
+      }
+      try {
+        const history = await getFitnessHistory(user.uid);
+        if (history && history.length > 0) {
+          setScore(history[0].score);
+        }
+      } catch (err) {
+        console.log('[FitnessScoreCard] error fetching last score:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchLastScore();
+  }, [user?.uid]);
 
   return (
     <TouchableOpacity 
@@ -32,14 +58,24 @@ export function FitnessScoreCard({ score = 90, showScanOptions = false }: Fitnes
           </View>
         </View>
         <View className="items-end ml-4">
-          <View className="flex-row items-baseline">
-            <Text className="text-text text-3xl font-black font-kanit">{score}</Text>
-            <Text className="text-primary text-lg font-bold font-kanit ml-1">%</Text>
-          </View>
-          <View className="flex-row items-center">
-            <Zap {...({ size: 10, stroke: colors.primary, fill: colors.primary } as any)} />
-            <Text className="text-primary text-[10px] font-bold font-kanit uppercase ml-1">Excellent</Text>
-          </View>
+          {loading ? (
+             <ActivityIndicator color={colors.primary} size="small" className="my-2" />
+          ) : score !== null ? (
+            <>
+              <View className="flex-row items-baseline">
+                <Text className="text-text text-3xl font-black font-kanit">{score}</Text>
+                <Text className="text-primary text-lg font-bold font-kanit ml-1">%</Text>
+              </View>
+              <View className="flex-row items-center">
+                <Zap {...({ size: 10, stroke: colors.primary, fill: colors.primary } as any)} />
+                <Text className="text-primary text-[10px] font-bold font-kanit uppercase ml-1">
+                  {score >= 80 ? 'Excellent' : score >= 60 ? 'Good' : 'Needs Focus'}
+                </Text>
+              </View>
+            </>
+          ) : (
+            <Text className="text-text-secondary text-xl font-bold font-kanit">--</Text>
+          )}
         </View>
       </View>
       

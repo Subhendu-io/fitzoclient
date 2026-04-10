@@ -18,7 +18,7 @@ import {
   serverTimestamp,
 } from '@react-native-firebase/firestore';
 import { COLLECTIONS } from '@/constants/collection';
-import { UserFitnessProfile } from '@/interfaces/member';
+import { AppUser } from '@/interfaces/member';
 
 const firebaseAuth = getAuth();
 const db = getFirestore();
@@ -230,11 +230,11 @@ export const reloadAndCheckEmailVerified = async (): Promise<boolean> => {
  */
 export const saveUserFitnessProfile = async (
   uid: string,
-  data: Omit<UserFitnessProfile, 'updatedAt'>,
+  data: Omit<AppUser, 'updatedAt'>,
 ): Promise<void> => {
   try {
     await setDoc(
-      doc(db, COLLECTIONS.APPUSERS, uid, 'fitness', 'profile'),
+      doc(db, COLLECTIONS.APPUSERS, uid),
       { ...data, updatedAt: new Date().toISOString() },
       { merge: true },
     );
@@ -295,11 +295,11 @@ export const signOut = async (): Promise<void> => {
 /**
  * Get the user's fitness profile
  */
-export const getUserFitnessProfile = async (uid: string): Promise<UserFitnessProfile | null> => {
+export const getUserFitnessProfile = async (uid: string): Promise<AppUser | null> => {
   try {
-    const docRef = doc(db, COLLECTIONS.APPUSERS, uid, 'fitness', 'profile');
+    const docRef = doc(db, COLLECTIONS.APPUSERS, uid);
     const snap = await getDoc(docRef);
-    return snap.exists() ? (snap.data() as UserFitnessProfile) : null;
+    return snap.exists() ? (snap.data() as AppUser) : null;
   } catch (error: any) {
     console.error('Get fitness profile error:', error);
     return null;

@@ -178,7 +178,7 @@ export function HomeScreen() {
 
         {/* Fitness Score Card */}
         <Animated.View entering={FadeInUp.delay(400)}>
-          <FitnessScoreCard showScanOptions={true} score={90} />
+          <FitnessScoreCard showScanOptions={true} />
         </Animated.View>
 
         {/* Diet Analyzer Card */}

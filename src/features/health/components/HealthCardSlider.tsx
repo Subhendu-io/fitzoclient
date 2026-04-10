@@ -8,24 +8,18 @@ import Animated, {
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
-import { AttendanceCard } from '@/components/cards/AttendanceCard';
-import { AchievementCard } from '@/components/cards/AchievementCard';
-import { WorkoutCard, WorkoutCardProps } from '@/components/cards/WorkoutCard';
-import { DEFAULT_EXERCISES } from '@/features/fitness/components/WorkoutSlider';
-import { Attendance } from '@/interfaces/member';
 import { FitnessGraphCard } from '@/components/cards/FitnessGraphCard';
+import { AchievementCard } from '@/components/cards/AchievementCard';
 
-// 2 fixed cards + one card per exercise
-const TOTAL_CARDS = 2 + DEFAULT_EXERCISES.length;
+const TOTAL_CARDS = 2; // Fixed to 2 cards for Health Screen
 const SWIPE_VELOCITY_THRESHOLD = 800;
 const GAP = 16;
 
-interface CardSliderProps {
-  weekAttendance: Attendance[];
+interface HealthCardSliderProps {
   startOfWeek: Date;
 }
 
-export function CardSlider({ weekAttendance, startOfWeek }: CardSliderProps) {
+export function HealthCardSlider({ startOfWeek }: HealthCardSliderProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
 
@@ -107,27 +101,15 @@ export function CardSlider({ weekAttendance, startOfWeek }: CardSliderProps) {
         <GestureDetector gesture={pan}>
           <Animated.View style={[styles.strip, stripStyle]}>
 
-            {/* Card 0 — Fitness Graph */}
+            {/* Card 1 — Fitness Graph */}
             <View style={slotStyle(false)}>
               <FitnessGraphCard />
             </View>
 
-            {/* Card 1 — Attendance */}
-            <View style={slotStyle(false)}>
-              <AttendanceCard weekAttendance={weekAttendance} startOfWeek={startOfWeek} />
-            </View>
-
             {/* Card 2 — Achievement */}
-            <View style={slotStyle(false)}>
-              <AchievementCard />
+            <View style={slotStyle(true)}>
+              <AchievementCard startOfWeek={startOfWeek} />
             </View>
-
-            {/* Cards 3–N — one per exercise */}
-            {DEFAULT_EXERCISES.map((exercise, i) => (
-              <View key={exercise.name} style={slotStyle(i === DEFAULT_EXERCISES.length - 1)}>
-                <WorkoutCard {...exercise} />
-              </View>
-            ))}
 
           </Animated.View>
         </GestureDetector>

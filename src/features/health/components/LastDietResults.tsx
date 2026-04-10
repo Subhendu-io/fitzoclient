@@ -1,33 +1,36 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useAuthStore } from '@/store/useAuthStore';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { FitnessAssessment, FitnessAssessmentEntry, getFitnessHistory } from '../services/fitnessScoreService';
+import { FoodAssessment, FoodAssessmentEntry, getDietHistory } from '../services/foodAnalysisService';
 import { SecureImage } from '@/components/ui/SecureImage';
 import { Plus } from 'lucide-react-native';
 
-interface LastResultsProps {
-  onSelectResult: (result: FitnessAssessment) => void;
+interface LastDietResultsProps {
+  onSelectResult: (result: FoodAssessment) => void;
 }
 
-export function LastResults({ onSelectResult }: LastResultsProps) {
+export function LastDietResults({ onSelectResult }: LastDietResultsProps) {
   const user = useAuthStore(s => s.user);
   const colors = useThemeColors();
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [entries, setEntries] = useState<FitnessAssessmentEntry[]>([]);
+  const [entries, setEntries] = useState<FoodAssessmentEntry[]>([]);
   const [hasMore, setHasMore] = useState(true);
 
+  // Initial load
   useEffect(() => {
     async function loadHistory() {
       if (!user?.uid) return;
       try {
-        const history = await getFitnessHistory(user.uid, { limit: 3, offset: 0 });
+        const history = await getDietHistory(user.uid, { limit: 3, offset: 0 });
         setEntries(history);
-        if (history.length < 3) setHasMore(false);
+        if (history.length < 3) {
+          setHasMore(false);
+        }
       } catch (err) {
-        console.log('[LastResults] fetch error:', err);
+        console.log('[LastDietResults] fetch error:', err);
       } finally {
         setLoading(false);
       }
@@ -40,7 +43,7 @@ export function LastResults({ onSelectResult }: LastResultsProps) {
     if (!user?.uid || loadingMore || !hasMore) return;
     setLoadingMore(true);
     try {
-      const history = await getFitnessHistory(user.uid, { limit: 5, offset: entries.length });
+      const history = await getDietHistory(user.uid, { limit: 5, offset: entries.length });
       if (history.length > 0) {
         setEntries(prev => [...prev, ...history]);
       }
@@ -48,17 +51,10 @@ export function LastResults({ onSelectResult }: LastResultsProps) {
         setHasMore(false);
       }
     } catch (err) {
-      console.log('[LastResults] loadMore error:', err);
+      console.log('[LastDietResults] loadMore error:', err);
     } finally {
       setLoadingMore(false);
     }
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return colors.primary;
-    if (score >= 60) return '#60A5FA';
-    if (score >= 40) return '#FBBF24';
-    return '#F87171';
   };
 
   if (loading) {
@@ -75,7 +71,7 @@ export function LastResults({ onSelectResult }: LastResultsProps) {
 
   return (
     <Animated.View entering={FadeIn}>
-      <Text className="text-text font-black font-kanit text-lg mb-4">Past Assessments</Text>
+      <Text className="text-text font-black font-kanit text-lg mb-4">Past Meals Analyzed</Text>
       
       <ScrollView 
         horizontal 
@@ -104,11 +100,11 @@ export function LastResults({ onSelectResult }: LastResultsProps) {
             <View className="p-4 items-center">
               <Text 
                 className="font-black font-kanit text-2xl"
-                style={{ color: getScoreColor(entry.score) }}
+                style={{ color: entry.isHealthy ? '#10b981' : '#ef4444' }}
               >
-                {entry.score}
+                {entry.totalCalories}
               </Text>
-              <Text className="text-text-secondary text-[10px] font-kanit uppercase mt-1">
+              <Text className="text-text-secondary text-[10px] font-kanit uppercase mt-1 text-center" numberOfLines={1}>
                 {entry.date}
               </Text>
             </View>
@@ -128,7 +124,7 @@ export function LastResults({ onSelectResult }: LastResultsProps) {
                 <View className="w-12 h-12 bg-primary/10 rounded-full items-center justify-center mb-3">
                   <Plus {...({ size: 24, stroke: colors.primary } as any)} />
                 </View>
-                <Text className="text-text font-black font-kanit">Load More</Text>
+                <Text className="text-text font-black font-kanit text-center">Load More</Text>
                 <Text className="text-text-secondary text-[10px] font-kanit uppercase mt-1 text-center">View 5 more</Text>
               </>
             )}

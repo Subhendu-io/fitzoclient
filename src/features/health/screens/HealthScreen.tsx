@@ -1,19 +1,21 @@
 import React from 'react';
+import { HeartPulse } from 'lucide-react-native';
 import { View, Text, ScrollView } from 'react-native';
-import { ScreenWrapper } from '@/components/layout/ScreenWrapper';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { FitnessScoreCard } from '@/features/health/components/FitnessScoreCard';
-import { DietAnalyzerCard } from '../components/DietAnalyzerCard';
+
 import { useDashboard } from '@/hooks/useDashboard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { HeartPulse } from 'lucide-react-native';
-import { AchievementCard } from '@/components/cards/AchievementCard';
+import { ComparisonCard } from '@/components/cards/ComparisonCard';
+import { ScreenWrapper } from '@/components/layout/ScreenWrapper';
+import { FitnessScoreCard } from '@/features/health/components/FitnessScoreCard';
+
+import { DietAnalyzerCard } from '../components/DietAnalyzerCard';
+import { HealthCardSlider } from '../components/HealthCardSlider';
 
 export function HealthScreen() {
   const colors = useThemeColors();
   const {
-    currentWeekAttendance,
     weekRange,
     isLoading,
   } = useDashboard();
@@ -40,7 +42,7 @@ export function HealthScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <Animated.View entering={FadeInUp.delay(150)} className="mt-6 mb-6">
+        <Animated.View entering={FadeInUp.delay(150)} className="mt-6 mb-6 flex-row items-center justify-between">
           <View className="flex-row items-center" style={{ gap: 10 }}>
             <View
               className="w-10 h-10 rounded-2xl items-center justify-center"
@@ -57,14 +59,32 @@ export function HealthScreen() {
           </View>
         </Animated.View>
 
-        {/* Achievements + Weekly Steps Tracking */}
+        {/* Card Slider: Fitness Graph + Achievements */}
         <Animated.View entering={FadeInUp.delay(250)}>
-          <AchievementCard startOfWeek={weekRange.start} />
+          <HealthCardSlider startOfWeek={weekRange.start} />
+        </Animated.View>
+
+        {/* Monthly Steps Comparison */}
+        <Animated.View entering={FadeInUp.delay(350)} className="mb-4">
+          <ComparisonCard
+            left={{
+              backgroundColor: '#957eff',
+              color: '#ffffff',
+              header: 'Last Month',
+              description: '1032 steps',
+            }}
+            right={{
+              backgroundColor: '#95d548',
+              color: '#2a4d00',
+              header: 'This Month',
+              description: '5670 steps',
+            }}
+          />
         </Animated.View>
 
         {/* Fitness Score */}
         <Animated.View entering={FadeInUp.delay(400)}>
-          <FitnessScoreCard score={90} showScanOptions />
+          <FitnessScoreCard showScanOptions />
         </Animated.View>
 
         {/* Diet Analyzer */}

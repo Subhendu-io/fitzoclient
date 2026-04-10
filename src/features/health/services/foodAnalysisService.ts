@@ -1,9 +1,6 @@
-/**
- * Service for AI-powered food & drink nutritional analysis.
- * Calls the analyzeFood Cloud Function with a base64-encoded image.
- */
-
 import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
+import { getFirestore, collection, getDocs, query, orderBy } from '@react-native-firebase/firestore';
+import { COLLECTIONS } from '@/constants/collection';
 
 export interface FoodAssessment {
   totalCalories: number;
@@ -14,6 +11,11 @@ export interface FoodAssessment {
   drawbacks: string[];
   workoutSuggestions: string[];
   imageUrl?: string;
+}
+
+export interface FoodAssessmentEntry extends FoodAssessment {
+  date: string;
+  createdAt: number;
 }
 
 const ANALYZE_FOOD_CALLABLE = 'analyzeFood';
@@ -29,10 +31,6 @@ export interface AnalysisPayload {
   };
 }
 
-/**
- * Call the analyzeFood Cloud Function.
- * Sends a base64-encoded image and receives a nutritional assessment.
- */
 export const analyzeFood = async (
   payload: AnalysisPayload,
 ): Promise<FoodAssessment> => {
@@ -45,4 +43,30 @@ export const analyzeFood = async (
   const { data } = await callable(payload);
 
   return data as FoodAssessment;
+};
+
+export const getDietHistory = async (
+  uid: string,
+  options?: { limit?: number; offset?: number }
+): Promise<FoodAssessmentEntry[]> => {
+  try {
+    const db = getFirestore();
+    const logsRef = collection(db, COLLECTIONS.APPUSERS, uid, COLLECTIONS.DIET_ANALYTICS_LOGS);
+    
+    const q = query(logsRef, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    
+    let results = snapshot.docs.map((doc: any) => doc.data() as FoodAssessmentEntry);
+    
+    if (options) {
+      const start = options.offset || 0;
+      const end = options.limit ? start + options.limit : undefined;
+      results = results.slice(start, end);
+    }
+    
+    return results;
+  } catch (err) {
+    console.error('[getDietHistory] fetch error:', err);
+    throw err;
+  }
 };

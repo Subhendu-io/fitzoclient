@@ -10,13 +10,13 @@ import { useToaster } from '@/providers/useToaster';
 import { useModal } from '@/providers/useModal';
 import { useAuthStore } from '@/store/useAuthStore';
 import { getUserFitnessProfile } from '@/features/auth/services/authService';
-import { UserFitnessProfile } from '@/interfaces/member';
 
 import HeroSection from '../components/HeroSection';
 import { LastResults } from '../components/LastResults';
 import { FitnessProfile } from '../components/FitnessProfile';
 import { FitnessResult } from '../components/FitnessResult';
 import { analyzeFitness, FitnessAssessment } from '../services/fitnessScoreService';
+import { AppUser } from '@/interfaces/member';
 
 export function FitnessScoreScreen() {
   const { showToast } = useToaster();
@@ -28,7 +28,7 @@ export function FitnessScoreScreen() {
   const [result, setResult] = useState<FitnessAssessment | null>(null);
   
   const user = useAuthStore(s => s.user);
-  const [profile, setProfile] = useState<UserFitnessProfile | null>(null);
+  const [profile, setProfile] = useState<AppUser | null>(null);
 
   useEffect(() => {
     if (user?.uid) {
@@ -86,13 +86,6 @@ export function FitnessScoreScreen() {
     }
   };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return colors.primary;
-    if (score >= 60) return '#60A5FA';
-    if (score >= 40) return '#FBBF24';
-    return '#F87171';
-  };
-
   return (
     <ScreenWrapper className="bg-background">
       <Header title="AI Fitness Assessment" showBackButton />
@@ -110,7 +103,7 @@ export function FitnessScoreScreen() {
         )}
 
         {!result && !loading && (
-          <View className="mb-8">
+          <View className="mb-6">
             <HeroSection />
           </View>
         )}

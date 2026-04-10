@@ -1,5 +1,5 @@
 import { getFunctions, httpsCallable } from '@react-native-firebase/functions';
-import { getFirestore, doc, getDoc } from '@react-native-firebase/firestore';
+import { getFirestore, collection, getDocs, query, orderBy } from '@react-native-firebase/firestore';
 import { COLLECTIONS } from '@/constants/collection';
 
 export interface FitnessAssessment {
@@ -17,11 +17,6 @@ export interface FitnessAssessmentEntry extends FitnessAssessment {
 
 const ANALYZE_FITNESS_CALLABLE = 'analyzeFitness';
 
-/**
- * Call the analyzeFitness Cloud Function.
- * Sends a base64-encoded image and receives a fitness assessment
- * with score (0-100), analysis, recommendations, and a daily plan.
- */
 export const analyzeFitness = async (
   imageBase64: string,
 ): Promise<FitnessAssessment> => {
@@ -36,23 +31,28 @@ export const analyzeFitness = async (
   return data as FitnessAssessment;
 };
 
-/**
- * Load total active fitness history tracking from Firestore natively via SDK.
- */
-export const getFitnessHistory = async (uid: string): Promise<FitnessAssessmentEntry[]> => {
+export const getFitnessHistory = async (
+  uid: string,
+  options?: { limit?: number; offset?: number }
+): Promise<FitnessAssessmentEntry[]> => {
   try {
     const db = getFirestore();
-    const docRef = doc(db, COLLECTIONS.APPUSERS, uid, COLLECTIONS.FITNESS, COLLECTIONS.TRACKING);
-    const snapshot = await getDoc(docRef);
+    const logsRef = collection(db, COLLECTIONS.APPUSERS, uid, COLLECTIONS.FITNESS_ANALYTICS_LOGS);
     
-    if (typeof snapshot.exists === 'function' ? snapshot.exists() : snapshot.exists) {
-      const data = snapshot.data();
-      if (data && data.entries && Array.isArray(data.entries)) {
-        // Sort by most recent
-        return data.entries.sort((a, b) => b.createdAt - a.createdAt);
-      }
+    // Natively query the collection ordered by newest first
+    const q = query(logsRef, orderBy('createdAt', 'desc'));
+    const snapshot = await getDocs(q);
+    
+    // Map documents
+    let results = snapshot.docs.map((doc: any) => doc.data() as FitnessAssessmentEntry);
+    
+    if (options) {
+      const start = options.offset || 0;
+      const end = options.limit ? start + options.limit : undefined;
+      results = results.slice(start, end);
     }
-    return [];
+    
+    return results;
   } catch (err) {
     console.error('[getFitnessHistory] fetch error:', err);
     throw err;
