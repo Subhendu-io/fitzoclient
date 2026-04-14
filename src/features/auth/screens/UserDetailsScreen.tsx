@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { useAuthStore } from '@/store/useAuthStore';
 import { saveUserFitnessProfile, updateUserBasicInfo } from '../services/authService';
-import { UserFitnessProfile, AppUser } from '@/interfaces/member';
+import { AppUser } from '@/interfaces/member';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useThemeColors } from '@/hooks/useThemeColors';
 import { ChevronDown, ChevronUp, User, Activity, Ruler, Heart } from 'lucide-react-native';
@@ -143,7 +143,7 @@ function CollapsibleSection({
         <View className="flex-row items-center flex-1">
           {Icon && (
             <View className="w-10 h-10 rounded-full bg-primary/10 items-center justify-center mr-3">
-              <Icon size={20} color="#c8ff32" />
+               <Icon size={20} color="#c8ff32" />
             </View>
           )}
           <View className="flex-1">
@@ -161,7 +161,7 @@ function CollapsibleSection({
 
       {isOpen && (
         <View className="pt-4 px-1">
-          {children}
+           {children}
         </View>
       )}
     </Animated.View>
@@ -280,7 +280,7 @@ export function UserDetailsScreen() {
       });
 
       // 2. Save all remaining fitness data to fitness subCollection
-      const profile: Omit<UserFitnessProfile, 'updatedAt'> = {};
+      const profile: Partial<AppUser> = {};
       
       if (Object.keys(bodyStats).length > 0) profile.bodyStats = bodyStats;
       if (Object.keys(bodyMeasurement).length > 0) profile.bodyMeasurement = bodyMeasurement;

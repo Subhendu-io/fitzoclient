@@ -6,7 +6,7 @@ import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useDashboard } from '@/hooks/useDashboard';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { useThemeColors } from '@/hooks/useThemeColors';
-import { ComparisonCard } from '@/components/cards/ComparisonCard';
+import { StepComparisonCard } from '@/components/cards/StepComparisonCard';
 import { ScreenWrapper } from '@/components/layout/ScreenWrapper';
 import { FitnessScoreCard } from '@/features/health/components/FitnessScoreCard';
 
@@ -64,23 +64,7 @@ export function HealthScreen() {
           <HealthCardSlider startOfWeek={weekRange.start} />
         </Animated.View>
 
-        {/* Monthly Steps Comparison */}
-        <Animated.View entering={FadeInUp.delay(350)} className="mb-4">
-          <ComparisonCard
-            left={{
-              backgroundColor: '#957eff',
-              color: '#ffffff',
-              header: 'Last Month',
-              description: '1032 steps',
-            }}
-            right={{
-              backgroundColor: '#95d548',
-              color: '#2a4d00',
-              header: 'This Month',
-              description: '5670 steps',
-            }}
-          />
-        </Animated.View>
+        <StepComparisonCard delay={350} />
 
         {/* Fitness Score */}
         <Animated.View entering={FadeInUp.delay(400)}>

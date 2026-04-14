@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, Image, TouchableOpacity, Alert } from "react-native";
 import { ScreenWrapper } from "@/components/layout/ScreenWrapper";
 import { Bell } from "lucide-react-native";
 import Animated, { FadeInUp } from "react-native-reanimated";
@@ -21,7 +21,9 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import { useRouter } from "expo-router";
 import { useThemeColors } from "@/hooks/useThemeColors";
 import { UserAvatar } from "@/components/shared/UserAvatar";
-import { ComparisonCard } from "@/components/cards/ComparisonCard";
+import { StepComparisonCard } from "@/components/cards/StepComparisonCard";
+import { useStepStore } from "@/store/useStepStore";
+import { seedPast7DaysSteps } from "@/services/stepTrackingService";
 
 export function HomeScreen() {
   const colors = useThemeColors();
@@ -42,6 +44,8 @@ export function HomeScreen() {
   } = useDashboard();
 
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+  
+  const { initializeTracking, stopTracking } = useStepStore();
 
   useEffect(() => {
     if (!user?.uid) return;
@@ -59,6 +63,13 @@ export function HomeScreen() {
 
     return () => unsubscribe();
   }, [user?.uid]);
+
+  useEffect(() => {
+    // Initialize Pedometer Step Tracking
+    initializeTracking();
+
+    return () => stopTracking();
+  }, [initializeTracking, stopTracking]);
 
   const displayName = profile ? `${profile.firstName}` : "Explorer";
 
@@ -131,7 +142,7 @@ export function HomeScreen() {
         </Animated.View>
 
         {/* Tagline */}
-        <Animated.View entering={FadeInUp.delay(250)} className="mb-8">
+        <Animated.View entering={FadeInUp.delay(250)} className="mb-8 relative">
           <Text className="text-white font-black font-kanit leading-tight" style={{ fontSize: 32 }}>
             Ready to crush{"\n"}
             <Text style={{ color: '#c8ff32' }}>your goals today?</Text>
@@ -146,23 +157,7 @@ export function HomeScreen() {
           />
         </Animated.View>
 
-        {/* Monthly Steps Comparison */}
-        <Animated.View entering={FadeInUp.delay(350)} className="mb-4">
-          <ComparisonCard
-            left={{
-              backgroundColor: '#957eff',
-              color: '#ffffff',
-              header: 'Last Month',
-              description: '1032 steps',
-            }}
-            right={{
-              backgroundColor: '#95d548',
-              color: '#2a4d00',
-              header: 'This Month',
-              description: '5670 steps',
-            }}
-          />
-        </Animated.View>
+        <StepComparisonCard delay={350} />
 
         {/* Dynamic Widgets Area */}
         {latestRedemption && (

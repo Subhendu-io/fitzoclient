@@ -107,10 +107,6 @@ export function CardSlider({ weekAttendance, startOfWeek }: CardSliderProps) {
         <GestureDetector gesture={pan}>
           <Animated.View style={[styles.strip, stripStyle]}>
 
-            {/* Card 0 — Fitness Graph */}
-            <View style={slotStyle(false)}>
-              <FitnessGraphCard />
-            </View>
 
             {/* Card 1 — Attendance */}
             <View style={slotStyle(false)}>
@@ -120,6 +116,11 @@ export function CardSlider({ weekAttendance, startOfWeek }: CardSliderProps) {
             {/* Card 2 — Achievement */}
             <View style={slotStyle(false)}>
               <AchievementCard />
+            </View>
+
+            {/* Card 0 — Fitness Graph */}
+            <View style={slotStyle(false)}>
+              <FitnessGraphCard />
             </View>
 
             {/* Cards 3–N — one per exercise */}

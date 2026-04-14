@@ -230,7 +230,7 @@ export const reloadAndCheckEmailVerified = async (): Promise<boolean> => {
  */
 export const saveUserFitnessProfile = async (
   uid: string,
-  data: Omit<AppUser, 'updatedAt'>,
+  data: Partial<AppUser>,
 ): Promise<void> => {
   try {
     await setDoc(
